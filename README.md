@@ -27,6 +27,11 @@ OpenFSSO has each Windows workstation report its signed-in user directly:
 
 ## Installation
 
+Download the client and server MSIs from
+[the releases](https://github.com/zu3st/open-fsso/releases). They are not
+code-signed. `gh attestation verify <file> --repo zu3st/open-fsso` confirms that
+a file was built by this repository's release workflow.
+
 Register each receiver's HTTP SPN on its computer account and bind a trusted certificate to its HTTP.sys listener:
 
 ```powershell
@@ -221,17 +226,6 @@ Sign the resulting MSIs with your code-signing identity and a timestamp. The
 version comes from `Directory.Build.props`. `--role Receiver --service <name>`
 builds a separately installable receiver instance. See
 [deploy/msi/README.md](deploy/msi/README.md) for the WiX sources.
-
-### Releases
-
-Add a `CHANGELOG.md` entry for the version, then push a tag `v<version>` that
-matches `Directory.Build.props`. This runs
-[the release workflow](.github/workflows/release.yml). It builds and tests in
-Docker as above, packages the unsigned payloads with
-`tools/build_msi.py --unsigned`, and creates a draft GitHub release with the
-changelog entry, both MSIs, the payload zip and `SHA256SUMS`. The files carry a
-build provenance attestation, which
-`gh attestation verify <file> --repo <owner>/<repo>` checks.
 
 ## Repository layout
 
