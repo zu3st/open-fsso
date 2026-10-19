@@ -132,8 +132,8 @@ in the message is ignored.
 
 Collector timers:
 
-- **Workstation verify interval** `0`. The collector cannot verify these
-  workstations, so its checks only cost time.
+- **Workstation verify interval** `0`. The receiver reports logoffs and expired
+  leases itself, so the collector's workstation checks are not needed.
 - **Dead entry timeout** stays enabled, 480 minutes by default. It purges an
   entry that receives no login or update for that long, even while the user
   stays logged on. The receiver's update every `ReassertSeconds` (default 3600)
