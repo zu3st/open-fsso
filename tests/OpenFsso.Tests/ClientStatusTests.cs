@@ -87,6 +87,16 @@ public sealed class ClientStatusTests
     }
 
     [TestMethod]
+    public void LargestStatusFitsTheTrayReadLimit()
+    {
+        string ip = "2001:db8:ffff:ffff:ffff:ffff:ffff:ffff";
+        var receivers = Enumerable.Range(0, ClientStatus.MaxReceivers)
+            .Select(i => new ReceiverStatus(new string('R', 64), ip, Now, Now, "TLS or Kerberos authentication failed", true)).ToArray();
+        var status = new ClientStatus(1, Now, new string('U', 256), receivers, new(FabricState.OnFabric, Now));
+        Assert.IsLessThan(16384, System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(status).Length);
+    }
+
+    [TestMethod]
     public void StaleStatusAndStaleAcknowledgementsCannotStayGreen()
     {
         var journal = new ClientStatusJournal(["A", "B"]);

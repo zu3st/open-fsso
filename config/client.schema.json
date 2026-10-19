@@ -12,7 +12,7 @@
         "type": "object", "additionalProperties": false,
         "required": ["Name", "Host", "Address", "Port"],
         "properties": {
-          "Name": { "type": "string", "pattern": "\\S" },
+          "Name": { "type": "string", "pattern": "\\S", "maxLength": 64 },
           "Host": { "type": "string", "format": "hostname" },
           "Address": {
             "type": "string",

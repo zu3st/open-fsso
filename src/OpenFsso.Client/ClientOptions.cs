@@ -31,7 +31,7 @@ public sealed record ClientOptions
     {
         if (Receivers.Select(x => x.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count() != Receivers.Length || Receivers.Select(x => x.Host).Distinct(StringComparer.OrdinalIgnoreCase).Count() != Receivers.Length || !Path.IsPathFullyQualified(StateDirectory) || !Path.IsPathFullyQualified(LogDirectory))
         {
-            throw new InvalidDataException("Two independent receivers and absolute protected data paths are required.");
+            throw new InvalidDataException("Receiver names and hosts must be unique, and data paths absolute.");
         }
     }
 }

@@ -146,6 +146,7 @@ public sealed class YamlConfigurationTests
         Assert.Throws<InvalidDataException>(ParseClient(Client.Replace("receiver-b.example.test", "RECEIVER-A.example.test")).Validate);
         Assert.Throws<InvalidDataException>(ParseClient(Client.Replace("'/protected/State'", "'State'")).Validate);
         Reject(Client.Replace("Name: B", "Name: ' '"));
+        Reject(Client.Replace("Name: B", "Name: " + new string('B', 65)));
     }
 
     [TestMethod]
