@@ -125,11 +125,10 @@ match and are not mapped. All three events are required.
 Add a syslog source for the receiver's `SyslogSourceAddress` (default
 `127.0.0.1`) with this rule and user type **Remote User / LDAP**, bound to an
 LDAP server for the domain (user attribute `sAMAccountName`, groups from
-`memberOf`). The collector has one syslog listener and picks the rule by sender
-address. If another feed, such as VPN logons, already sends from `127.0.0.1`,
-set `SyslogSourceAddress` to another loopback address such as `127.0.0.2` and
-add the source for that address. The collector resolves the user's
-groups at every login and update. The group field in the message is ignored.
+`memberOf`). If another syslog source already uses `127.0.0.1`, set
+`SyslogSourceAddress` to another loopback address, such as `127.0.0.2`. The
+collector resolves the user's groups at every login and update. The group field
+in the message is ignored.
 
 Collector timers:
 
