@@ -172,8 +172,9 @@ The client takes one to eight receivers. Scripts can query the status with
 `OpenFsso.Tray.exe --status-json <file>`, which writes it to the file as JSON.
 
 Receivers serve `GET /health` with `Authorization: Bearer <HealthApiKey>`. It
-returns readiness, the active lease count, collector service state and local UDP
-delivery state, with 200 when healthy and 503 otherwise:
+reports whether the receiver is ready, how many users are mapped, whether the
+collector service runs and whether syslog messages to it could be sent. It
+answers 200 when all is well and 503 otherwise:
 
 ```bash
 curl --header "Authorization: Bearer $HEALTH_API_KEY" https://receiver-a.example.test:8443/health
