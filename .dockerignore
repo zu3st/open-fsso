@@ -1,0 +1,10 @@
+**
+!Directory.Build.props
+!.editorconfig
+!OpenFsso.slnx
+!global.json
+!src/**
+!tools/**
+!tests/**
+!config/*.example.yaml
+!config/*.schema.json

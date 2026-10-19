@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="src/OpenFsso.Configuration/OpenFsso.Configuration.csproj" />
+  <Project Path="src/OpenFsso.Core/OpenFsso.Core.csproj" />
+  <Project Path="src/OpenFsso.Windows/OpenFsso.Windows.csproj" />
+  <Project Path="src/OpenFsso.Logging/OpenFsso.Logging.csproj" />
+  <Project Path="src/OpenFsso.Client/OpenFsso.Client.csproj" />
+  <Project Path="src/OpenFsso.Tray/OpenFsso.Tray.csproj" />
+  <Project Path="src/OpenFsso.Receiver/OpenFsso.Receiver.csproj" />
+  <Project Path="tests/OpenFsso.Tests/OpenFsso.Tests.csproj" />
+</Solution>

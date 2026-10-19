@@ -1,0 +1,14 @@
+*.iso
+*.exe
+**/bin/
+**/obj/
+artifacts/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.key
+config/*.local.*

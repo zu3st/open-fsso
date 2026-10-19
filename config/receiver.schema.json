@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:openfsso:receiver",
+  "title": "OpenFSSO receiver configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["Host", "LogDirectory", "HealthApiKey"],
+  "properties": {
+    "Host": { "type": "string", "format": "hostname" },
+    "Port": { "$ref": "#/$defs/port" },
+    "QueueName": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,80}$" },
+    "ServiceName": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,80}$" },
+    "ExpirySeconds": { "type": "integer", "minimum": 1, "maximum": 5 },
+    "ReassertSeconds": { "type": "integer", "minimum": 0, "maximum": 3600 },
+    "SyslogPort": { "$ref": "#/$defs/port" },
+    "CollectorService": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "LoginTemplate": { "$ref": "#/$defs/template" },
+    "LogoutTemplate": { "$ref": "#/$defs/template" },
+    "LogDirectory": { "type": "string", "minLength": 1 },
+    "HealthApiKey": {
+      "description": "A separate random Bearer token for each receiver.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~+/=-]{32,256}$"
+    }
+  },
+  "$defs": {
+    "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+    "template": {
+      "description": "One syslog line containing the {user} and {ip} placeholders.",
+      "type": "string",
+      "maxLength": 1024,
+      "pattern": "^(?=.*\\{user\\})(?=.*\\{ip\\})[^\\r\\n]*$"
+    }
+  }
+}

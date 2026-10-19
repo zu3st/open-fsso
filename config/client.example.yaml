@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=./client.schema.json
+# Property names are case-sensitive. Quote Windows paths with single quotes.
+Receivers:
+  - Name: A
+    Host: receiver-a.example.test
+    Address: 192.0.2.20
+    Port: 8443
+    CheckRevocation: true
+  - Name: B
+    Host: receiver-b.example.test
+    Address: 192.0.2.21
+    Port: 8443
+    CheckRevocation: true
+StateDirectory: 'C:\ProgramData\OpenFsso\OpenFssoClient\State'
+LogDirectory: 'C:\ProgramData\OpenFsso\OpenFssoClient\Logs'
+AllowRdp: false
+# Omit onFabric to leave location detection disabled.
+onFabric:
+  any:
+    - clientIp: [10.12.0.0/16, 10.13.13.0/24]
+    - dhcpServer:
+        ip: 10.14.14.1
+        # mac: '00:11:22:33:44:55'  # Optional DHCP server MAC.

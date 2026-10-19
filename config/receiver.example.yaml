@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=./receiver.schema.json
+Host: receiver-a.example.test
+Port: 8443
+ServiceName: OpenFssoReceiver
+QueueName: OpenFssoReceiver
+ExpirySeconds: 5
+ReassertSeconds: 0
+SyslogPort: 514
+CollectorService: Fortinet_FSAE
+# Set a separate random Bearer key for each receiver before installation.
+HealthApiKey: ''
+# Keep the trailing space inside each quoted template.
+LoginTemplate: '<134>OpenFsso action=login user="{user}" group="ignored-by-remote-LDAP" ip={ip} '
+LogoutTemplate: '<134>OpenFsso action=logout user="{user}" group="ignored-by-remote-LDAP" ip={ip} '
+LogDirectory: 'C:\ProgramData\OpenFsso\OpenFssoReceiver\Logs'

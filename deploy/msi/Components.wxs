@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+    <Fragment>
+        <ComponentGroup Id="Application" Directory="ApplicationFolder">
+            <Component Id="ServiceExecutable">
+                <File Id="ServiceExecutable" Source="$(PayloadDir)\OpenFsso.$(Role).exe" KeyPath="yes" />
+                <ServiceInstall Id="Service" Name="$(ServiceName)" DisplayName="OpenFSSO $(Identity)"
+                                Type="ownProcess" Start="auto" ErrorControl="normal" Vital="yes"
+                                Account="LocalSystem" Arguments="--config &quot;[ApplicationFolder]Config\config.yaml&quot;">
+                    <ServiceDependency Id="RpcSs" />
+                    <ServiceDependency Id="Netlogon" />
+                    <?if $(Role) = Client ?>
+                        <ServiceDependency Id="TermService" />
+                    <?endif?>
+                    <!-- WiX's recovery action; MSI's native failure-actions table is unreliable. -->
+                    <util:ServiceConfig FirstFailureActionType="restart" SecondFailureActionType="restart"
+                                        ThirdFailureActionType="restart" RestartServiceDelayInSeconds="15"
+                                        ResetPeriodInDays="1" />
+                </ServiceInstall>
+                <ServiceControl Id="ServiceControl" Name="$(ServiceName)"
+                                Start="install" Stop="both" Remove="uninstall" Wait="yes" />
+            </Component>
+            <!-- WiX harvests payload files and reads PE versions itself. -->
+            <Files Include="$(PayloadDir)\**">
+                <Exclude Files="$(PayloadDir)\OpenFsso.$(Role).exe" />
+                <?if $(Role) = Client ?>
+                    <Exclude Files="$(PayloadDir)\OpenFsso.Tray.exe" />
+                <?endif?>
+            </Files>
+        </ComponentGroup>
+
+        <ComponentGroup Id="Configuration">
+            <Component Id="ConfigDirectory" Directory="ConfigFolder">
+                <CreateFolder>
+                    <PermissionEx Sddl="O:BAG:SYD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)" />
+                </CreateFolder>
+                <RegistryValue Root="HKLM" Key="Software\OpenFSSO\$(Identity)"
+                               Name="ConfigDirectory" Type="integer" Value="1" KeyPath="yes" />
+                <CopyFile Id="CopyConfiguration" SourceProperty="CONFIGFILE"
+                          DestinationDirectory="ConfigFolder" DestinationName="config.yaml" />
+            </Component>
+            <Component Id="DataVendorDirectory" Directory="DataVendorFolder">
+                <CreateFolder>
+                    <PermissionEx Sddl="O:BAG:SYD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)" />
+                </CreateFolder>
+                <RegistryValue Root="HKLM" Key="Software\OpenFSSO\$(Identity)"
+                               Name="DataVendorDirectory" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="DataDirectory" Directory="DataFolder">
+                <CreateFolder>
+                    <PermissionEx Sddl="O:BAG:SYD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)" />
+                </CreateFolder>
+                <RegistryValue Root="HKLM" Key="Software\OpenFSSO\$(Identity)"
+                               Name="DataDirectory" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="LogsDirectory" Directory="LogsFolder">
+                <CreateFolder>
+                    <PermissionEx Sddl="O:BAG:SYD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)" />
+                </CreateFolder>
+                <RegistryValue Root="HKLM" Key="Software\OpenFSSO\$(Identity)"
+                               Name="LogsDirectory" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+            <Component Id="StateDirectory" Directory="StateFolder">
+                <CreateFolder>
+                    <PermissionEx Sddl="O:BAG:SYD:P(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)" />
+                </CreateFolder>
+                <RegistryValue Root="HKLM" Key="Software\OpenFSSO\$(Identity)"
+                               Name="StateDirectory" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+</Wix>

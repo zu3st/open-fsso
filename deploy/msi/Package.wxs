@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+    <Package Name="OpenFSSO $(Identity)" Manufacturer="OpenFSSO"
+             Version="$(Version)" ProductCode="$(ProductCode)" UpgradeCode="$(UpgradeCode)"
+             Language="1033" Scope="perMachine" InstallerVersion="500">
+        <MajorUpgrade Schedule="afterInstallInitialize"
+                      DowngradeErrorMessage="A newer OpenFSSO version is already installed." />
+        <MediaTemplate EmbedCab="yes" CompressionLevel="mszip" />
+        <Property Id="ARPNOMODIFY" Value="1" />
+        <Property Id="MSIDEPLOYMENTCOMPLIANT" Value="1" />
+        <Property Id="MSIRMSHUTDOWN" Value="1" />
+        <!-- Keep CONFIGFILE restricted: non-admin maintenance must not forward it
+             into the elevated installer. Do not set Secure="yes". -->
+        <Property Id="CONFIGFILE" Hidden="yes" />
+        <Property Id="WINDOWSBUILDNUMBER">
+            <RegistrySearch Id="WindowsBuild" Root="HKLM"
+                            Key="SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+                            Name="CurrentBuildNumber" Type="raw" Bitness="always64" />
+        </Property>
+        <Launch Condition="VersionNT64 AND WINDOWSBUILDNUMBER &gt;= 19041"
+                Message="OpenFSSO requires 64-bit Windows build 19041 or newer." />
+
+        <StandardDirectory Id="ProgramFiles64Folder">
+            <Directory Id="OpenFssoFolder" Name="OpenFSSO">
+                <Directory Id="ApplicationFolder" Name="$(Identity)">
+                    <Directory Id="ConfigFolder" Name="Config" />
+                </Directory>
+            </Directory>
+        </StandardDirectory>
+        <StandardDirectory Id="CommonAppDataFolder">
+            <Directory Id="DataVendorFolder" Name="OpenFsso">
+                <Directory Id="DataFolder" Name="$(ServiceName)">
+                    <Directory Id="LogsFolder" Name="Logs" />
+                    <Directory Id="StateFolder" Name="State" />
+                </Directory>
+            </Directory>
+        </StandardDirectory>
+
+        <Feature Id="Complete" Title="OpenFSSO $(Identity)" Level="1">
+            <ComponentGroupRef Id="Application" />
+            <ComponentGroupRef Id="Configuration" />
+            <?if $(Role) = Client ?>
+                <ComponentGroupRef Id="ClientShell" />
+            <?endif?>
+        </Feature>
+
+        <InstallExecuteSequence>
+            <MoveFiles Condition="CONFIGFILE AND NOT (REMOVE=&quot;ALL&quot;)" />
+        </InstallExecuteSequence>
+    </Package>
+</Wix>

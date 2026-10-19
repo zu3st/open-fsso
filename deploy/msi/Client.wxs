@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+    <?if $(Role) = Client ?>
+        <Fragment>
+            <!-- Close old tray instances before files are replaced. The stock WiX
+                 action also handles other users' sessions in SYSTEM deployments. -->
+            <util:CloseApplication Id="CloseTray" Target="OpenFsso.Tray.exe"
+                                   CloseMessage="yes" ElevatedCloseMessage="yes"
+                                   RebootPrompt="no" TerminateProcess="0" Timeout="5"
+                                   Condition="NOT Installed OR REINSTALL OR REMOVE=&quot;ALL&quot;" />
+            <StandardDirectory Id="ProgramMenuFolder">
+                <Directory Id="OpenFssoMenu" Name="OpenFSSO" />
+            </StandardDirectory>
+            <ComponentGroup Id="ClientShell">
+                <Component Id="TrayExecutable" Directory="ApplicationFolder">
+                    <File Source="$(PayloadDir)\OpenFsso.Tray.exe" KeyPath="yes" />
+                    <RegistryValue Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Run"
+                                   Name="OpenFssoTray" Type="string" Value="&quot;[ApplicationFolder]OpenFsso.Tray.exe&quot;" />
+                </Component>
+                <Component Id="TrayMenu" Directory="OpenFssoMenu">
+                    <RegistryValue Root="HKLM" Key="Software\OpenFSSO\Client"
+                                   Name="TrayShortcut" Type="integer" Value="1" KeyPath="yes" />
+                    <Shortcut Id="TrayShortcut" Name="OpenFSSO Client" Advertise="no"
+                              Target="[ApplicationFolder]OpenFsso.Tray.exe" WorkingDirectory="ApplicationFolder" />
+                    <RemoveFolder Id="RemoveMenu" On="uninstall" />
+                </Component>
+            </ComponentGroup>
+        </Fragment>
+    <?endif?>
+</Wix>

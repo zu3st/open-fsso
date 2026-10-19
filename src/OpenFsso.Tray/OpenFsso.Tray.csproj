@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Shell notification structures differ by architecture; only win-x64 ships. -->
+    <CsWin32PlatformTarget>x64</CsWin32PlatformTarget>
+    <!-- The MSI launch condition requires build 19041; per-monitor DPI APIs exist from 14393. -->
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../OpenFsso.Core/OpenFsso.Core.csproj" />
+    <ProjectReference Include="../OpenFsso.Windows/OpenFsso.Windows.csproj" />
+  </ItemGroup>
+  <ItemGroup><PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.363" PrivateAssets="all" /></ItemGroup>
+</Project>
