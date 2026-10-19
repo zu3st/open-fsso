@@ -7,7 +7,7 @@
   "required": ["Receivers", "StateDirectory", "LogDirectory"],
   "properties": {
     "Receivers": {
-      "type": "array", "minItems": 2, "maxItems": 2,
+      "type": "array", "minItems": 1, "maxItems": 8,
       "items": {
         "type": "object", "additionalProperties": false,
         "required": ["Name", "Host", "Address", "Port"],

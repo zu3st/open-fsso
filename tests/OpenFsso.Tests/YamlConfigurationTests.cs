@@ -55,6 +55,23 @@ public sealed class YamlConfigurationTests
         Assert.AreEqual(5, receiver.ExpirySeconds);
     }
 
+    private static string ClientWith(int receivers) =>
+        "Receivers:\n" + string.Concat(Enumerable.Range(1, receivers).Select(i => $"  - {{Name: R{i}, Host: receiver-{i}.example.test, Address: 192.0.2.{i}, Port: 8443}}\n")) +
+        "StateDirectory: '/protected/State'\nLogDirectory: '/protected/Logs'\n";
+
+    [TestMethod]
+    [DataRow(1)]
+    [DataRow(8)]
+    public void ClientAcceptsOneToEightReceivers(int receivers)
+    {
+        var options = ParseClient(ClientWith(receivers));
+        options.Validate();
+        Assert.HasCount(receivers, options.Receivers);
+    }
+
+    [TestMethod]
+    public void ClientRejectsMoreThanEightReceivers() => Reject(ClientWith(9));
+
     [TestMethod]
     public void YamlRejectsDuplicateUnknownAndIncorrectlyCasedFields()
     {

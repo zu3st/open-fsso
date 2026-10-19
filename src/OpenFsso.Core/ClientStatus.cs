@@ -1,9 +1,14 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace OpenFsso.Core;
 
 public sealed record ReceiverStatus(string Name, string? Ip = null, DateTimeOffset? LastAttemptUtc = null, DateTimeOffset? LastSentUtc = null, string? Error = null, bool Pending = false);
 public sealed record ClientStatus(int SchemaVersion, DateTimeOffset ObservedUtc, string? User, ReceiverStatus[] Receivers, FabricObservation? Fabric = null)
 {
     public const string PipeName = "OpenFsso.Client.Status.v1";
+    public const int MaxReceivers = 8;
+
+    public static bool ValidReceiverCount([NotNullWhen(true)] ReceiverStatus[]? receivers) => receivers?.Length is >= 1 and <= MaxReceivers;
 }
 
 public sealed class ClientStatusJournal(IEnumerable<string> names)
@@ -71,7 +76,7 @@ public sealed record ClientStatusView(ClientIndicator Indicator, string Title, s
 {
     public static ClientStatusView Create(ClientStatus? status, DateTimeOffset now)
     {
-        if (status == null || status.SchemaVersion != 1 || status.Receivers.Length != 2 || now - status.ObservedUtc > TimeSpan.FromSeconds(10) || status.ObservedUtc - now > TimeSpan.FromSeconds(10))
+        if (status == null || status.SchemaVersion != 1 || !ClientStatus.ValidReceiverCount(status.Receivers) || now - status.ObservedUtc > TimeSpan.FromSeconds(10) || status.ObservedUtc - now > TimeSpan.FromSeconds(10))
         {
             return new(ClientIndicator.Error, "OpenFSSO - Service unavailable", "Client service stopped, restarting or unreachable.");
         }
@@ -91,15 +96,14 @@ public sealed record ClientStatusView(ClientIndicator Indicator, string Title, s
         }
 
         bool Fresh(ReceiverStatus s) => s.LastSentUtc is { } sent && now - sent <= TimeSpan.FromSeconds(120) && sent <= now;
-        int acknowledged = status.Receivers.Count(Fresh);
         int good = status.Receivers.Count(x => Fresh(x) && x.Error == null);
-        var indicator = status.User == null ? ClientIndicator.Idle : good == 2 ? ClientIndicator.Connected : status.Receivers.All(x => x.Error != null || (x.LastSentUtc != null && !Fresh(x))) ? ClientIndicator.Error : ClientIndicator.Working;
+        var indicator = status.User == null ? ClientIndicator.Idle : good == status.Receivers.Length ? ClientIndicator.Connected : status.Receivers.All(x => x.Error != null || (x.LastSentUtc != null && !Fresh(x))) ? ClientIndicator.Error : ClientIndicator.Working;
         string title = indicator switch
         {
             ClientIndicator.Idle => "Waiting for logon or unlock",
             ClientIndicator.Connected => "Connected",
             ClientIndicator.Error => "Delivery failed",
-            _ => acknowledged > 0 ? "Partially connected" : "Connecting"
+            _ => good > 0 ? "Partially connected" : "Connecting"
         };
         if (status.User == null)
         {

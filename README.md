@@ -13,7 +13,7 @@ syslog.
 - **IP address** comes from the TCP connection. The client reports the local
   address of the socket carrying the request, and the receiver accepts it only if
   it equals the connection's peer address. Paths to the receivers must therefore
-  be direct, and both receivers must see the address FortiGate sees.
+  be direct, and every receiver must see the address FortiGate sees.
 - **Owner selection:** the most recent console logon or unlock wins. Lock keeps
   the owner, logoff stops renewal, and RDP sessions count only if `AllowRdp` is set.
   After a service restart the owner is restored only when exactly one unlocked
@@ -23,7 +23,7 @@ syslog.
 - **Logoff** sends a release authorized by the lease reference the receiver
   returned with the last presence, since the user's Kerberos credentials end with
   the session. Lease expiry covers lost releases.
-- **Bootstrap:** connections to both receivers and to AD, KDC, time and PKI
+- **Bootstrap:** connections to the receivers and to AD, KDC, time and PKI
   services must work without FSSO authorization.
 
 ## Components
@@ -73,12 +73,14 @@ builds a separately installable receiver instance. See
 
 ### Releases
 
-Pushing a tag `v<version>` that matches `Directory.Build.props` runs
+Add a `CHANGELOG.md` entry for the version, then push a tag `v<version>` that
+matches `Directory.Build.props`. This runs
 [the release workflow](.github/workflows/release.yml). It builds and tests in
 Docker as above, packages the unsigned payloads with
-`tools/build_msi.py --unsigned`, and creates a draft GitHub release with both
-MSIs, the payload zip and `SHA256SUMS`. The files carry a build provenance
-attestation, which `gh attestation verify <file> --repo <owner>/<repo>` checks.
+`tools/build_msi.py --unsigned`, and creates a draft GitHub release with the
+changelog entry, both MSIs, the payload zip and `SHA256SUMS`. The files carry a
+build provenance attestation, which
+`gh attestation verify <file> --repo <owner>/<repo>` checks.
 
 ## Deployment
 
@@ -154,8 +156,9 @@ The tray shows a blue dot while off-fabric.
 
 ![The OpenFSSO tray icon with its status tooltip](docs/tray-status.png)
 
-The tray dot is green when both receivers acknowledged recently, amber while
-connecting or with one receiver healthy, red on failure, gray while waiting for
+The client takes one to eight receivers. The tray dot is green when every
+configured receiver acknowledged recently, amber while connecting or with only
+some receivers healthy, red when all fail, gray while waiting for
 a logon or unlock, and blue off-fabric. The tray reads the service's local
 status pipe. `OpenFsso.Tray.exe --status-json <file>` writes the same snapshot.
 

@@ -52,6 +52,41 @@ public sealed class ClientStatusTests
     }
 
     [TestMethod]
+    public void SingleReceiverIsGreenWhenHealthyAndRedWhenFailed()
+    {
+        var journal = new ClientStatusJournal(["A"]);
+        ClientStatusView View() => ClientStatusView.Create(journal.Read(1, "DOMAIN\\Alice", Now), Now);
+        journal.Attempt("A", 1, Now);
+        Assert.AreEqual("OpenFSSO - Connecting", View().Title);
+        journal.Sent("A", 1, "192.0.2.1", Now);
+        Assert.AreEqual(ClientIndicator.Connected, View().Indicator);
+        journal.Failed("A", 1, "Connection refused");
+        Assert.AreEqual(ClientIndicator.Error, View().Indicator);
+    }
+
+    [TestMethod]
+    public void GreenNeedsEveryConfiguredReceiver()
+    {
+        var journal = new ClientStatusJournal(["A", "B", "C"]);
+        journal.Sent("A", 1, "192.0.2.1", Now);
+        journal.Sent("B", 1, "192.0.2.1", Now);
+        var view = ClientStatusView.Create(journal.Read(1, "DOMAIN\\Alice", Now), Now);
+        Assert.AreEqual(ClientIndicator.Working, view.Indicator);
+        Assert.AreEqual("OpenFSSO - Partially connected", view.Title);
+        journal.Sent("C", 1, "192.0.2.1", Now);
+        Assert.AreEqual(ClientIndicator.Connected, ClientStatusView.Create(journal.Read(1, "DOMAIN\\Alice", Now), Now).Indicator);
+    }
+
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(9)]
+    public void StatusOutsideTheReceiverRangeIsUnavailable(int receivers)
+    {
+        var status = new ClientStatus(1, Now, "Alice", [.. Enumerable.Range(0, receivers).Select(i => new ReceiverStatus("R" + i, "192.0.2.1", LastSentUtc: Now))]);
+        Assert.AreEqual("OpenFSSO - Service unavailable", ClientStatusView.Create(status, Now).Title);
+    }
+
+    [TestMethod]
     public void StaleStatusAndStaleAcknowledgementsCannotStayGreen()
     {
         var journal = new ClientStatusJournal(["A", "B"]);

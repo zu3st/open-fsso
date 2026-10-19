@@ -42,7 +42,7 @@ public static class StatusReader
             }
 
             var status = JsonSerializer.Deserialize<ClientStatus>(bytes.ToArray());
-            if (status?.SchemaVersion != 1 || status.Receivers?.Length != 2 || status.Receivers.Any(x => x == null || x.Name == null))
+            if (status?.SchemaVersion != 1 || !ClientStatus.ValidReceiverCount(status.Receivers) || status.Receivers.Any(x => x == null || x.Name == null))
             {
                 return null;
             }
