@@ -140,8 +140,8 @@ Collector timers:
 - **IP address change verify interval** `0`, since the receiver reports address
   changes itself.
 
-Turn off DC polling, and block syslog (UDP 514) and DC-agent traffic (UDP 8002)
-from workstations, so only the receivers report users.
+Other logon sources on the same collector, such as DC polling, can overwrite
+these mappings for the same addresses.
 
 ## Status and health
 
