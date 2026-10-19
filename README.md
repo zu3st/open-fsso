@@ -1,92 +1,31 @@
-# OpenFSSO Kerberos agent
+# OpenFSSO
 
-OpenFSSO maps the interactive user of each domain-joined Windows workstation to
-its IP address for Fortinet FSSO. A client service on the workstation proves the
-user's identity with Kerberos to a receiver service on each FSSO Collector Agent
-host. The receiver passes login and logout events to its local collector over
-syslog.
+FortiGate applies user-based firewall policies through Fortinet Single Sign-On
+(FSSO), which needs to know which user is behind each IP address. The FSSO
+Collector Agent normally infers this indirectly, from domain controller logon
+events and by polling workstations.
 
-## Security model and prerequisites
+OpenFSSO has each Windows workstation report its signed-in user directly:
 
-- **Identity** comes only from the receiver's Kerberos authentication of the
-  selected user. TLS uses strict channel binding. Each client keeps one session
-  per receiver, which authenticates once and is renewed about every hour.
-- **IP address** comes from the TCP connection. The client reports the local
-  address of the socket carrying the request, and the receiver accepts it only if
-  it equals the connection's peer address. Paths to the receivers must therefore
-  be direct, and every receiver must see the address FortiGate sees.
-- **Owner selection:** the most recent console logon or unlock wins. Lock keeps
-  the owner, logoff stops renewal, and RDP sessions count only if `AllowRdp` is set.
-  A service restart keeps the saved owner while its session is attached, locked
-  or not. Otherwise, including right after installation, a single attached
-  session becomes the owner. Only several attached sessions without a matching
-  record wait for the next logon or unlock.
-- **Leases** live in receiver memory for 180 seconds after the last presence. A
-  restarted receiver starts empty and is repopulated within seconds, as clients
-  reconnect immediately.
-- **Logoff** sends a release authorized by the lease reference the receiver
-  returned with the last presence, since the user's Kerberos credentials end with
-  the session. Lease expiry covers lost releases.
-- **Bootstrap:** connections to the receivers and to AD, KDC, time and PKI
-  services must work without FSSO authorization.
+- A client service on the workstation proves the user's identity with Kerberos
+  to a receiver service on each Collector Agent host.
+- The receiver takes the IP address from that connection, so a workstation can
+  only report the address it actually uses.
+- The receiver passes the mapping to the local Collector Agent over syslog: a
+  login when the user signs in, a logout when they sign off, and an hourly update
+  in between.
 
-## Components
+## Requirements
 
-- `src/OpenFsso.Client`: LocalSystem service. It selects the owner from session
-  events, renews presence with each receiver every 60 seconds and backs off for
-  1–30 seconds after failures. Network, route and resume changes trigger an
-  earlier renewal over a fresh connection.
-- `src/OpenFsso.Tray`: per-user notification icon. A shield with a colored dot
-  shows the state, and the standard Windows tooltip shows user, socket IP and
-  the time of the latest acknowledgement.
-- `src/OpenFsso.Receiver`: ASP.NET Core on HTTP.sys with native Kerberos and
-  strict channel binding. A serialized pipeline applies presence, release, expiry
-  and reassertion, and sends syslog to the local collector.
-- `src/OpenFsso.Windows`, `src/OpenFsso.Core`, `src/OpenFsso.Configuration`,
-  `src/OpenFsso.Logging`: Windows interop, leases, YAML loading with JSON Schema
-  validation, and ECS JSON logging with OpenFSSO fields under `openfsso.*`.
+- Domain-joined 64-bit Windows 10 2004, Windows Server 2022 or newer.
+- Fortinet Collector Agent 5.0.0291 or later in Advanced Mode on each receiver
+  host.
+- Direct paths from workstations to the receivers, without NAT or proxies, so
+  every receiver sees the address FortiGate sees.
+- The receivers and the AD, KDC, time and PKI services must be reachable
+  without FSSO authorization.
 
-## Build and test
-
-```bash
-python3 tools/format.py --check
-docker build --target artifacts --output type=local,dest=artifacts .
-python3 tools/package.py
-```
-
-The build checks formatting, runs the MSTest suite (TRX report in
-`artifacts/test-results/`) and publishes self-contained, uncompressed single-file
-`win-x64` executables to `artifacts/client/` and `artifacts/receiver/`.
-`tools/package.py` collects them in `artifacts/release-unsigned.zip` for signing.
-`python3 tools/format.py` applies formatting. Set `OPENFSSO_ARTIFACTS` to use
-another output folder with the tools.
-
-Sign the executables, create a SHA-256 catalog over each payload and sign the
-catalog. Put each signed `payload/` folder and its `OpenFsso.cat` into
-`artifacts/signed/client-signed.zip` and `receiver-signed.zip`, then build the
-MSIs into `artifacts/msi/`:
-
-```bash
-python3 tools/build_msi.py
-```
-
-Sign the resulting MSIs with your code-signing identity and a timestamp. The
-version comes from `Directory.Build.props`. `--role Receiver --service <name>`
-builds a separately installable receiver instance. See
-[deploy/msi/README.md](deploy/msi/README.md) for the WiX sources.
-
-### Releases
-
-Add a `CHANGELOG.md` entry for the version, then push a tag `v<version>` that
-matches `Directory.Build.props`. This runs
-[the release workflow](.github/workflows/release.yml). It builds and tests in
-Docker as above, packages the unsigned payloads with
-`tools/build_msi.py --unsigned`, and creates a draft GitHub release with the
-changelog entry, both MSIs, the payload zip and `SHA256SUMS`. The files carry a
-build provenance attestation, which
-`gh attestation verify <file> --repo <owner>/<repo>` checks.
-
-## Deployment
+## Installation
 
 Register each receiver's HTTP SPN on its computer account and bind a trusted certificate to its HTTP.sys listener:
 
@@ -156,31 +95,6 @@ Detection runs before every request cycle. Off-fabric clients pause presence and
 release, their receiver leases expire, and returning on-fabric sends fresh state.
 The tray shows a blue dot while off-fabric.
 
-## Status and health
-
-![The OpenFSSO tray icon with its status tooltip](docs/tray-status.png)
-
-| Dot | Tooltip | Meaning |
-| --- | --- | --- |
-| Green | Connected | Every configured receiver acknowledged within the last two minutes |
-| Amber | Connecting, Partially connected | First attempt running, or only some receivers healthy |
-| Red | Delivery failed | All receivers failing |
-| Red | Service unavailable, Network check unavailable | Client service or fabric check not answering |
-| Gray | Waiting for logon or unlock | No selected user |
-| Blue | Off fabric | Outside the configured networks, updates paused |
-
-Scripts can query the status with `OpenFsso.Tray.exe --status-json <file>`,
-which writes it to the file as JSON.
-
-Receivers serve `GET /health` with `Authorization: Bearer <HealthApiKey>`. It
-reports whether the receiver is ready, how many users are mapped, whether the
-collector service runs and whether syslog messages to it could be sent. It
-answers 200 when all is well and 503 otherwise:
-
-```bash
-curl --header "Authorization: Bearer $HEALTH_API_KEY" https://receiver-a.example.test:8443/health
-```
-
 ## Fortinet collector
 
 The receiver sends syslog to the Collector Agent on the same host: a login when
@@ -233,9 +147,101 @@ Disable competing DC polling and workstation DNS identity checks, and block
 direct client syslog (UDP 514) and DC-agent input (UDP 8002) from workstations.
 An unhealthy receiver node may need withdrawal through existing FSSO controls.
 
+## Status and health
+
+![The OpenFSSO tray icon with its status tooltip](docs/tray-status.png)
+
+| Dot | Tooltip | Meaning |
+| --- | --- | --- |
+| Green | Connected | Every configured receiver acknowledged within the last two minutes |
+| Amber | Connecting, Partially connected | First attempt running, or only some receivers healthy |
+| Red | Delivery failed | All receivers failing |
+| Red | Service unavailable, Network check unavailable | Client service or fabric check not answering |
+| Gray | Waiting for logon or unlock | No selected user |
+| Blue | Off fabric | Outside the configured networks, updates paused |
+
+Scripts can query the status with `OpenFsso.Tray.exe --status-json <file>`,
+which writes it to the file as JSON.
+
+Receivers serve `GET /health` with `Authorization: Bearer <HealthApiKey>`. It
+reports whether the receiver is ready, how many users are mapped, whether the
+collector service runs and whether syslog messages to it could be sent. It
+answers 200 when all is well and 503 otherwise:
+
+```bash
+curl --header "Authorization: Bearer $HEALTH_API_KEY" https://receiver-a.example.test:8443/health
+```
+
+## How it works in detail
+
+- **Identity** comes only from the receiver's Kerberos authentication of the
+  signed-in user, over TLS with strict channel binding. Each client keeps one
+  session per receiver and authenticates it again about every hour.
+- **IP address:** the client reports the local address of its connection, and
+  the receiver accepts it only if it equals the connection's peer address.
+- **Selected user:** the most recent console logon or unlock wins. Lock keeps the
+  user, and RDP sessions count only with `AllowRdp`. After a service restart or
+  installation, the saved user stays while their session is attached, and
+  otherwise a single attached session is selected. Only several attached
+  sessions without a matching record wait for the next logon or unlock.
+- **Renewal:** the client renews every 60 seconds and backs off for 1–30 seconds
+  after failures. Network, route and resume changes renew at once over a new
+  connection.
+- **Leases** live in receiver memory for 180 seconds after the last renewal. A
+  restarted receiver starts empty and is repopulated within seconds, because
+  clients reconnect immediately.
+- **Logoff** sends a release, authorized by the lease reference from the last
+  renewal, since the user's Kerberos credentials end with the session. Lease
+  expiry covers lost releases.
+
+## Building
+
+```bash
+python3 tools/format.py --check
+docker build --target artifacts --output type=local,dest=artifacts .
+python3 tools/package.py
+```
+
+The build checks formatting, runs the MSTest suite (TRX report in
+`artifacts/test-results/`) and publishes trimmed, self-contained single-file `win-x64`
+executables to `artifacts/client/` and `artifacts/receiver/`.
+`tools/package.py` collects them in `artifacts/release-unsigned.zip` for signing.
+`python3 tools/format.py` applies formatting. Set `OPENFSSO_ARTIFACTS` to use
+another output folder with the tools.
+
+Sign the executables, create a SHA-256 catalog over each payload and sign the
+catalog. Put each signed `payload/` folder and its `OpenFsso.cat` into
+`artifacts/signed/client-signed.zip` and `receiver-signed.zip`, then build the
+MSIs into `artifacts/msi/`:
+
+```bash
+python3 tools/build_msi.py
+```
+
+Sign the resulting MSIs with your code-signing identity and a timestamp. The
+version comes from `Directory.Build.props`. `--role Receiver --service <name>`
+builds a separately installable receiver instance. See
+[deploy/msi/README.md](deploy/msi/README.md) for the WiX sources.
+
+### Releases
+
+Add a `CHANGELOG.md` entry for the version, then push a tag `v<version>` that
+matches `Directory.Build.props`. This runs
+[the release workflow](.github/workflows/release.yml). It builds and tests in
+Docker as above, packages the unsigned payloads with
+`tools/build_msi.py --unsigned`, and creates a draft GitHub release with the
+changelog entry, both MSIs, the payload zip and `SHA256SUMS`. The files carry a
+build provenance attestation, which
+`gh attestation verify <file> --repo <owner>/<repo>` checks.
+
 ## Repository layout
 
-- `src/`: services, tray and shared libraries
+- `src/OpenFsso.Client`: workstation service
+- `src/OpenFsso.Tray`: notification icon
+- `src/OpenFsso.Receiver`: receiver service for the Collector Agent host
+- `src/OpenFsso.Core`, `src/OpenFsso.Windows`, `src/OpenFsso.Configuration`,
+  `src/OpenFsso.Logging`: shared code. Logs are ECS JSON, with OpenFSSO fields
+  under `openfsso.*`.
 - `tests/`: application tests
 - `config/`: example configurations and their JSON Schemas
 - `deploy/msi/`: WiX installer sources
