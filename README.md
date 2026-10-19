@@ -28,9 +28,9 @@ OpenFSSO has each Windows workstation report its signed-in user directly:
 ## Installation
 
 Download the client and server MSIs from
-[the releases](https://github.com/zu3st/open-fsso/releases). They are not
-code-signed. `gh attestation verify <file> --repo zu3st/open-fsso` confirms that
-a file was built by this repository's release workflow.
+[the releases](https://github.com/zu3st/open-fsso/releases).
+`gh attestation verify <file> --repo zu3st/open-fsso` confirms that a file was
+built by this repository's release workflow.
 
 Register each receiver's HTTP SPN on its computer account and bind a trusted certificate to its HTTP.sys listener:
 
