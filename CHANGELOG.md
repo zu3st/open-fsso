@@ -5,13 +5,17 @@
 - The client selects the signed-in user when its service starts, including right
   after installation and while the session is locked. A restart or a fresh
   install no longer waits for a lock and unlock.
-- The receiver contacts the service manager first and requests extra start time,
-  so a slow first start no longer fails the installation. A failed start is
-  written to the Application log with its cause.
+- The receiver contacts the service manager first and requests extra start
+  time. A failed start is written to the Application log with its cause.
+- The tray uses the standard Windows notification tooltip, so it follows the
+  Windows theme. It shows the address in use while a receiver cannot be reached,
+  and names timeouts and failed connections.
+- Log messages no longer repeat their values. User, address, action and error
+  details go to ECS fields, and OpenFSSO's own values under `openfsso.*`.
 - The executables are trimmed: receiver 26 MB (was 108), client 21 MB (was 81),
-  tray 14 MB (was 74). All JSON uses compile-time metadata and YAML is read
-  without reflection.
-- The tray names timeouts and failed connections for unreachable receivers.
+  tray 14 MB (was 74).
+- The README starts with what OpenFSSO does and lists the Collector Agent
+  settings plainly.
 
 ## 0.1.31
 
