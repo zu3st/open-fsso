@@ -102,6 +102,12 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
                     };
                 }
                 presenceGeneration = owner.Generation;
+                if (release == null)
+                {
+                    // Shown before connecting, so a failing attempt still names its address.
+                    status.Socket(endpoint.Name, state.Revision, presence!.RouteSource());
+                }
+
                 PresenceRequest Body(string ip)
                 {
                     if (ownership.Current.Revision != state.Revision || !fabric.IsCurrent(location))

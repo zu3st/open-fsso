@@ -78,20 +78,17 @@ public sealed class DirectKerberosTransport : IDisposable
         };
     }
 
-    // True when Windows would still pick this connection's source address for the
-    // receiver. A new preferred path (for example a VPN) needs a new connection.
-    public bool UsesCurrentRoute()
+    // The local address Windows would use for the receiver, from the routing table
+    // alone; connecting a UDP socket sends nothing.
+    public string RouteSource()
     {
-        string? current = localIp;
-        if (current == null)
-        {
-            return true;
-        }
-
         using var probe = new Socket(address.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
         probe.Connect(address, endpoint.Port);
-        return ((IPEndPoint)probe.LocalEndPoint!).Address.ToString() == current;
+        return ((IPEndPoint)probe.LocalEndPoint!).Address.ToString();
     }
+
+    // A new preferred path, for example a VPN, needs a new connection.
+    public bool UsesCurrentRoute() => localIp is not { } current || RouteSource() == current;
 
     // Presence over the session, opening it first when needed.
     public async Task<TransportReply> SendAsync(SafeAccessTokenHandle? user, Func<string, PresenceRequest> body, CancellationToken cancellationToken)
