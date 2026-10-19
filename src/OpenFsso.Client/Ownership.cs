@@ -19,33 +19,40 @@ public sealed class Ownership(ClientOptions options, ILogger<Ownership> logger) 
     public OwnershipSnapshot Current => Volatile.Read(ref current);
     private string RecordPath => Path.Combine(options.StateDirectory, "owner.json");
 
+    // At service start, including restarts and right after installation. The
+    // saved owner stays the owner while its session is attached, locked or not,
+    // since lock keeps the owner. Otherwise a single attached session becomes the
+    // owner. Several attached sessions without a matching record wait for the
+    // next logon or unlock, because their recency is unknown.
     public void Restore()
     {
         try
         {
-            if (!File.Exists(RecordPath))
+            var attached = Sessions.Eligible(options.AllowRdp).Where(x => x.Attached).ToArray();
+            var saved = File.Exists(RecordPath) ? JsonSerializer.Deserialize(File.ReadAllText(RecordPath), ClientJson.Default.OwnerRecord) : null;
+            OwnerRecord owner;
+            if (saved != null && attached.Any(x => Matches(saved, x)))
             {
-                logger.LogInformation("Waiting for an interactive logon or unlock");
-                return;
+                owner = saved; // Same generation, so the receivers renew the same lease.
             }
-
-            var saved = JsonSerializer.Deserialize<OwnerRecord>(File.ReadAllText(RecordPath));
-            var sessions = Sessions.Eligible(options.AllowRdp);
-            // A locked/disconnected session, multiple sessions, or enabled RDP makes
-            // recency ambiguous after downtime. Wait for a new event in those cases.
-            if (saved != null && !options.AllowRdp && sessions.Count == 1 && sessions[0].Unlocked && Matches(saved, sessions[0]))
+            else if (attached.Length == 1)
             {
-                Volatile.Write(ref current, new(1, saved));
-                logger.LogInformation("Validated owner record for {UserName} ({UserSid})", saved.Name, saved.Sid);
+                var session = attached[0];
+                owner = new OwnerRecord(session.SessionId, session.Sid, session.Name, session.LogonId, session.LogonTime, Guid.NewGuid());
+                Save(owner);
             }
             else
             {
-                logger.LogWarning("Saved ownership is ambiguous; waiting for logon or unlock");
+                logger.LogInformation("Waiting for an interactive logon or unlock; {Count} attached sessions", attached.Length);
+                return;
             }
+
+            Volatile.Write(ref current, new(1, owner));
+            logger.LogInformation("Selected interactive owner {UserName} ({UserSid}) at service start, session {SessionId}, generation {Generation}", owner.Name, owner.Sid, owner.SessionId, owner.Generation);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException or Win32Exception or InvalidOperationException)
         {
-            logger.LogError("Owner recovery failed closed; error {ErrorType}", e.GetType().Name);
+            logger.LogError("Owner selection at service start failed closed; error {ErrorType}", e.GetType().Name);
         }
     }
 
@@ -216,7 +223,7 @@ public sealed class Ownership(ClientOptions options, ILogger<Ownership> logger) 
         string temporary = RecordPath + ".new";
         using (var stream = new FileStream(temporary, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough))
         {
-            JsonSerializer.Serialize(stream, owner);
+            JsonSerializer.Serialize(stream, owner, ClientJson.Default.OwnerRecord);
             stream.Flush(true);
         }
 

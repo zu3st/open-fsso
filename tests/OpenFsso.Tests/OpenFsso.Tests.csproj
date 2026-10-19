@@ -1,6 +1,7 @@
 <Project Sdk="MSTest.Sdk/4.4.1">
   <!-- Windows-targeted assemblies load on the Linux build host; tests avoid Windows APIs. -->
-  <PropertyGroup><TargetFramework>net10.0-windows</TargetFramework></PropertyGroup>
+  <!-- Tests are not trimmed, but share the application's reflection-free JSON setting. -->
+  <PropertyGroup><TargetFramework>net10.0-windows</TargetFramework><EnableTrimAnalyzer>false</EnableTrimAnalyzer></PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/OpenFsso.Core/OpenFsso.Core.csproj" />
     <ProjectReference Include="../../src/OpenFsso.Configuration/OpenFsso.Configuration.csproj" />

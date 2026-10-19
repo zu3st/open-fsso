@@ -18,7 +18,7 @@ public sealed record ClientOptions
     {
         get; init;
     }
-    public bool AllowRdp { get; init; } = false;
+    public bool AllowRdp { get; set; } = false;
     public const int RenewalSeconds = 60;
     [JsonPropertyName("onFabric")]
     public FabricRule? OnFabric

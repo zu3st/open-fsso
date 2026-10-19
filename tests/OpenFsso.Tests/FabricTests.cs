@@ -16,7 +16,7 @@ public sealed class FabricTests
         LogDirectory: /Logs
         """;
 
-    private static ClientOptions Options(string rule) => YamlConfiguration.Parse<ClientOptions>(Client + "\nonFabric:\n" + string.Join('\n', rule.Split('\n').Select(line => "  " + line)), ConfigurationSchema.Client);
+    private static ClientOptions Options(string rule) => YamlConfiguration.Parse(Client + "\nonFabric:\n" + string.Join('\n', rule.Split('\n').Select(line => "  " + line)), ConfigurationSchema.Client, ClientJson.Default.ClientOptions);
     private static FabricNetwork Network(string ip, string? server = null, string? mac = null) => new(1, [ip], server == null ? [] : [new(server, mac)]);
     private static FabricNetwork Flags(int mask) => new(1, Enumerable.Range(0, 4).Where(bit => (mask & (1 << bit)) != 0).Select(bit => $"10.{bit + 1}.0.1").ToArray(), []);
 
@@ -65,7 +65,7 @@ public sealed class FabricTests
 
     [TestMethod]
     public void SchemaAcceptsTheDocumentedExample() =>
-        YamlConfiguration.Parse<ClientOptions>(File.ReadAllText("config/client.example.yaml"), ConfigurationSchema.Client);
+        YamlConfiguration.Parse(File.ReadAllText("config/client.example.yaml"), ConfigurationSchema.Client, ClientJson.Default.ClientOptions);
 
     [TestMethod]
     [DataRow("    {}")]
@@ -193,7 +193,7 @@ public sealed class FabricTests
     public void SchemaReportsErrorPathsWithoutEchoingUnknownFieldValues()
     {
         const string secret = "private-value-that-must-not-appear";
-        var error = Assert.Throws<InvalidDataException>(() => YamlConfiguration.Parse<ClientOptions>(Client + "\nUnknown: " + secret, ConfigurationSchema.Client));
+        var error = Assert.Throws<InvalidDataException>(() => YamlConfiguration.Parse(Client + "\nUnknown: " + secret, ConfigurationSchema.Client, ClientJson.Default.ClientOptions));
         Assert.DoesNotContain(secret, error.ToString());
         Assert.Contains("Unknown", error.Message);
         Assert.Contains("Invalid client configuration", error.Message);
@@ -230,7 +230,7 @@ public sealed class FabricTests
     [TestMethod]
     public void DisabledDetectionSkipsNetworkInspectionAndErrorsSuppressSends()
     {
-        var options = YamlConfiguration.Parse<ClientOptions>(Client, ConfigurationSchema.Client);
+        var options = YamlConfiguration.Parse(Client, ConfigurationSchema.Client, ClientJson.Default.ClientOptions);
         var provider = new NetworkSource { Unavailable = true };
         var monitor = new FabricMonitor(options, provider, new(["A", "B"]), NullLogger<FabricMonitor>.Instance);
         Assert.IsTrue(monitor.Check().Allowed);

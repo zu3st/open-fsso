@@ -99,7 +99,7 @@ public sealed class DirectKerberosTransport : IDisposable
     }
 
     // Presence over the session, opening it first when needed.
-    public async Task<TransportReply> SendAsync(SafeAccessTokenHandle? user, Func<string, object> body, CancellationToken cancellationToken)
+    public async Task<TransportReply> SendAsync(SafeAccessTokenHandle? user, Func<string, PresenceRequest> body, CancellationToken cancellationToken)
     {
         if (socket is not { State: WebSocketState.Open })
         {
@@ -113,20 +113,20 @@ public sealed class DirectKerberosTransport : IDisposable
         string ip = localIp ?? throw new IOException("The socket address was lost.");
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         deadline.CancelAfter(ReplyTimeout);
-        await socket!.SendAsync(JsonSerializer.SerializeToUtf8Bytes(body(ip), JsonSerializerOptions.Web), WebSocketMessageType.Text, true, deadline.Token);
-        var reply = JsonSerializer.Deserialize<SessionReply>(await replies!.Reader.ReadAsync(deadline.Token), JsonSerializerOptions.Web) ?? throw new IOException("Receiver reply was empty.");
-        return new TransportReply(reply.Status, JsonSerializer.Serialize(reply.Reply, JsonSerializerOptions.Web), ip);
+        await socket!.SendAsync(JsonSerializer.SerializeToUtf8Bytes(body(ip), WireJson.Default.PresenceRequest), WebSocketMessageType.Text, true, deadline.Token);
+        var reply = JsonSerializer.Deserialize(await replies!.Reader.ReadAsync(deadline.Token), WireJson.Default.SessionReply) ?? throw new IOException("Receiver reply was empty.");
+        return new TransportReply(reply.Status, JsonSerializer.Serialize(reply.Reply, WireJson.Default.PresenceReply), ip);
     }
 
     // One HTTP request on its own connection, used for release.
-    public async Task<TransportReply> PostAsync(SafeAccessTokenHandle? user, string operation, Func<string, object> body, CancellationToken cancellationToken)
+    public async Task<TransportReply> PostAsync(SafeAccessTokenHandle? user, string operation, Func<string, PresenceRequest> body, CancellationToken cancellationToken)
     {
         RequireUser(user);
         using var request = new HttpRequestMessage(HttpMethod.Post, new UriBuilder("https", endpoint.Host, endpoint.Port, "/v1/" + operation).Uri)
         {
             Version = HttpVersion.Version11,
             VersionPolicy = HttpVersionPolicy.RequestVersionExact,
-            Content = new SocketContent(() => localIp is { } ip ? JsonSerializer.SerializeToUtf8Bytes(body(ip)) : throw new IOException("No socket is available for serialization."))
+            Content = new SocketContent(() => localIp is { } ip ? JsonSerializer.SerializeToUtf8Bytes(body(ip), WireJson.Default.PresenceRequest) : throw new IOException("No socket is available for serialization."))
         };
         request.Headers.Host = new UriBuilder("https", endpoint.Host, endpoint.Port).Uri.Authority;
         request.Headers.ConnectionClose = true;

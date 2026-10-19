@@ -9,9 +9,9 @@ internal sealed class ReceiverRejectedException(int status) : IOException
     public int Status { get; } = status;
 }
 
-internal static class DeliveryError
+public static class DeliveryError
 {
-    internal static string Describe(Exception error)
+    public static string Describe(Exception error)
     {
         if (error is ReceiverRejectedException rejected)
         {
@@ -29,7 +29,15 @@ internal static class DeliveryError
             return "Request timed out";
         }
 
+        // The innermost known cause is the most specific one.
+        var chain = new List<Exception>();
         for (Exception? inner = error; inner != null; inner = inner.InnerException)
+        {
+            chain.Add(inner);
+        }
+
+        chain.Reverse();
+        foreach (var inner in chain)
         {
             if (inner is SocketException socket)
             {
@@ -46,6 +54,16 @@ internal static class DeliveryError
             if (inner is AuthenticationException)
             {
                 return "TLS or Kerberos authentication failed";
+            }
+
+            if (inner is TimeoutException)
+            {
+                return "Connection timed out";
+            }
+
+            if (inner is HttpRequestException { HttpRequestError: HttpRequestError.ConnectionError })
+            {
+                return "Could not connect to the receiver";
             }
         }
 

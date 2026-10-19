@@ -49,10 +49,10 @@ public sealed class PresenceSessionTests
         await socket.SendAsync(Encoding.UTF8.GetBytes(message), WebSocketMessageType.Text, true, default);
         var buffer = new byte[4096];
         var result = await socket.ReceiveAsync(buffer, default);
-        return JsonSerializer.Deserialize<SessionReply>(buffer.AsSpan(0, result.Count), JsonSerializerOptions.Web)!;
+        return JsonSerializer.Deserialize(buffer.AsSpan(0, result.Count), WireJson.Default.SessionReply)!;
     }
 
-    private static string Presence(string ip, Guid? reference = null) => JsonSerializer.Serialize(new PresenceRequest(1, Generation, ip, reference), JsonSerializerOptions.Web);
+    private static string Presence(string ip, Guid? reference = null) => JsonSerializer.Serialize(new PresenceRequest(1, Generation, ip, reference), WireJson.Default.PresenceRequest);
 
     [TestMethod]
     public async Task OneSessionCarriesLoginAndRenewalsWithoutNewLogins()

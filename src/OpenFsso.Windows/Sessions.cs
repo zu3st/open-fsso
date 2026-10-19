@@ -8,7 +8,8 @@ using Windows.Win32.System.RemoteDesktop;
 
 namespace OpenFsso.Windows;
 
-public sealed record SessionIdentity(uint SessionId, string Sid, string Name, string LogonId, long LogonTime, bool Unlocked, ushort Protocol);
+// Attached: the session is connected to the console or an RDP client, locked or not.
+public sealed record SessionIdentity(uint SessionId, string Sid, string Name, string LogonId, long LogonTime, bool Attached, ushort Protocol);
 public static class Sessions
 {
     public static bool Eligible(ushort protocol, bool allowRdp) =>
@@ -62,7 +63,7 @@ public static class Sessions
             }
 
             var detail = info.Data.WTSInfoExLevel1;
-            return new(id, identity.User!.Value, identity.Name, luid, detail.LogonTime, detail.SessionFlags == PInvoke.WTS_SESSIONSTATE_UNLOCK && detail.SessionState == WTS_CONNECTSTATE_CLASS.WTSActive, protocol);
+            return new(id, identity.User!.Value, identity.Name, luid, detail.LogonTime, detail.SessionState == WTS_CONNECTSTATE_CLASS.WTSActive, protocol);
         }
         finally
         {

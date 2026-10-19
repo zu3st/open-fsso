@@ -5,6 +5,10 @@
     <LangVersion>latest</LangVersion>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <Deterministic>true</Deterministic>
-    <Version>0.1.31</Version>
+    <Version>0.1.32</Version>
+    <!-- JSON uses compile-time metadata everywhere, so trimmed executables and
+         tests run without reflection-based serialization. -->
+    <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
   </PropertyGroup>
 </Project>

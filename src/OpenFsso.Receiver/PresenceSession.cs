@@ -65,7 +65,7 @@ public static class PresenceSession
             SessionReply reply;
             try
             {
-                var request = JsonSerializer.Deserialize<PresenceRequest>(buffer.AsSpan(0, length), JsonSerializerOptions.Web);
+                var request = JsonSerializer.Deserialize(buffer.AsSpan(0, length), WireJson.Default.PresenceRequest);
                 var decision = request == null ? null : await leases.PresenceAsync(user, peer, request, idle.Token);
                 if (decision?.Status == 400)
                 {
@@ -79,7 +79,7 @@ public static class PresenceSession
                 reply = new(400, new(null, ReceiverOptions.LeaseSeconds, "invalid-json"));
             }
 
-            await socket.SendAsync(JsonSerializer.SerializeToUtf8Bytes(reply, JsonSerializerOptions.Web), WebSocketMessageType.Text, true, idle.Token);
+            await socket.SendAsync(JsonSerializer.SerializeToUtf8Bytes(reply, WireJson.Default.SessionReply), WebSocketMessageType.Text, true, idle.Token);
         }
     }
 

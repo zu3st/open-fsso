@@ -25,8 +25,8 @@ public sealed class YamlConfigurationTests
     private const string ReceiverKey = "test-only-health-key-0123456789abcdef";
     private const string Receiver = "Host: receiver.example.test\nLogDirectory: /protected/Logs\nHealthApiKey: '" + ReceiverKey + "'\n";
 
-    private static ClientOptions ParseClient(string text) => YamlConfiguration.Parse<ClientOptions>(text, ConfigurationSchema.Client);
-    private static ReceiverOptions ParseReceiver(string text) => YamlConfiguration.Parse<ReceiverOptions>(text, ConfigurationSchema.Receiver);
+    private static ClientOptions ParseClient(string text) => YamlConfiguration.Parse(text, ConfigurationSchema.Client, ClientJson.Default.ClientOptions);
+    private static ReceiverOptions ParseReceiver(string text) => YamlConfiguration.Parse(text, ConfigurationSchema.Receiver, ReceiverJson.Default.ReceiverOptions);
 
     [TestMethod]
     public void YamlLoadsBothServiceExamplesAndPreservesPathsAndTemplateSpaces()
@@ -78,6 +78,15 @@ public sealed class YamlConfigurationTests
 
     [TestMethod]
     public void ClientRejectsMoreThanEightReceivers() => Reject(ClientWith(9));
+
+    [TestMethod]
+    public void OmittedSettingsKeepEveryDefault()
+    {
+        var receiver = ParseReceiver(Receiver);
+        Assert.AreEqual(new ReceiverOptions { Host = receiver.Host, LogDirectory = receiver.LogDirectory, HealthApiKey = receiver.HealthApiKey }, receiver);
+        var endpoint = ParseClient(Client).Receivers[0];
+        Assert.AreEqual(new OpenFsso.Windows.ReceiverEndpoint { Name = endpoint.Name, Host = endpoint.Host, Address = endpoint.Address, Port = endpoint.Port }, endpoint);
+    }
 
     [TestMethod]
     public void YamlRejectsDuplicateUnknownAndIncorrectlyCasedFields()
@@ -136,9 +145,9 @@ public sealed class YamlConfigurationTests
         {
             string path = Path.Combine(folder, "config" + extension);
             File.WriteAllText(path, Client);
-            YamlConfiguration.Load<ClientOptions>(path, ConfigurationSchema.Client).Validate();
+            YamlConfiguration.Load(path, ConfigurationSchema.Client, ClientJson.Default.ClientOptions).Validate();
             File.WriteAllText(path, new string(' ', 65537));
-            Assert.Throws<InvalidDataException>(() => YamlConfiguration.Load<ClientOptions>(path, ConfigurationSchema.Client));
+            Assert.Throws<InvalidDataException>(() => YamlConfiguration.Load(path, ConfigurationSchema.Client, ClientJson.Default.ClientOptions));
         }
         finally
         {

@@ -93,7 +93,18 @@ public sealed class ClientStatusTests
         var receivers = Enumerable.Range(0, ClientStatus.MaxReceivers)
             .Select(i => new ReceiverStatus(new string('R', 64), ip, Now, Now, "TLS or Kerberos authentication failed", true)).ToArray();
         var status = new ClientStatus(1, Now, new string('U', 256), receivers, new(FabricState.OnFabric, Now));
-        Assert.IsLessThan(16384, System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(status).Length);
+        Assert.IsLessThan(16384, System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(status, StatusJson.Default.ClientStatus).Length);
+    }
+
+    [TestMethod]
+    public void UnreachableReceiversAreDescribedFromTheWrappedCause()
+    {
+        var timeout = new System.Net.WebSockets.WebSocketException("Unable to connect", new HttpRequestException(HttpRequestError.ConnectionError, "connect", new TimeoutException()));
+        Assert.AreEqual("Connection timed out", OpenFsso.Client.DeliveryError.Describe(timeout));
+        var refused = new System.Net.WebSockets.WebSocketException("Unable to connect", new HttpRequestException(HttpRequestError.ConnectionError, "connect"));
+        Assert.AreEqual("Could not connect to the receiver", OpenFsso.Client.DeliveryError.Describe(refused));
+        var socket = new System.Net.WebSockets.WebSocketException("Unable to connect", new HttpRequestException("connect", new System.Net.Sockets.SocketException((int)System.Net.Sockets.SocketError.ConnectionRefused)));
+        Assert.AreEqual("Connection refused", OpenFsso.Client.DeliveryError.Describe(socket));
     }
 
     [TestMethod]

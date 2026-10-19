@@ -83,7 +83,7 @@ public sealed class StatusPipe(Ownership ownership, ClientStatusJournal journal,
                 deadline.CancelAfter(TimeSpan.FromSeconds(2));
                 var owner = ownership.Current;
                 var status = journal.Read(owner.Revision, owner.Owner?.Name, DateTimeOffset.UtcNow);
-                await JsonSerializer.SerializeAsync(pipe, status, cancellationToken: deadline.Token);
+                await JsonSerializer.SerializeAsync(pipe, status, StatusJson.Default.ClientStatus, deadline.Token);
                 await pipe.FlushAsync(deadline.Token);
             }
             catch (OperationCanceledException) when (stopping.IsCancellationRequested)

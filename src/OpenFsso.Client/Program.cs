@@ -17,7 +17,7 @@ if (args.Length != 2 || args[0] is not ("--config" or "--validate-config") || !P
 
 ClientOptions ReadOptions()
 {
-    var options = YamlConfiguration.Load<ClientOptions>(args[1], ConfigurationSchema.Client);
+    var options = YamlConfiguration.Load(args[1], ConfigurationSchema.Client, ClientJson.Default.ClientOptions);
     options.Validate();
     return options;
 }
@@ -27,11 +27,7 @@ if (args[0] == "--validate-config")
     try
     {
         var options = ReadOptions();
-        Console.WriteLine(JsonSerializer.Serialize(new
-        {
-            options.LogDirectory,
-            options.StateDirectory
-        }));
+        Console.WriteLine(JsonSerializer.Serialize(new ClientPaths(options.LogDirectory, options.StateDirectory), ClientJson.Default.ClientPaths));
     }
     catch (InvalidDataException error)
     {

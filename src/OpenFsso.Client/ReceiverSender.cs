@@ -101,7 +101,7 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
                     };
                 }
                 presenceGeneration = owner.Generation;
-                object Body(string ip)
+                PresenceRequest Body(string ip)
                 {
                     if (ownership.Current.Revision != state.Revision || !fabric.IsCurrent(location))
                     {
@@ -124,7 +124,7 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
                     throw new ReceiverRejectedException(reply.Status);
                 }
 
-                var result = JsonSerializer.Deserialize<PresenceReply>(reply.Body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                var result = JsonSerializer.Deserialize(reply.Body, WireJson.Default.PresenceReply);
                 if (result == null)
                 {
                     throw new IOException("Receiver response was empty.");
@@ -162,7 +162,8 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
                     throw new ReceiverRejectedException(reply.Status);
                 }
             }
-            catch (OperationCanceledException) when (cycle.IsCancellationRequested)
+            // A wake or a new owner ends the send; the next cycle starts fresh.
+            catch (OperationCanceledException) when (cycle.IsCancellationRequested || ownership.Current.Revision != state.Revision)
             {
                 delay = 0.1;
             }

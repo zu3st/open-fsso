@@ -9,11 +9,7 @@ using Windows.Win32.System.Recovery;
 if (args.Length == 2 && args[0] == "--status-json" && Path.IsPathFullyQualified(args[1]))
 {
     var status = await StatusReader.Read(default);
-    await File.WriteAllTextAsync(args[1], JsonSerializer.Serialize(new
-    {
-        Status = status,
-        View = ClientStatusView.Create(status, DateTimeOffset.UtcNow)
-    }));
+    await File.WriteAllTextAsync(args[1], JsonSerializer.Serialize(new StatusSnapshot(status, ClientStatusView.Create(status, DateTimeOffset.UtcNow)), StatusJson.Default.StatusSnapshot));
     return;
 }
 

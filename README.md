@@ -17,8 +17,10 @@ syslog.
   be direct, and every receiver must see the address FortiGate sees.
 - **Owner selection:** the most recent console logon or unlock wins. Lock keeps
   the owner, logoff stops renewal, and RDP sessions count only if `AllowRdp` is set.
-  After a service restart the owner is restored only when exactly one unlocked
-  console session matches the saved record.
+  A service restart keeps the saved owner while its session is attached, locked
+  or not. Otherwise, including right after installation, a single attached
+  session becomes the owner. Only several attached sessions without a matching
+  record wait for the next logon or unlock.
 - **Leases** live in receiver memory for 180 seconds after the last presence. A
   restarted receiver starts empty and is repopulated within seconds, as clients
   reconnect immediately.

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.32
+
+- The client selects the signed-in user when its service starts, including right
+  after installation and while the session is locked. A restart or a fresh
+  install no longer waits for a lock and unlock.
+- The receiver contacts the service manager first and requests extra start time,
+  so a slow first start no longer fails the installation. A failed start is
+  written to the Application log with its cause.
+- The executables are trimmed: receiver 26 MB (was 108), client 21 MB (was 81),
+  tray 14 MB (was 74). All JSON uses compile-time metadata and YAML is read
+  without reflection.
+- The tray names timeouts and failed connections for unreachable receivers.
+
 ## 0.1.31
 
 - New receiver setting `SyslogSourceAddress` (default `127.0.0.1`) selects the
