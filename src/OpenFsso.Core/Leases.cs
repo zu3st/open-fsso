@@ -36,10 +36,13 @@ public sealed class LeaseStore(TimeProvider clock, int leaseSeconds = 180)
             Remove(previous, "path-changed", changes);
         }
 
-        if (current != null && current.User.Sid == user.Sid && current.Generation == request.Generation)
+        // The same user keeps the mapping across a new logon or client restart.
+        // The new generation means a release from the old one no longer applies.
+        if (current != null && current.User == user)
         {
             Store(current with
             {
+                Generation = request.Generation,
                 Renewed = clock.GetTimestamp()
             });
             return new(200, new(current.Reference, leaseSeconds), changes);

@@ -74,6 +74,20 @@ public sealed class LeaseTests
     }
 
     [TestMethod]
+    public void SameUserWithANewGenerationRenewsWithoutLogout()
+    {
+        var s = new LeaseStore(new FakeTimeProvider());
+        var first = s.Presence(Alice, Ip, Request(A));
+        var unreferenced = s.Presence(Alice, Ip, Request(B));
+        Assert.AreEqual(409, unreferenced.Status);
+        var renewed = s.Presence(Alice, Ip, Request(B, unreferenced.Reply.LeaseReference));
+        Assert.AreEqual(200, renewed.Status);
+        Assert.IsEmpty(renewed.Changes);
+        Assert.IsEmpty(s.Release(Ip, Request(A, first.Reply.LeaseReference)).Changes);
+        Assert.AreEqual("logout", s.Release(Ip, Request(B, first.Reply.LeaseReference)).Changes.Single().Action);
+    }
+
+    [TestMethod]
     public void ReplacementIsLogoutThenLoginAndStaleOperationsCannotEraseIt()
     {
         var s = new LeaseStore(new FakeTimeProvider());
