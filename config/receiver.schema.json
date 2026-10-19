@@ -13,6 +13,7 @@
     "ExpirySeconds": { "type": "integer", "minimum": 1, "maximum": 5 },
     "ReassertSeconds": { "type": "integer", "minimum": 0, "maximum": 3600 },
     "SyslogPort": { "$ref": "#/$defs/port" },
+    "SyslogSourceAddress": { "type": "string", "format": "ipv4", "pattern": "^127\\." },
     "CollectorService": { "type": "string", "minLength": 1, "maxLength": 256 },
     "LoginTemplate": { "$ref": "#/$defs/template" },
     "LogoutTemplate": { "$ref": "#/$defs/template" },

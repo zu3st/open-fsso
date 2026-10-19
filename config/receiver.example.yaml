@@ -6,6 +6,9 @@ QueueName: OpenFssoReceiver
 ExpirySeconds: 5
 ReassertSeconds: 3600
 SyslogPort: 514
+# The collector's syslog source for these lines. Use another 127.x.x.x address
+# when a different feed already sends from 127.0.0.1.
+SyslogSourceAddress: 127.0.0.1
 CollectorService: Fortinet_FSAE
 # Set a separate random Bearer key for each receiver before installation.
 HealthApiKey: ''

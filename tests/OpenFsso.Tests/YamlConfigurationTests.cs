@@ -56,6 +56,10 @@ public sealed class YamlConfigurationTests
         Assert.AreEqual(8443, receiver.Port);
         Assert.AreEqual(5, receiver.ExpirySeconds);
         Assert.AreEqual(3600, receiver.ReassertSeconds);
+        Assert.AreEqual("127.0.0.1", receiver.SyslogSourceAddress);
+        var separate = ParseReceiver(Receiver + "SyslogSourceAddress: 127.0.0.2\n");
+        separate.Validate();
+        Assert.AreEqual("127.0.0.2", separate.SyslogSourceAddress);
     }
 
     private static string ClientWith(int receivers) =>
@@ -171,6 +175,11 @@ public sealed class YamlConfigurationTests
     [DataRow("ExpirySeconds: 6")]
     [DataRow("QueueName: 'bad name'")]
     [DataRow("LeaseSeconds: 180")]
+    [DataRow("UpdateTemplate: 'action=update user={user}'")]
+    [DataRow("SyslogSourceAddress: 10.0.0.1")]
+    [DataRow("SyslogSourceAddress: localhost")]
+    [DataRow("SyslogSourceAddress: 127.0.0.256")]
+    [DataRow("SyslogSourceAddress: '::1'")]
     public void ReceiverSchemaRejectsInvalidSettings(string setting) =>
         Assert.Throws<InvalidDataException>(() => ParseReceiver(Receiver + setting));
 

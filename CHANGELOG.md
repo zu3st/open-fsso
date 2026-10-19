@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.31
+
+- New receiver setting `SyslogSourceAddress` (default `127.0.0.1`) selects the
+  loopback address the receiver sends syslog from. The Collector Agent picks its
+  matching rule by sender address, so a receiver can share the listener with
+  another local feed by sending from, for example, `127.0.0.2`.
+
 ## 0.1.30
 
 - Receivers send an hourly syslog update for every active mapping by default

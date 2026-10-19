@@ -7,7 +7,7 @@ namespace OpenFsso.Receiver;
 
 public sealed class SyslogRelay(ReceiverOptions options, ILogger<SyslogRelay> logger) : IDisposable
 {
-    private readonly UdpClient socket = new(AddressFamily.InterNetwork);
+    private readonly UdpClient socket = new(new IPEndPoint(IPAddress.Parse(options.SyslogSourceAddress), 0));
     public DeliveryRecovery Recovery { get; } = new();
     public bool Healthy => Recovery.Healthy;
 

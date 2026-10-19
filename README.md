@@ -198,9 +198,13 @@ match and are not mapped. All three events are required.
 | Client IPv4 | `ip={{:client_ip}} ` (with the trailing space) |
 | Group | `group="{{:group}}"`, separator `,` |
 
-Add a syslog source for `127.0.0.1` with this rule and user type
-**Remote User / LDAP**, bound to an LDAP server for the domain (user attribute
-`sAMAccountName`, groups from `memberOf`). The collector resolves the user's
+Add a syslog source for the receiver's `SyslogSourceAddress` (default
+`127.0.0.1`) with this rule and user type **Remote User / LDAP**, bound to an
+LDAP server for the domain (user attribute `sAMAccountName`, groups from
+`memberOf`). The collector has one syslog listener and picks the rule by sender
+address. If another feed, such as VPN logons, already sends from `127.0.0.1`,
+set `SyslogSourceAddress` to another loopback address such as `127.0.0.2` and
+add the source for that address. The collector resolves the user's
 groups at every login and update. The group field in the message is ignored.
 
 Collector timers:
