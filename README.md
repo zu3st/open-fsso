@@ -140,8 +140,10 @@ Collector timers:
 - **IP address change verify interval** `0`, since the receiver reports address
   changes itself.
 
-Other logon sources on the same collector, such as DC polling, can overwrite
-these mappings for the same addresses.
+> [!WARNING]
+> Other logon sources on the same collector, such as DC polling, can overwrite
+> OpenFSSO's mappings with a different user for the same address. Turn them off
+> for the networks OpenFSSO covers.
 
 ## Status and health
 
