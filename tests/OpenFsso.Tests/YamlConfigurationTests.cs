@@ -53,6 +53,7 @@ public sealed class YamlConfigurationTests
         receiver.Validate();
         Assert.AreEqual(8443, receiver.Port);
         Assert.AreEqual(5, receiver.ExpirySeconds);
+        Assert.AreEqual(3600, receiver.ReassertSeconds);
     }
 
     private static string ClientWith(int receivers) =>

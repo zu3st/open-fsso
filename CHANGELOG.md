@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Receivers re-send all active logins every hour by default. The Collector
+  Agent purges syslog logons after its dead entry timeout even while the user
+  stays logged on, and a re-sent login resets that timer.
+- The README lists the Collector Agent syslog rule, source and timer settings.
+
 ## 0.1.29
 
 - Presence and release take constant time per request, so a receiver keeps up

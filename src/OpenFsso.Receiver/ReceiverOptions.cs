@@ -11,7 +11,7 @@ public sealed record ReceiverOptions
     public string ServiceName { get; init; } = "OpenFssoReceiver";
     public const int LeaseSeconds = 180;
     public int ExpirySeconds { get; init; } = 5;
-    public int ReassertSeconds { get; init; } = 0;
+    public int ReassertSeconds { get; init; } = 3600;
     public int SyslogPort { get; init; } = 514;
     public string CollectorService { get; init; } = "Fortinet_FSAE";
     public string LoginTemplate { get; init; } = "<134>OpenFsso action=login user=\"{user}\" group=\"ignored-by-remote-LDAP\" ip={ip} ";

@@ -4,7 +4,7 @@ Port: 8443
 ServiceName: OpenFssoReceiver
 QueueName: OpenFssoReceiver
 ExpirySeconds: 5
-ReassertSeconds: 0
+ReassertSeconds: 3600
 SyslogPort: 514
 CollectorService: Fortinet_FSAE
 # Set a separate random Bearer key for each receiver before installation.
