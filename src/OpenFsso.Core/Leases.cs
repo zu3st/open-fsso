@@ -11,6 +11,7 @@ public sealed class LeaseStore(TimeProvider clock, int leaseSeconds = 180)
 {
     private sealed record Lease(string Ip, AuthenticatedUser User, Guid Generation, Guid Reference, long Renewed);
     private readonly Dictionary<string, Lease> leases = new(StringComparer.Ordinal);
+    private readonly Dictionary<Guid, Lease> references = [];
     public int Count => leases.Count;
 
     public Decision Presence(AuthenticatedUser user, IPAddress peerAddress, PresenceRequest request)
@@ -21,26 +22,26 @@ public sealed class LeaseStore(TimeProvider clock, int leaseSeconds = 180)
             return Invalid();
         }
 
-        var changes = Expire().ToList();
-        leases.TryGetValue(ip, out var current);
+        // Each request touches only its own leases. The worker expires the rest.
+        var changes = new List<MappingChange>();
+        var current = Live(ip, changes);
         if (current != null && request.LeaseReference != current.Reference)
         {
             return new(409, new(current.Reference, leaseSeconds, "reconcile-current-lease"), changes);
         }
 
         // A previous path may be reconciled only by the same authenticated logon owner.
-        var previous = leases.Values.FirstOrDefault(x => x.Reference == request.LeaseReference && x.Ip != ip && x.User.Sid == user.Sid && x.Generation == request.Generation);
-        if (previous != null)
+        if (request.LeaseReference is { } reference && references.TryGetValue(reference, out var previous) && previous.Ip != ip && previous.User.Sid == user.Sid && previous.Generation == request.Generation)
         {
             Remove(previous, "path-changed", changes);
         }
 
         if (current != null && current.User.Sid == user.Sid && current.Generation == request.Generation)
         {
-            leases[ip] = current with
+            Store(current with
             {
                 Renewed = clock.GetTimestamp()
-            };
+            });
             return new(200, new(current.Reference, leaseSeconds), changes);
         }
 
@@ -50,7 +51,7 @@ public sealed class LeaseStore(TimeProvider clock, int leaseSeconds = 180)
         }
 
         var next = new Lease(ip, user, request.Generation, Guid.NewGuid(), clock.GetTimestamp());
-        leases[ip] = next;
+        Store(next);
         changes.Add(new("login", ip, user, next.Generation, "presence"));
         return new(200, new(next.Reference, leaseSeconds), changes);
     }
@@ -64,8 +65,8 @@ public sealed class LeaseStore(TimeProvider clock, int leaseSeconds = 180)
             return Invalid();
         }
 
-        var changes = Expire().ToList();
-        if (leases.TryGetValue(ip, out var current) && current.Reference == request.LeaseReference && current.Generation == request.Generation)
+        var changes = new List<MappingChange>();
+        if (Live(ip, changes) is { } current && current.Reference == request.LeaseReference && current.Generation == request.Generation)
         {
             Remove(current, "release", changes);
         }
@@ -80,12 +81,32 @@ public sealed class LeaseStore(TimeProvider clock, int leaseSeconds = 180)
         return request.Version == 1 && request.Generation != Guid.Empty && request.LeaseReference != Guid.Empty && IPAddress.TryParse(request.ConnectionLocalIp, out var claimed) && Normalize(claimed).Equals(peer);
     }
 
+    // The lease at ip, or null after removing it when it has expired.
+    private Lease? Live(string ip, List<MappingChange> changes)
+    {
+        if (leases.TryGetValue(ip, out var lease) && Expired(lease))
+        {
+            Remove(lease, "expired", changes);
+            return null;
+        }
+
+        return lease;
+    }
+
+    private bool Expired(Lease lease) => clock.GetElapsedTime(lease.Renewed) >= TimeSpan.FromSeconds(leaseSeconds);
+
+    private void Store(Lease lease)
+    {
+        leases[lease.Ip] = lease;
+        references[lease.Reference] = lease;
+    }
+
     private Decision Invalid() => new(400, new(null, leaseSeconds, "invalid-request-or-socket-ip"), []);
 
     public IReadOnlyList<MappingChange> Expire()
     {
         var changes = new List<MappingChange>();
-        foreach (var lease in leases.Values.Where(x => clock.GetElapsedTime(x.Renewed) >= TimeSpan.FromSeconds(leaseSeconds)).ToArray())
+        foreach (var lease in leases.Values.Where(Expired).ToArray())
         {
             Remove(lease, "expired", changes);
         }
@@ -97,6 +118,7 @@ public sealed class LeaseStore(TimeProvider clock, int leaseSeconds = 180)
     private void Remove(Lease lease, string reason, List<MappingChange> changes)
     {
         leases.Remove(lease.Ip);
+        references.Remove(lease.Reference);
         changes.Add(new("logout", lease.Ip, lease.User, lease.Generation, reason));
     }
 

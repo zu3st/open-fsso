@@ -135,6 +135,24 @@ public sealed class LeaseTests
     }
 
     [TestMethod]
+    public void RequestsExpireOnlyTheirOwnLeaseAndLeaveTheRestToTheWorker()
+    {
+        var clock = new FakeTimeProvider();
+        var s = new LeaseStore(clock);
+        var other = IPAddress.Parse("192.0.2.11");
+        var alice = s.Presence(Alice, Ip, Request(A));
+        s.Presence(Bob, other, new(1, B, other.ToString()));
+        clock.Advance(TimeSpan.FromSeconds(181));
+        var renewed = s.Presence(Alice, Ip, Request(A, alice.Reply.LeaseReference));
+        Assert.AreEqual("logout", renewed.Changes[0].Action);
+        Assert.AreEqual(Ip.ToString(), renewed.Changes[0].Ip);
+        Assert.AreEqual("login", renewed.Changes[1].Action);
+        Assert.HasCount(2, renewed.Changes);
+        Assert.AreEqual(2, s.Count);
+        Assert.AreEqual(other.ToString(), s.Expire().Single().Ip);
+    }
+
+    [TestMethod]
     public void MonotonicExpirySurvivesWallClockRollbackAndRemovesOnce()
     {
         var clock = new WallClockShift();
