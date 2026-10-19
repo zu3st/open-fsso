@@ -9,7 +9,8 @@ syslog.
 ## Security model and prerequisites
 
 - **Identity** comes only from the receiver's Kerberos authentication of the
-  selected user. TLS uses strict channel binding.
+  selected user. TLS uses strict channel binding. Each client keeps one session
+  per receiver, which authenticates once and is renewed about every hour.
 - **IP address** comes from the TCP connection. The client reports the local
   address of the socket carrying the request, and the receiver accepts it only if
   it equals the connection's peer address. Paths to the receivers must therefore

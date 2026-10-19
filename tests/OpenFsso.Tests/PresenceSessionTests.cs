@@ -21,7 +21,7 @@ public sealed class PresenceSessionTests
 {
     private static readonly Guid Generation = Guid.Parse("11111111-1111-1111-1111-111111111111");
 
-    private static async Task<(WebApplication App, List<MappingChange> Changes)> Start(CancellationToken stopping = default)
+    private static async Task<(WebApplication App, List<MappingChange> Changes)> Start(CancellationToken stopping = default, TimeSpan? lifetime = null)
     {
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
@@ -39,7 +39,7 @@ public sealed class PresenceSessionTests
             context.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, "DOMAIN\\Alice"), new Claim(ClaimTypes.PrimarySid, "S-1-5-21-1")], "Windows"));
             return next(context);
         });
-        app.Map("/v1/session", (HttpContext context) => PresenceSession.Run(context, leases, new RejectionLog(NullLogger.Instance, TimeProvider.System), stopping));
+        app.Map("/v1/session", (HttpContext context) => PresenceSession.Run(context, leases, new RejectionLog(NullLogger.Instance, TimeProvider.System), stopping, lifetime));
         await app.StartAsync();
         return (app, changes);
     }
@@ -83,6 +83,19 @@ public sealed class PresenceSessionTests
         var result = await socket.ReceiveAsync(new byte[16], new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token);
         Assert.AreEqual(WebSocketMessageType.Close, result.MessageType);
         Assert.AreEqual(WebSocketCloseStatus.EndpointUnavailable, socket.CloseStatus);
+    }
+
+    [TestMethod]
+    public async Task SessionsCloseAfterTheirLifetimeAndKeepTheLease()
+    {
+        var (app, changes) = await Start(lifetime: TimeSpan.FromMilliseconds(500));
+        await using var _app = app;
+        using var socket = await app.GetTestServer().CreateWebSocketClient().ConnectAsync(new Uri("ws://localhost/v1/session"), default);
+        Assert.AreEqual(200, (await Exchange(socket, Presence("192.0.2.10"))).Status);
+        var result = await socket.ReceiveAsync(new byte[16], new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token);
+        Assert.AreEqual(WebSocketMessageType.Close, result.MessageType);
+        Assert.AreEqual(WebSocketCloseStatus.NormalClosure, socket.CloseStatus);
+        Assert.AreEqual("login", changes.Single().Action);
     }
 
     [TestMethod]

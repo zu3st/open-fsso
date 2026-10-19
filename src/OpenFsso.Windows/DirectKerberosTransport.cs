@@ -210,11 +210,14 @@ public sealed class DirectKerberosTransport : IDisposable
         }
         finally
         {
-            inbox.Writer.TryComplete(new IOException("The presence session closed."));
+            // Wake the sender first, so a send waiting for its reply ends as a
+            // reconnect rather than a delivery failure.
             if (!disposed && socket == session)
             {
                 Closed?.Invoke();
             }
+
+            inbox.Writer.TryComplete(new IOException("The presence session closed."));
         }
     }
 

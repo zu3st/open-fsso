@@ -14,9 +14,14 @@ public static class PresenceSession
     // Clients renew every 60 seconds; a silent socket is closed after this.
     private static readonly TimeSpan Idle = TimeSpan.FromMinutes(3);
 
+    // Kerberos is checked once per session. Ending each session after about an
+    // hour makes the client authenticate again, so a disabled account stops
+    // renewing. The spread keeps clients from reconnecting all at once.
+    private static TimeSpan Lifetime() => TimeSpan.FromMinutes(50 + Random.Shared.NextDouble() * 20);
+
     // stopping ends every session when the receiver shuts down, so a restart
     // need not wait for clients and they reconnect to the new process.
-    public static async Task Run(HttpContext context, SerializedLeases leases, RejectionLog rejections, CancellationToken stopping)
+    public static async Task Run(HttpContext context, SerializedLeases leases, RejectionLog rejections, CancellationToken stopping, TimeSpan? lifetime = null)
     {
         if (!context.WebSockets.IsWebSocketRequest || context.Connection.RemoteIpAddress is not { } peer)
         {
@@ -28,7 +33,9 @@ public static class PresenceSession
         using var socket = await context.WebSockets.AcceptWebSocketAsync();
         // Cancelling a pending receive would abort the socket without a close
         // frame, so send the close beside it and let the client's reply end the loop.
-        using var shutdown = stopping.Register(() => _ = GoingAway(socket));
+        using var shutdown = stopping.Register(() => _ = CloseOutput(socket, WebSocketCloseStatus.EndpointUnavailable));
+        using var expiry = new CancellationTokenSource(lifetime ?? Lifetime());
+        using var expired = expiry.Token.Register(() => _ = CloseOutput(socket, WebSocketCloseStatus.NormalClosure));
         try
         {
             await Serve(socket, user, peer, leases, rejections, context.RequestAborted);
@@ -103,11 +110,11 @@ public static class PresenceSession
         }
     }
 
-    private static async Task GoingAway(WebSocket socket)
+    private static async Task CloseOutput(WebSocket socket, WebSocketCloseStatus status)
     {
         try
         {
-            await socket.CloseOutputAsync(WebSocketCloseStatus.EndpointUnavailable, null, CancellationToken.None);
+            await socket.CloseOutputAsync(status, null, CancellationToken.None);
         }
         catch (Exception e) when (e is WebSocketException or InvalidOperationException or ObjectDisposedException)
         {
