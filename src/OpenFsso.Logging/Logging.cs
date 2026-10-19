@@ -18,7 +18,8 @@ public static class Logging
             .CreateLogger();
 
     // Properties with an ECS field go there; every other one goes under openfsso.*.
-    private static readonly HashSet<string> Mapped = ["UserSid", "UserName", "SourceIp", "ErrorType", "ErrorCode", "Action", "Reason", "HttpStatus", "MessageTemplate"];
+    // ASP.NET's request properties already map to http.request.id, url.path and the trace fields.
+    private static readonly HashSet<string> Mapped = ["UserSid", "UserName", "SourceIp", "ErrorType", "ErrorCode", "Action", "Reason", "HttpStatus", "MessageTemplate", "SourceContext", "RequestId", "RequestPath", "TraceId", "SpanId", "ParentId"];
 
     public static ITextFormatter Formatter(string service, params string[] secrets) => new MaskingFormatter(new NamespaceFormatter(new EcsTextFormatter(new EcsTextFormatterConfiguration
     {
@@ -66,7 +67,7 @@ public static class Logging
             }
 
             var custom = new MetadataDictionary();
-            foreach (var property in e.Properties.Where(x => !Mapped.Contains(x.Key) && x.Key != "SourceContext"))
+            foreach (var property in e.Properties.Where(x => !Mapped.Contains(x.Key)))
             {
                 custom[Snake(property.Key)] = property.Value is ScalarValue { Value: int or long or uint or bool } scalar ? scalar.Value : Text(property.Value);
             }

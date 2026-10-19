@@ -27,7 +27,8 @@ public sealed class LoggingTests
     {
         var log = Format(Event("Mapping sent to the collector", null,
             new("UserName", new ScalarValue("DOMAIN\\Alice")), new("UserSid", new ScalarValue("S-1-5-21-1")), new("SourceIp", new ScalarValue("192.0.2.10")),
-            new("Action", new ScalarValue("login")), new("Reason", new ScalarValue("presence")), new("SessionId", new ScalarValue(2)), new("HttpStatus", new ScalarValue(503))));
+            new("Action", new ScalarValue("login")), new("Reason", new ScalarValue("presence")), new("SessionId", new ScalarValue(2)), new("HttpStatus", new ScalarValue(503)),
+            new("RequestPath", new ScalarValue("/v1/session"))));
         Assert.AreEqual("Mapping sent to the collector", log.GetProperty("message").GetString());
         Assert.AreEqual("open-fsso-test", log.GetProperty("service").GetProperty("name").GetString());
         Assert.IsNotNull(log.GetProperty("service").GetProperty("version").GetString());
@@ -45,6 +46,7 @@ public sealed class LoggingTests
         Assert.AreEqual(2, log.GetProperty("openfsso").GetProperty("session_id").GetInt32());
         Assert.IsFalse(log.TryGetProperty("labels", out _));
         Assert.IsFalse(log.GetProperty("openfsso").TryGetProperty("message_template", out _));
+        Assert.IsFalse(log.GetProperty("openfsso").TryGetProperty("request_path", out _));
         Assert.AreEqual("warning", log.GetProperty("log.level").GetString(), ignoreCase: true);
     }
 

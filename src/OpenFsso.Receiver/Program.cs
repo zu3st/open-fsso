@@ -48,7 +48,16 @@ if (args[0] == "--validate-config")
 if (WindowsServiceHelpers.IsWindowsService())
 {
     using var service = new ReceiverService(Start);
-    ServiceBase.Run(service);
+    try
+    {
+        ServiceBase.Run(service);
+    }
+    catch (Exception)
+    {
+        // Run rethrows a failed start, which ServiceBase has already logged.
+        Environment.ExitCode = 1;
+    }
+
     return;
 }
 
