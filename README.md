@@ -140,10 +140,8 @@ Collector timers:
 - **IP address change verify interval** `0`, since the receiver reports address
   changes itself.
 
-After a collector restart the receiver re-sends all active mappings as logins.
-Disable competing DC polling and workstation DNS identity checks, and block
-direct client syslog (UDP 514) and DC-agent input (UDP 8002) from workstations.
-An unhealthy receiver node may need withdrawal through existing FSSO controls.
+Turn off DC polling, and block syslog (UDP 514) and DC-agent traffic (UDP 8002)
+from workstations, so only the receivers report users.
 
 ## Status and health
 
@@ -187,7 +185,8 @@ curl --header "Authorization: Bearer $HEALTH_API_KEY" https://receiver-a.example
   connection.
 - **Leases** live in receiver memory for 180 seconds after the last renewal. A
   restarted receiver starts empty and is repopulated within seconds, because
-  clients reconnect immediately.
+  clients reconnect immediately. After a collector restart, the receiver sends
+  all its mappings again.
 - **Logoff** sends a release, authorized by the lease reference from the last
   renewal, since the user's Kerberos credentials end with the session. Lease
   expiry covers lost releases.
