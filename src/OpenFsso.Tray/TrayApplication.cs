@@ -55,7 +55,6 @@ internal sealed class TrayApplication : IDisposable
             guidItem = new Guid("c47b4ae0-a336-48be-b0d2-74c689e70a71")
         };
         AddIcon();
-        SetTimer(window, 1, 2000, null); // Also retries registration when Explorer is not ready.
     }
 
     public void Run()
@@ -138,6 +137,7 @@ internal sealed class TrayApplication : IDisposable
 
         switch (message)
         {
+            // Each status poll also retries registration while Explorer is not ready.
             case Updated:
             case WM_SETTINGCHANGE:
             case WM_THEMECHANGED:
@@ -146,9 +146,6 @@ internal sealed class TrayApplication : IDisposable
                 return default;
             case Callback when (uint)(lparam.Value & 0xffff) == WM_CONTEXTMENU:
                 Menu(wparam);
-                return default;
-            case WM_TIMER:
-                Refresh();
                 return default;
             case WM_CLOSE:
                 DestroyWindow(window);

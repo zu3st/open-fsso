@@ -65,8 +65,6 @@ public static class Logging
                 document.Http = new Http { ResponseStatusCode = statusCode };
             }
 
-            // The formatter writes custom values to its metadata object, which
-            // NamespaceFormatter renames to the openfsso namespace.
             var custom = new MetadataDictionary();
             foreach (var property in e.Properties.Where(x => !Mapped.Contains(x.Key) && x.Key != "SourceContext"))
             {

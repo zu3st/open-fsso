@@ -61,10 +61,10 @@ async Task<ReceiverRuntime> Start()
     var options = ReadOptions();
     var log = OpenFsso.Logging.Logging.Create(options.LogDirectory, "open-fsso-receiver", 100L * 1024 * 1024, options.HealthApiKey);
     var builder = WebApplication.CreateBuilder(new WebApplicationOptions { Args = [], ContentRootPath = AppContext.BaseDirectory });
+    // Only the YAML file configures the receiver. Forwarded headers stay off,
+    // since the client's IP address must come from the TCP connection.
     builder.Configuration.Sources.Clear();
-    builder.Configuration.AddInMemoryCollection();
-    builder.Configuration["FORWARDEDHEADERS_ENABLED"] = "false";
-    builder.WebHost.UseSetting("forwardedHeaders_enabled", "false");
+    builder.Configuration.AddInMemoryCollection([new("FORWARDEDHEADERS_ENABLED", "false")]);
     builder.Logging.ClearProviders();
     builder.Services.AddSerilog(log, dispose: false);
     string prefix = $"https://{options.Host}:{options.Port}/";
@@ -73,9 +73,7 @@ async Task<ReceiverRuntime> Start()
         http.RequestQueueName = options.QueueName;
         http.RequestQueueMode = RequestQueueMode.Create;
         http.UrlPrefixes.Add(prefix);
-        // Native Kerberos and strict CBT are applied/queried on the URL group below.
-        // None here suppresses the framework's automatic Kerberos challenge on
-        // every 401; the managed gate selects Bearer or Kerberos for each endpoint.
+        // Kerberos and strict channel binding are set on the URL group; see StrictChannelBinding.
         http.Authentication.Schemes = Microsoft.AspNetCore.Server.HttpSys.AuthenticationSchemes.None;
         http.Authentication.AllowAnonymous = true;
         http.Authentication.AutomaticAuthentication = true;

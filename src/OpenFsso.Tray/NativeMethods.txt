@@ -20,7 +20,6 @@ RegisterApplicationRestart
 RegisterClassEx
 RegisterWindowMessage
 SetForegroundWindow
-SetTimer
 Shell_NotifyIcon
 TrackPopupMenu
 TranslateMessage
@@ -32,7 +31,6 @@ WM_DESTROY
 WM_SETTINGCHANGE
 WM_THEMECHANGED
 WM_DPICHANGED
-WM_TIMER
 WM_QUERYENDSESSION
 WM_ENDSESSION
 WM_CONTEXTMENU

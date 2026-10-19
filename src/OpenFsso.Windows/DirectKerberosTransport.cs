@@ -34,15 +34,10 @@ public sealed class DirectKerberosTransport : IDisposable
     private Channel<byte[]>? replies;
     private volatile bool disposed;
 
-    public Action<string>? Trace
-    {
-        get; init;
-    }
     public Action<string>? SocketConnected
     {
         get; init;
     }
-    public string? LocalIp => localIp;
     // Raised when an open session ends without Dispose, such as a missed pong.
     public Action? Closed
     {
@@ -234,11 +229,9 @@ public sealed class DirectKerberosTransport : IDisposable
         };
         try
         {
-            Trace?.Invoke("connecting-direct");
             await socket.ConnectAsync(new IPEndPoint(address, endpoint.Port), ct);
             localIp = ((IPEndPoint)socket.LocalEndPoint!).Address.ToString();
             SocketConnected?.Invoke(localIp);
-            Trace?.Invoke("socket-connected");
             return new NetworkStream(socket, ownsSocket: true);
         }
         catch
@@ -256,20 +249,16 @@ public sealed class DirectKerberosTransport : IDisposable
             throw new IOException("Cannot prove the TLS/socket relationship.");
         }
 
-        Trace?.Invoke("tls-stream-ready");
         if (package == null)
         {
             return context.PlaintextStream;
         }
 
         using var binding = tls.TransportContext?.GetChannelBinding(ChannelBindingKind.Endpoint) ?? throw new AuthenticationException("TLS endpoint channel binding is unavailable.");
-        Trace?.Invoke("tls-validated");
         string Proof()
         {
-            Trace?.Invoke("acquiring-kerberos-credentials");
             using var auth = new NegotiateAuthentication(new NegotiateAuthenticationClientOptions { Package = package, Credential = CredentialCache.DefaultNetworkCredentials, TargetName = "HTTP/" + endpoint.Host, Binding = binding, RequiredProtectionLevel = ProtectionLevel.None, RequireMutualAuthentication = false });
             string? blob = auth.GetOutgoingBlob((string?)null, out var status);
-            Trace?.Invoke("kerberos-result-" + status);
             if (blob == null || status is not (NegotiateAuthenticationStatusCode.Completed or NegotiateAuthenticationStatusCode.ContinueNeeded))
             {
                 throw new AuthenticationException("Kerberos token acquisition failed: " + status);
@@ -282,7 +271,6 @@ public sealed class DirectKerberosTransport : IDisposable
         string blob = token == null ? Proof() : await WindowsIdentity.RunImpersonatedAsync(token, () => Task.FromResult(Proof()));
         ct.ThrowIfCancellationRequested();
         context.InitialRequestMessage.Headers.Authorization = new AuthenticationHeaderValue(package, blob);
-        Trace?.Invoke("authenticated-request-prepared");
         return context.PlaintextStream;
     }
 

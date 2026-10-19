@@ -4,7 +4,7 @@ namespace OpenFsso.Logging;
 
 public static class LogFields
 {
-    // Logs a fixed message. The values go to their ECS fields or labels, not into the message text.
+    // Logs a fixed message. The values go to ECS fields or under openfsso.*, not into the message text.
     public static void Write(this ILogger logger, LogLevel level, string message, params (string Name, object? Value)[] fields) =>
         Write(logger, level, null, message, fields);
 
