@@ -2,8 +2,7 @@ using System.Net;
 
 namespace OpenFsso.Receiver;
 
-// Warnings about rejected requests, at most Limit per minute. Anonymous clients
-// can cause them, and must not be able to roll mapping events out of the log.
+// Rate-limited, so anonymous requests cannot flood the log.
 public sealed class RejectionLog(ILogger logger, TimeProvider clock)
 {
     public const int Limit = 10;
