@@ -28,6 +28,9 @@ public sealed class LoggingTests
         var log = Format(Event("Mapping {UserName} ({UserSid}) at {SourceIp}", null,
             new("UserName", new ScalarValue("DOMAIN\\Alice")), new("UserSid", new ScalarValue("S-1-5-21-1")), new("SourceIp", new ScalarValue("192.0.2.10"))));
         Assert.AreEqual("open-fsso-test", log.GetProperty("service").GetProperty("name").GetString());
+        Assert.IsNotNull(log.GetProperty("service").GetProperty("version").GetString());
+        Assert.IsFalse(log.TryGetProperty("agent", out _));
+        Assert.IsFalse(log.TryGetProperty("event", out var details) && (details.TryGetProperty("created", out _) || details.TryGetProperty("timezone", out _)));
         Assert.AreEqual("S-1-5-21-1", log.GetProperty("user").GetProperty("id").GetString());
         Assert.AreEqual("DOMAIN\\Alice", log.GetProperty("user").GetProperty("name").GetString());
         Assert.AreEqual("192.0.2.10", log.GetProperty("source").GetProperty("ip").GetString());

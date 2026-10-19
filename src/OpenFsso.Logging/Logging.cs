@@ -10,6 +10,8 @@ namespace OpenFsso.Logging;
 
 public static class Logging
 {
+    private static readonly string? Version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3);
+
     public static Serilog.Core.Logger Create(string directory, string service, long limit, params string[] secrets) =>
         new LoggerConfiguration().MinimumLevel.Information().MinimumLevel.Override("Microsoft", LogEventLevel.Warning).Enrich.FromLogContext()
             .WriteTo.File(Formatter(service, secrets), Path.Combine(directory, "events-.jsonl"), rollingInterval: RollingInterval.Day, fileSizeLimitBytes: limit, rollOnFileSizeLimit: true, retainedFileCountLimit: 14, buffered: false)
@@ -19,7 +21,16 @@ public static class Logging
     {
         MapCustom = (document, e) =>
         {
-            document.Service = new Service { Name = service };
+            // The application's version replaces the formatter's own agent block.
+            // event.created and event.timezone only repeat @timestamp.
+            document.Agent = null;
+            if (document.Event != null)
+            {
+                document.Event.Created = null;
+                document.Event.Timezone = null;
+            }
+
+            document.Service = new Service { Name = service, Version = Version };
             if (e.Properties.TryGetValue("UserSid", out var sid))
             {
                 document.User = new User { Id = Text(sid), Name = e.Properties.TryGetValue("UserName", out var name) ? Text(name) : null };
