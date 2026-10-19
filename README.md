@@ -200,32 +200,16 @@ curl --header "Authorization: Bearer $HEALTH_API_KEY" https://receiver-a.example
 
 ## Building
 
+Building needs only Docker:
+
 ```bash
-python3 tools/format.py --check
 docker build --target artifacts --output type=local,dest=artifacts .
-python3 tools/package.py
+python3 tools/build_msi.py --unsigned
 ```
 
-The build checks formatting, runs the MSTest suite (TRX report in
-`artifacts/test-results/`) and publishes trimmed, self-contained single-file `win-x64`
-executables to `artifacts/client/` and `artifacts/receiver/`.
-`tools/package.py` collects them in `artifacts/release-unsigned.zip` for signing.
-`python3 tools/format.py` applies formatting. Set `OPENFSSO_ARTIFACTS` to use
-another output folder with the tools.
-
-Sign the executables, create a SHA-256 catalog over each payload and sign the
-catalog. Put each signed `payload/` folder and its `OpenFsso.cat` into
-`artifacts/signed/client-signed.zip` and `receiver-signed.zip`, then build the
-MSIs into `artifacts/msi/`:
-
-```bash
-python3 tools/build_msi.py
-```
-
-Sign the resulting MSIs with your code-signing identity and a timestamp. The
-version comes from `Directory.Build.props`. `--role Receiver --service <name>`
-builds a separately installable receiver instance. See
-[deploy/msi/README.md](deploy/msi/README.md) for the WiX sources.
+The first command checks formatting, runs the tests and publishes the
+executables to `artifacts/`. The second builds the client and server MSIs into
+`artifacts/msi/`.
 
 ## Repository layout
 
