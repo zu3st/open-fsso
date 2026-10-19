@@ -20,7 +20,8 @@ syslog.
   After a service restart the owner is restored only when exactly one unlocked
   console session matches the saved record.
 - **Leases** live in receiver memory for 180 seconds after the last presence. A
-  restarted receiver starts empty and is repopulated within about a minute.
+  restarted receiver starts empty and is repopulated within seconds, as clients
+  reconnect immediately.
 - **Logoff** sends a release authorized by the lease reference the receiver
   returned with the last presence, since the user's Kerberos credentials end with
   the session. Lease expiry covers lost releases.
