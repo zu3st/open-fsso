@@ -159,11 +159,17 @@ The tray shows a blue dot while off-fabric.
 
 ![The OpenFSSO tray icon with its status tooltip](docs/tray-status.png)
 
-The client takes one to eight receivers. The tray dot is green when every
-configured receiver acknowledged recently, amber while connecting or with only
-some receivers healthy, red when all fail, gray while waiting for
-a logon or unlock, and blue off-fabric. The tray reads the service's local
-status pipe. `OpenFsso.Tray.exe --status-json <file>` writes the same snapshot.
+| Dot | Tooltip | Meaning |
+| --- | --- | --- |
+| Green | Connected | Every configured receiver acknowledged within the last two minutes |
+| Amber | Connecting, Partially connected | First attempt running, or only some receivers healthy |
+| Red | Delivery failed | All receivers failing |
+| Red | Service unavailable, Network check unavailable | Client service or fabric check not answering |
+| Gray | Waiting for logon or unlock | No selected user |
+| Blue | Off fabric | Outside the configured networks, updates paused |
+
+The client takes one to eight receivers. The tray reads the service's local
+status pipe, and `OpenFsso.Tray.exe --status-json <file>` writes the same snapshot.
 
 Receivers serve `GET /health` with `Authorization: Bearer <HealthApiKey>`. It
 returns readiness, the active lease count, collector service state and local UDP
