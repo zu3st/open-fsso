@@ -168,8 +168,8 @@ The tray shows a blue dot while off-fabric.
 | Gray | Waiting for logon or unlock | No selected user |
 | Blue | Off fabric | Outside the configured networks, updates paused |
 
-The client takes one to eight receivers. The tray reads the service's local
-status pipe, and `OpenFsso.Tray.exe --status-json <file>` writes the same snapshot.
+The client takes one to eight receivers. `OpenFsso.Tray.exe --status-json <file>`
+writes the current status as JSON.
 
 Receivers serve `GET /health` with `Authorization: Bearer <HealthApiKey>`. It
 returns readiness, the active lease count, collector service state and local UDP
