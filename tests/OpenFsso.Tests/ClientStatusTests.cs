@@ -108,6 +108,23 @@ public sealed class ClientStatusTests
     }
 
     [TestMethod]
+    public void TooltipFitsTheShellLimitByDroppingWholeLines()
+    {
+        var receivers = Enumerable.Range(1, ClientStatus.MaxReceivers).Select(i => new ReceiverStatus("Receiver-" + i, "192.0.2." + i, Now, Error: "Error " + i)).ToArray();
+        var tip = ClientStatusView.Create(new(1, Now, "DOMAIN\\Alice", receivers), Now).Tooltip();
+        Assert.IsLessThanOrEqualTo(127, tip.Length);
+        Assert.StartsWith("OpenFSSO - Delivery failed\nUser: DOMAIN\\Alice", tip);
+        Assert.IsFalse(tip.Split('\n').Any(line => line.Length == 0));
+    }
+
+    [TestMethod]
+    public void ReceiversWithTheSameProblemShareALine()
+    {
+        var view = ClientStatusView.Create(new(1, Now, "Alice", [new("A", Error: "Connection timed out"), new("B", Error: "Connection timed out")]), Now);
+        Assert.EndsWith("\nA, B: Connection timed out", view.Text);
+    }
+
+    [TestMethod]
     public void StaleStatusAndStaleAcknowledgementsCannotStayGreen()
     {
         var journal = new ClientStatusJournal(["A", "B"]);

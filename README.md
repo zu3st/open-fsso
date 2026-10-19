@@ -37,8 +37,8 @@ syslog.
   1–30 seconds after failures. Network, route and resume changes trigger an
   earlier renewal over a fresh connection.
 - `src/OpenFsso.Tray`: per-user notification icon. A shield with a colored dot
-  shows the state, and the hover card shows user, socket IP and the time of the
-  latest acknowledgement.
+  shows the state, and the standard Windows tooltip shows user, socket IP and
+  the time of the latest acknowledgement.
 - `src/OpenFsso.Receiver`: ASP.NET Core on HTTP.sys with native Kerberos and
   strict channel binding. A serialized pipeline applies presence, release, expiry
   and reassertion, and sends syslog to the local collector.

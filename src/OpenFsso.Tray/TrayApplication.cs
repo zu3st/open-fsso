@@ -7,36 +7,20 @@ namespace OpenFsso.Tray;
 
 internal sealed class TrayApplication : IDisposable
 {
-    internal const uint Callback = WM_APP + 1, Updated = WM_APP + 2;
-    internal const uint NIN_KEYSELECT = NIN_SELECT | NINF_KEY; // An SDK macro of two metadata constants.
+    private const uint Callback = WM_APP + 1, Updated = WM_APP + 2;
     private const string ClassName = "OpenFsso.Tray.Status";
     private readonly WNDPROC procedure;
     private readonly CancellationTokenSource stopping = new();
     private readonly Dictionary<(ClientIndicator, int, bool), HICON> icons = new();
     private readonly uint taskbarCreated = RegisterWindowMessage("TaskbarCreated");
     private readonly HWND window;
-    private readonly StatusPopup popup;
     private NOTIFYICONDATAW data;
     private ClientStatusView current = ClientStatusView.Create(null, DateTimeOffset.UtcNow);
     private Task? poll;
     private bool registered;
-    internal int ShellUpdateCount
-    {
-        get; private set;
-    }
-    internal HWND WindowHandle => window;
-    internal HWND TooltipHandle => popup.Handle;
-    internal HICON CurrentIconHandle => data.hIcon;
-    internal string PopupText => popup.Text;
-    internal string PopupFontFace => popup.FontFace;
-    internal int PopupShowCount => popup.ShowCount;
-    internal int PopupHideCount => popup.HideCount;
-    internal bool Registered => registered;
-    internal ClientStatusView View => Volatile.Read(ref current);
 
-    public unsafe TrayApplication(Guid? iconId = null, Action<string>? trace = null)
+    public unsafe TrayApplication()
     {
-        trace?.Invoke("registering message window");
         procedure = HandleMessage;
         var instance = GetModuleHandle((string?)null);
         fixed (char* name = ClassName)
@@ -60,19 +44,17 @@ internal sealed class TrayApplication : IDisposable
             throw new System.ComponentModel.Win32Exception();
         }
 
-        popup = new StatusPopup(window, trace);
+        // NIF_SHOWTIP lets the Shell draw the standard notification tooltip.
         data = new NOTIFYICONDATAW
         {
             cbSize = (uint)sizeof(NOTIFYICONDATAW),
             hWnd = window,
             uID = 1,
-            uFlags = NOTIFY_ICON_DATA_FLAGS.NIF_MESSAGE | NOTIFY_ICON_DATA_FLAGS.NIF_ICON | NOTIFY_ICON_DATA_FLAGS.NIF_TIP | NOTIFY_ICON_DATA_FLAGS.NIF_GUID,
+            uFlags = NOTIFY_ICON_DATA_FLAGS.NIF_MESSAGE | NOTIFY_ICON_DATA_FLAGS.NIF_ICON | NOTIFY_ICON_DATA_FLAGS.NIF_TIP | NOTIFY_ICON_DATA_FLAGS.NIF_SHOWTIP | NOTIFY_ICON_DATA_FLAGS.NIF_GUID,
             uCallbackMessage = Callback,
-            guidItem = iconId ?? new Guid("c47b4ae0-a336-48be-b0d2-74c689e70a71")
+            guidItem = new Guid("c47b4ae0-a336-48be-b0d2-74c689e70a71")
         };
-        trace?.Invoke("registering Shell icon");
         AddIcon();
-        trace?.Invoke("Shell icon registered");
         SetTimer(window, 1, 2000, null); // Also retries registration when Explorer is not ready.
     }
 
@@ -105,7 +87,7 @@ internal sealed class TrayApplication : IDisposable
     private void AddIcon()
     {
         data.hIcon = Icon();
-        data.szTip = Tip(current.Title);
+        data.szTip = current.Tooltip();
         registered = Shell_NotifyIcon(NOTIFY_ICON_MESSAGE.NIM_ADD, data);
         if (registered)
         {
@@ -113,8 +95,6 @@ internal sealed class TrayApplication : IDisposable
             Shell_NotifyIcon(NOTIFY_ICON_MESSAGE.NIM_SETVERSION, data);
         }
     }
-
-    private static string Tip(string title) => title.Length < 128 ? title : title[..127];
 
     private HICON Icon()
     {
@@ -138,57 +118,13 @@ internal sealed class TrayApplication : IDisposable
         }
 
         var icon = Icon();
-        string tip = Tip(current.Title);
+        string tip = current.Tooltip();
         if (icon != data.hIcon || tip != data.szTip.ToString())
         {
             data.hIcon = icon;
             data.szTip = tip;
             registered = Shell_NotifyIcon(NOTIFY_ICON_MESSAGE.NIM_MODIFY, data);
-            ShellUpdateCount++;
         }
-
-        if (popup.Visible)
-        {
-            popup.Update(current); // Text only; never reopen or move for elapsed seconds.
-        }
-    }
-
-    private void Show()
-    {
-        if (popup.Visible)
-        {
-            return;
-        }
-
-        popup.Update(current);
-        popup.Show(IconRect(), GetDpiForWindow(window));
-        SetTimer(window, 2, 15000, null); // Keyboard/click invocation also dismisses without a mouse-leave event.
-    }
-
-    private unsafe RECT IconRect()
-    {
-        var identity = new NOTIFYICONIDENTIFIER
-        {
-            cbSize = (uint)sizeof(NOTIFYICONIDENTIFIER),
-            hWnd = window,
-            uID = 1,
-            guidItem = data.guidItem
-        };
-        if (Shell_NotifyIconGetRect(identity, out var icon).Failed)
-        {
-            // The callback coordinates are not reliable in every Shell event.
-            // A missing/hidden Shell rectangle falls back to the actual pointer.
-            GetCursorPos(out var cursor);
-            icon = new RECT { left = cursor.X, right = cursor.X, top = cursor.Y, bottom = cursor.Y };
-        }
-
-        return icon;
-    }
-
-    private void Hide()
-    {
-        popup.Hide();
-        KillTimer(window, 2);
     }
 
     private LRESULT HandleMessage(HWND hwnd, uint message, WPARAM wparam, LPARAM lparam)
@@ -208,33 +144,11 @@ internal sealed class TrayApplication : IDisposable
             case WM_DPICHANGED:
                 Refresh();
                 return default;
-            case Callback:
-                switch ((uint)(lparam.Value & 0xffff))
-                {
-                    case NIN_POPUPOPEN:
-                    case NIN_SELECT:
-                    case NIN_KEYSELECT:
-                        Show();
-                        break;
-                    case NIN_POPUPCLOSE:
-                        Hide();
-                        break;
-                    case WM_CONTEXTMENU:
-                        Menu(wparam);
-                        break;
-                }
-
+            case Callback when (uint)(lparam.Value & 0xffff) == WM_CONTEXTMENU:
+                Menu(wparam);
                 return default;
             case WM_TIMER:
-                if (wparam.Value == 2)
-                {
-                    Hide();
-                }
-                else
-                {
-                    Refresh();
-                }
-
+                Refresh();
                 return default;
             case WM_CLOSE:
                 DestroyWindow(window);
@@ -258,7 +172,6 @@ internal sealed class TrayApplication : IDisposable
 
     private unsafe void Menu(WPARAM anchor)
     {
-        Hide();
         var menu = CreatePopupMenu();
         int result;
         try
@@ -289,7 +202,6 @@ internal sealed class TrayApplication : IDisposable
         stopping.Cancel();
         poll?.GetAwaiter().GetResult();
         Shell_NotifyIcon(NOTIFY_ICON_MESSAGE.NIM_DELETE, data);
-        popup.Dispose();
         foreach (var icon in icons.Values)
         {
             DestroyIcon(icon);

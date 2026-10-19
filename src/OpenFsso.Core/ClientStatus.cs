@@ -115,19 +115,31 @@ public sealed record ClientStatusView(ClientIndicator Indicator, string Title, s
         text += "\nIP: " + (ips.Length == 1 ? Clean(ips[0]) : string.Join(" · ", status.Receivers.Select(s => $"{Clean(s.Name)} {Clean(s.Ip ?? "—")}")));
         var latest = status.Receivers.Max(s => s.LastSentUtc);
         text += "\nLast sent: " + (latest is { } sent ? Ago(now - sent) : "never");
-        foreach (var s in status.Receivers)
+        // Receivers with the same problem share a line.
+        var problems = status.Receivers
+            .Select(s => (s.Name, Problem: s.Error ?? (s.LastSentUtc != null && !Fresh(s) ? "last acknowledgement is stale" : null)))
+            .Where(x => x.Problem != null)
+            .GroupBy(x => x.Problem!);
+        foreach (var problem in problems)
         {
-            if (s.Error != null)
-            {
-                text += $"\n{Clean(s.Name)}: {Clean(s.Error)}";
-            }
-            else if (s.LastSentUtc != null && !Fresh(s))
-            {
-                text += $"\n{Clean(s.Name)}: last acknowledgement is stale";
-            }
+            text += $"\n{string.Join(", ", problem.Select(x => Clean(x.Name)))}: {Clean(problem.Key)}";
         }
 
         return new(indicator, "OpenFSSO - " + title, text);
+    }
+
+    // The Shell's notification tooltip holds at most 127 characters, so whole
+    // lines are dropped from the end until the text fits.
+    public string Tooltip()
+    {
+        var lines = (Title + "\n" + Text).Split('\n').ToList();
+        while (lines.Count > 1 && string.Join('\n', lines).Length > 127)
+        {
+            lines.RemoveAt(lines.Count - 1);
+        }
+
+        string tip = string.Join('\n', lines);
+        return tip.Length <= 127 ? tip : tip[..127];
     }
 
     private static string Clean(string text) => new(text.Take(160).Select(c => char.IsControl(c) ? ' ' : c).ToArray());
