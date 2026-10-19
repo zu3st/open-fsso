@@ -1,4 +1,4 @@
-"""Package signed Docker outputs as MSIs; all packaging tools run in Docker."""
+"""Package Docker outputs as MSIs, from signed payloads unless --unsigned. All packaging tools run in Docker."""
 import argparse
 import os
 import re
@@ -13,11 +13,30 @@ from xml.etree import ElementTree as ET
 from paths import ARTIFACTS
 
 
+def extract(path, payload):
+    payload.mkdir()
+    with zipfile.ZipFile(path) as archive:
+        seen = set()
+        for entry in archive.infolist():
+            name = entry.filename.replace('\\', '/')
+            if not name.startswith('payload/') or entry.is_dir():
+                continue
+            relative = Path(name).relative_to('payload')
+            if '..' in relative.parts or ':' in name or str(relative).casefold() in seen:
+                raise ValueError('Unsafe signed-package path')
+            seen.add(str(relative).casefold())
+            destination = payload / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            with archive.open(entry) as source, destination.open('wb') as target:
+                shutil.copyfileobj(source, target)
+
+
 def main():
     root = Path(__file__).resolve().parent.parent
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--role', choices=('Client', 'Receiver', 'both'), default='both')
     parser.add_argument('--signed-packages', type=Path, default=ARTIFACTS / 'signed')
+    parser.add_argument('--unsigned', action='store_true', help='Package the unsigned build outputs in the artifacts folder')
     parser.add_argument('--output', type=Path, default=ARTIFACTS / 'msi')
     parser.add_argument('--service', help='Build-time identity for a separate receiver instance MSI family')
     parser.add_argument('--test-version', help='Package-only version override for upgrade tests')
@@ -42,22 +61,10 @@ def main():
         with tempfile.TemporaryDirectory(prefix='openfsso-msi-') as temp:
             input_directory = Path(temp)
             payload = input_directory / 'payload'
-            payload.mkdir()
-            archive_path = signed_packages / (role.lower() + '-signed.zip')
-            with zipfile.ZipFile(archive_path) as archive:
-                seen = set()
-                for entry in archive.infolist():
-                    name = entry.filename.replace('\\', '/')
-                    if not name.startswith('payload/') or entry.is_dir():
-                        continue
-                    relative = Path(name).relative_to('payload')
-                    if '..' in relative.parts or ':' in name or str(relative).casefold() in seen:
-                        raise ValueError('Unsafe signed-package path')
-                    seen.add(str(relative).casefold())
-                    destination = payload / relative
-                    destination.parent.mkdir(parents=True, exist_ok=True)
-                    with archive.open(entry) as source, destination.open('wb') as target:
-                        shutil.copyfileobj(source, target)
+            if args.unsigned:
+                shutil.copytree(ARTIFACTS / role.lower(), payload)
+            else:
+                extract(signed_packages / (role.lower() + '-signed.zip'), payload)
             # Single-file executables embed their dependency manifest; the version
             # resource still carries the build version as UTF-16 text.
             expected = ET.parse(root / 'Directory.Build.props').findtext('.//Version')

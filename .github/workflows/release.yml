@@ -1,0 +1,87 @@
+name: Release
+
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    env:
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Match tag to project version
+        run: |
+          version=$(python3 -c "import xml.etree.ElementTree as ET; print(ET.parse('Directory.Build.props').findtext('.//Version'))")
+          if [ "$TAG" != "v$version" ]; then
+            echo "::error::Tag $TAG does not match Directory.Build.props version $version"
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Check formatting, test and publish
+        run: docker build --target artifacts --output type=local,dest=artifacts .
+
+      - name: Build MSIs
+        run: python3 tools/build_msi.py --unsigned
+
+      - name: Collect release files
+        run: |
+          mkdir release
+          cp artifacts/msi/*.msi release/
+          python3 tools/package.py
+          cp artifacts/release-unsigned.zip "release/OpenFSSO-$VERSION-payload.zip"
+          (cd release && sha256sum -- * > SHA256SUMS)
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release
+          path: release/
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ !cancelled() }}
+        with:
+          name: diagnostics
+          path: |
+            artifacts/test-results/
+            artifacts/msi/*.wixpdb
+          if-no-files-found: ignore
+
+  release:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    env:
+      TAG: ${{ github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release
+          path: release
+
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-checksums: release/SHA256SUMS
+
+      - name: Create draft release
+        run: gh release create "$TAG" release/* --draft --verify-tag --title "OpenFSSO ${TAG#v}" --generate-notes
