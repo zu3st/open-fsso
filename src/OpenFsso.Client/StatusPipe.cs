@@ -1,25 +1,81 @@
 using System.IO.Pipes;
 using System.Text.Json;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using OpenFsso.Core;
 
 namespace OpenFsso.Client;
 
-public sealed class StatusPipe(Ownership ownership, ClientStatusJournal journal) : BackgroundService
+public sealed class StatusPipe(Ownership ownership, ClientStatusJournal journal, ILogger<StatusPipe> logger) : BackgroundService
 {
+    private static readonly TimeSpan Retry = TimeSpan.FromSeconds(30);
+
+    // The tray status is optional. If another process holds the pipe name, the
+    // service keeps sending presence and retries until the name is free.
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // Reserve the first instance before reporting service startup complete.
-        using var reservation = Create(true);
-        await Task.WhenAll(Serve(reservation, stoppingToken), Serve(null, stoppingToken));
+        bool warned = false;
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            NamedPipeServerStream reservation;
+            try
+            {
+                reservation = Create(true);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                if (!warned)
+                {
+                    logger.LogWarning("Status pipe is unavailable; the tray shows the service as unavailable until it is created; error {ErrorType}", e.GetType().Name);
+                    warned = true;
+                }
+
+                await Wait(stoppingToken);
+                continue;
+            }
+
+            if (warned)
+            {
+                logger.LogInformation("Status pipe created");
+            }
+
+            using (reservation)
+            {
+                await Task.WhenAll(Serve(reservation, stoppingToken), Serve(null, stoppingToken));
+            }
+
+            return;
+        }
+    }
+
+    private static async Task Wait(CancellationToken stopping)
+    {
+        try
+        {
+            await Task.Delay(Retry, stopping);
+        }
+        catch (OperationCanceledException)
+        {
+        }
     }
 
     private async Task Serve(NamedPipeServerStream? first, CancellationToken stopping)
     {
         while (!stopping.IsCancellationRequested)
         {
-            using var pipe = first ?? Create(false);
+            NamedPipeServerStream pipe;
+            try
+            {
+                pipe = first ?? Create(false);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                await Wait(stopping);
+                continue;
+            }
+
             first = null;
+            using var _ = pipe;
             try
             {
                 await pipe.WaitForConnectionAsync(stopping);
