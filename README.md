@@ -134,10 +134,9 @@ Collector timers:
 
 - **Workstation verify interval** `0`. The receiver reports logoffs and expired
   leases itself, so the collector's workstation checks are not needed.
-- **Dead entry timeout** above `0`, for example the default 480 minutes. It
-  removes entries whose logout never arrived. The receiver sends an update for
-  every signed-in user each `ReassertSeconds` (default 3600), so keep that well
-  below the timeout.
+- **Dead entry timeout** `480` minutes, the default. It removes entries whose
+  logout never arrived, while the receiver's hourly update
+  (`ReassertSeconds: 3600`) keeps signed-in users from being removed.
 - **IP address change verify interval** `0`, since the receiver reports address
   changes itself.
 
