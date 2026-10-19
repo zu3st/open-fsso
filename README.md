@@ -143,6 +143,8 @@ The tray shows a blue dot while off-fabric.
 
 ## Status and health
 
+![The OpenFSSO tray icon with its status tooltip](docs/tray-status.png)
+
 The tray dot is green when both receivers acknowledged recently, amber while
 connecting or with one receiver healthy, red on failure, gray while waiting for
 a logon or unlock, and blue off-fabric. The tray reads the service's local
