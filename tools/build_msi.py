@@ -59,7 +59,12 @@ def main():
     roles = ('Client', 'Receiver') if args.role == 'both' else (args.role,)
     for role in roles:
         with tempfile.TemporaryDirectory(prefix='openfsso-msi-') as temp:
+            # The container runs as its own wix user, whose ID may differ from ours.
             input_directory = Path(temp)
+            input_directory.chmod(0o755)
+            built = input_directory / 'out'
+            built.mkdir()
+            built.chmod(0o777)
             payload = input_directory / 'payload'
             if args.unsigned:
                 shutil.copytree(ARTIFACTS / role.lower(), payload)
@@ -82,11 +87,13 @@ def main():
                 'UpgradeCode': str(uuid.uuid5(namespace, identity)),
             }
             command = ['docker', 'run', '--rm', '--mount', f'type=bind,source={input_directory},target=/input,readonly',
-                       '--mount', f'type=bind,source={output},target=/out', 'openfsso-msi-builder:local',
+                       '--mount', f'type=bind,source={built},target=/out', 'openfsso-msi-builder:local',
                        filename.removesuffix('.msi')]
             for name, value in definitions.items():
                 command.extend(['-d', name + '=' + value])
             subprocess.run(command, check=True)
+            for file in built.iterdir():
+                shutil.copyfile(file, output / file.name)
 
 
 if __name__ == '__main__':
