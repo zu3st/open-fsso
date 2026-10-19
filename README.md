@@ -121,8 +121,9 @@ The client service also starts the tray in sessions that are already signed in.
 ## Configuration
 
 Both services read YAML with case-sensitive property names. Single-quote Windows
-paths and the syslog templates, which end with a space. Configuration is
-read at service start. Check a file before deployment with:
+paths and the syslog templates, which end with a space. A client lists one to
+eight receivers under `Receivers`. Configuration is read at service start. Check
+a file before deployment with:
 
 ```powershell
 OpenFsso.Client.exe --validate-config C:\Release\client.yaml
@@ -168,8 +169,8 @@ The tray shows a blue dot while off-fabric.
 | Gray | Waiting for logon or unlock | No selected user |
 | Blue | Off fabric | Outside the configured networks, updates paused |
 
-The client takes one to eight receivers. Scripts can query the status with
-`OpenFsso.Tray.exe --status-json <file>`, which writes it to the file as JSON.
+Scripts can query the status with `OpenFsso.Tray.exe --status-json <file>`,
+which writes it to the file as JSON.
 
 Receivers serve `GET /health` with `Authorization: Bearer <HealthApiKey>`. It
 reports whether the receiver is ready, how many users are mapped, whether the
