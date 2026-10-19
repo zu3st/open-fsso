@@ -22,6 +22,7 @@ public static class ReceiverAuthentication
 
     public static IServiceCollection AddReceiverAuthentication(this IServiceCollection services, string healthApiKey)
     {
+        services.AddSingleton(sp => new RejectionLog(sp.GetRequiredService<ILoggerFactory>().CreateLogger("OpenFsso.Receiver.Rejections"), TimeProvider.System));
         services.AddAuthentication(Windows)
             .AddScheme<AuthenticationSchemeOptions, WindowsHandler>(Windows, null)
             .AddScheme<HealthKeyOptions, HealthKeyHandler>(HealthKey, options => options.Digest = HealthKeyHandler.Digest(healthApiKey));
@@ -37,7 +38,7 @@ public static class ReceiverAuthentication
 // HTTP.sys authenticates natively on the URL group; this exposes that identity.
 // The framework's own HTTP.sys scheme stays disabled because it would add a
 // Kerberos challenge to every 401, including the Bearer-only health route.
-internal sealed class WindowsHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
+internal sealed class WindowsHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, RejectionLog rejections) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
@@ -47,7 +48,7 @@ internal sealed class WindowsHandler(IOptionsMonitor<AuthenticationSchemeOptions
             // machine account, or name that could break the syslog line.
             if (identity.User == null || !string.Equals(identity.AuthenticationType, "Kerberos", StringComparison.OrdinalIgnoreCase) || identity.Name.EndsWith('$') || identity.Name.Any(c => char.IsControl(c) || c is '"' or '<' or '>'))
             {
-                Logger.LogWarning("Rejected authenticated identity type {AuthenticationType}", identity.AuthenticationType);
+                rejections.Identity(identity.AuthenticationType);
                 return Task.FromResult(Success(new ClaimsIdentity([new Claim(ClaimTypes.Name, identity.Name)], Scheme.Name)));
             }
 

@@ -16,7 +16,7 @@ public static class PresenceSession
 
     // stopping ends every session when the receiver shuts down, so a restart
     // need not wait for clients and they reconnect to the new process.
-    public static async Task Run(HttpContext context, SerializedLeases leases, ILogger logger, CancellationToken stopping)
+    public static async Task Run(HttpContext context, SerializedLeases leases, RejectionLog rejections, CancellationToken stopping)
     {
         if (!context.WebSockets.IsWebSocketRequest || context.Connection.RemoteIpAddress is not { } peer)
         {
@@ -31,7 +31,7 @@ public static class PresenceSession
         using var shutdown = stopping.Register(() => _ = GoingAway(socket));
         try
         {
-            await Serve(socket, user, peer, leases, logger, context.RequestAborted);
+            await Serve(socket, user, peer, leases, rejections, context.RequestAborted);
         }
         catch (OperationCanceledException)
         {
@@ -42,7 +42,7 @@ public static class PresenceSession
         }
     }
 
-    private static async Task Serve(WebSocket socket, AuthenticatedUser user, IPAddress peer, SerializedLeases leases, ILogger logger, CancellationToken session)
+    private static async Task Serve(WebSocket socket, AuthenticatedUser user, IPAddress peer, SerializedLeases leases, RejectionLog rejections, CancellationToken session)
     {
         var buffer = new byte[MaximumMessage];
         while (socket.State == WebSocketState.Open)
@@ -62,7 +62,7 @@ public static class PresenceSession
                 var decision = request == null ? null : await leases.PresenceAsync(user, peer, request, idle.Token);
                 if (decision?.Status == 400)
                 {
-                    logger.LogWarning("Rejected socket IP claim {ClaimedIp} from {SourceIp}", request!.ConnectionLocalIp, peer.ToString());
+                    rejections.SocketClaim(request!.ConnectionLocalIp, peer);
                 }
 
                 reply = decision == null ? new(400, new(null, ReceiverOptions.LeaseSeconds, "invalid-json")) : new(decision.Status, decision.Reply);

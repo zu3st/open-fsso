@@ -39,7 +39,7 @@ public sealed class PresenceSessionTests
             context.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, "DOMAIN\\Alice"), new Claim(ClaimTypes.PrimarySid, "S-1-5-21-1")], "Windows"));
             return next(context);
         });
-        app.Map("/v1/session", (HttpContext context) => PresenceSession.Run(context, leases, NullLogger.Instance, stopping));
+        app.Map("/v1/session", (HttpContext context) => PresenceSession.Run(context, leases, new RejectionLog(NullLogger.Instance, TimeProvider.System), stopping));
         await app.StartAsync();
         return (app, changes);
     }

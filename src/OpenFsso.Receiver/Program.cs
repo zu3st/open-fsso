@@ -112,6 +112,7 @@ app.Use(async (context, next) =>
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TimeSpan.FromSeconds(30), KeepAliveTimeout = TimeSpan.FromSeconds(30) });
+var rejections = app.Services.GetRequiredService<RejectionLog>();
 async Task<IResult> Mapping(HttpContext context, Func<IPAddress, PresenceRequest, CancellationToken, Task<Decision>> apply)
 {
     using var deadline = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted);
@@ -137,13 +138,13 @@ async Task<IResult> Mapping(HttpContext context, Func<IPAddress, PresenceRequest
     var decision = await apply(context.Connection.RemoteIpAddress, request, deadline.Token);
     if (decision.Status == 400)
     {
-        app.Logger.LogWarning("Rejected socket IP claim {ClaimedIp} from {SourceIp}", request.ConnectionLocalIp, context.Connection.RemoteIpAddress.ToString());
+        rejections.SocketClaim(request.ConnectionLocalIp, context.Connection.RemoteIpAddress);
     }
 
     return Results.Json(decision.Reply, statusCode: decision.Status);
 }
 
-app.Map("/v1/session", (HttpContext context, SerializedLeases leases) => PresenceSession.Run(context, leases, app.Logger, app.Lifetime.ApplicationStopping));
+app.Map("/v1/session", (HttpContext context, SerializedLeases leases) => PresenceSession.Run(context, leases, rejections, app.Lifetime.ApplicationStopping));
 // Release follows logoff, when the user's Kerberos credentials no longer exist.
 // The lease reference returned with each presence authorizes it instead.
 app.MapPost("/v1/release", (HttpContext context, SerializedLeases leases) => Mapping(context, leases.ReleaseAsync)).AllowAnonymous();
