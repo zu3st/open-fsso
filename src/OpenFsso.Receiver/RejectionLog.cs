@@ -1,4 +1,5 @@
 using System.Net;
+using OpenFsso.Logging;
 
 namespace OpenFsso.Receiver;
 
@@ -15,7 +16,7 @@ public sealed class RejectionLog(ILogger logger, TimeProvider clock)
         if (Allow())
         {
             // Only a parsed address reaches the log, never the client's raw text.
-            logger.LogWarning("Rejected socket IP claim {ClaimedIp} from {SourceIp}", IPAddress.TryParse(claimed, out var ip) ? ip.ToString() : "invalid", source.ToString());
+            logger.Write(LogLevel.Warning, "Rejected socket IP claim", ("ClaimedIp", IPAddress.TryParse(claimed, out var ip) ? ip.ToString() : "invalid"), ("SourceIp", source.ToString()));
         }
     }
 
@@ -23,7 +24,7 @@ public sealed class RejectionLog(ILogger logger, TimeProvider clock)
     {
         if (Allow())
         {
-            logger.LogWarning("Rejected authenticated identity type {AuthenticationType}", authenticationType);
+            logger.Write(LogLevel.Warning, "Rejected authenticated identity", ("AuthenticationType", authenticationType));
         }
     }
 
@@ -53,7 +54,7 @@ public sealed class RejectionLog(ILogger logger, TimeProvider clock)
 
         if (dropped > 0)
         {
-            logger.LogWarning("Suppressed {Count} further rejection warnings in the previous minute", dropped);
+            logger.Write(LogLevel.Warning, "Suppressed further rejection warnings in the previous minute", ("Suppressed", dropped));
         }
 
         return allowed;

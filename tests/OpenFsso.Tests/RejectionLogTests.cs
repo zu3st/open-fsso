@@ -8,12 +8,20 @@ namespace OpenFsso.Tests;
 [TestClass]
 public sealed class RejectionLogTests
 {
+    // Records each message with the fields of the scope it was written in.
     private sealed class Lines : ILogger
     {
-        public List<string> Messages { get; } = [];
-        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+        private IReadOnlyList<KeyValuePair<string, object?>> scope = [];
+        public List<(string Message, Dictionary<string, object?> Fields)> Entries { get; } = [];
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull
+        {
+            scope = state as IReadOnlyList<KeyValuePair<string, object?>> ?? [];
+            return null;
+        }
+
         public bool IsEnabled(LogLevel logLevel) => true;
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) => Messages.Add(formatter(state, exception));
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) =>
+            Entries.Add((formatter(state, exception), scope.ToDictionary(x => x.Key, x => x.Value)));
     }
 
     private static readonly IPAddress Source = IPAddress.Parse("192.0.2.10");
@@ -29,11 +37,11 @@ public sealed class RejectionLogTests
             log.SocketClaim("192.0.2.99", Source);
         }
 
-        Assert.HasCount(RejectionLog.Limit, lines.Messages);
+        Assert.HasCount(RejectionLog.Limit, lines.Entries);
         clock.Advance(TimeSpan.FromSeconds(61));
         log.Identity("NTLM");
-        Assert.Contains("Suppressed 15", lines.Messages[RejectionLog.Limit]);
-        Assert.Contains("NTLM", lines.Messages[^1]);
+        Assert.AreEqual(15, lines.Entries[RejectionLog.Limit].Fields["Suppressed"]);
+        Assert.AreEqual("NTLM", lines.Entries[^1].Fields["AuthenticationType"]);
     }
 
     [TestMethod]
@@ -43,7 +51,9 @@ public sealed class RejectionLogTests
         var log = new RejectionLog(lines, new FakeTimeProvider());
         log.SocketClaim(new string('x', 4000), Source);
         log.SocketClaim("::ffff:192.0.2.99", Source);
-        Assert.AreEqual("Rejected socket IP claim invalid from 192.0.2.10", lines.Messages[0]);
-        Assert.AreEqual("Rejected socket IP claim ::ffff:192.0.2.99 from 192.0.2.10", lines.Messages[1]);
+        Assert.AreEqual("Rejected socket IP claim", lines.Entries[0].Message);
+        Assert.AreEqual("invalid", lines.Entries[0].Fields["ClaimedIp"]);
+        Assert.AreEqual("192.0.2.10", lines.Entries[0].Fields["SourceIp"]);
+        Assert.AreEqual("::ffff:192.0.2.99", lines.Entries[1].Fields["ClaimedIp"]);
     }
 }

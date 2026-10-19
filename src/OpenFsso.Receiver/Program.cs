@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using OpenFsso.Configuration;
 using OpenFsso.Core;
+using OpenFsso.Logging;
 using OpenFsso.Receiver;
 using OpenFsso.Windows;
 using Serilog;
@@ -178,7 +179,7 @@ async Task<ReceiverRuntime> Start()
 
     startup.Activate(System.Diagnostics.Stopwatch.GetTimestamp());
     Volatile.Write(ref ready, 1);
-    app.Logger.LogInformation("Receiver ready; Kerberos presence authentication and strict channel binding verified; Bearer health authentication enabled; runtime {Runtime}", Environment.Version.ToString());
+    app.Logger.Write(LogLevel.Information, "Receiver ready; Kerberos presence authentication and strict channel binding verified; Bearer health authentication enabled", ("Runtime", Environment.Version.ToString()));
     return new ReceiverRuntime(app, async () =>
     {
         Volatile.Write(ref ready, 0);

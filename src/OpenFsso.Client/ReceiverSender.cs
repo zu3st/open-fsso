@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Channels;
 using Microsoft.Extensions.Logging;
 using OpenFsso.Core;
+using OpenFsso.Logging;
 using OpenFsso.Windows;
 
 namespace OpenFsso.Client;
@@ -145,13 +146,13 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
 
                     if (previousIp != reply.LocalIp)
                     {
-                        logger.LogInformation("Receiver {Receiver} path uses socket IP {SourceIp}", endpoint.Name, reply.LocalIp);
+                        logger.Write(LogLevel.Information, "Receiver path uses a new socket IP", ("Receiver", endpoint.Name), ("SourceIp", reply.LocalIp));
                         previousIp = reply.LocalIp;
                     }
 
                     if (failed)
                     {
-                        logger.LogInformation("Receiver {Receiver} recovered", endpoint.Name);
+                        logger.Write(LogLevel.Information, "Receiver recovered", ("Receiver", endpoint.Name));
                     }
 
                     failed = false;
@@ -176,7 +177,7 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
 
                 if (!failed)
                 {
-                    logger.LogWarning("Selected user logon is unavailable for {Receiver}; error {ErrorType}", endpoint.Name, e.InnerException!.GetType().Name);
+                    logger.Write(LogLevel.Warning, "Selected user logon is unavailable", ("Receiver", endpoint.Name), ("ErrorType", e.InnerException!.GetType().Name));
                 }
 
                 failed = true;
@@ -190,7 +191,7 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
                 delay = Math.Min(30, Math.Pow(2, failures - 1) * (0.8 + Random.Shared.NextDouble() * 0.4));
                 if (!failed)
                 {
-                    logger.LogWarning("Receiver {Receiver} delivery failed; error {ErrorType}", endpoint.Name, e.GetType().Name);
+                    logger.Write(LogLevel.Warning, "Receiver delivery failed", ("Receiver", endpoint.Name), ("ErrorType", e.GetType().Name), ("HttpStatus", (e as ReceiverRejectedException)?.Status));
                 }
 
                 failed = true;

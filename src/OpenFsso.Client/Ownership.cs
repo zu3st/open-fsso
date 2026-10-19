@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32.SafeHandles;
+using OpenFsso.Logging;
 using OpenFsso.Windows;
 
 namespace OpenFsso.Client;
@@ -43,16 +44,16 @@ public sealed class Ownership(ClientOptions options, ILogger<Ownership> logger) 
             }
             else
             {
-                logger.LogInformation("Waiting for an interactive logon or unlock; {Count} attached sessions", attached.Length);
+                logger.Write(LogLevel.Information, "Waiting for an interactive logon or unlock", ("AttachedSessions", attached.Length));
                 return;
             }
 
             Volatile.Write(ref current, new(1, owner));
-            logger.LogInformation("Selected interactive owner {UserName} ({UserSid}) at service start, session {SessionId}, generation {Generation}", owner.Name, owner.Sid, owner.SessionId, owner.Generation);
+            logger.Write(LogLevel.Information, "Selected interactive owner at service start", ("UserName", owner.Name), ("UserSid", owner.Sid), ("SessionId", owner.SessionId), ("Generation", owner.Generation));
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException or Win32Exception or InvalidOperationException)
         {
-            logger.LogError("Owner selection at service start failed closed; error {ErrorType}", e.GetType().Name);
+            logger.Write(LogLevel.Error, "Owner selection at service start failed closed", ("ErrorType", e.GetType().Name));
         }
     }
 
@@ -68,7 +69,7 @@ public sealed class Ownership(ClientOptions options, ILogger<Ownership> logger) 
         }
         catch (Win32Exception e)
         {
-            logger.LogWarning("Cannot validate session protocol; session {SessionId}, Windows error {NativeCode}", sessionId, e.NativeErrorCode);
+            logger.Write(LogLevel.Warning, "Cannot validate session protocol", ("SessionId", sessionId), ("ErrorCode", e.NativeErrorCode));
             return;
         }
 
@@ -119,7 +120,7 @@ public sealed class Ownership(ClientOptions options, ILogger<Ownership> logger) 
                         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
                         {
                             Volatile.Write(ref current, new(current.Revision + 1, null));
-                            logger.LogError("Owner state could not be saved; renewals stopped; error {ErrorType}", e.GetType().Name);
+                            logger.Write(LogLevel.Error, "Owner state could not be saved; renewals stopped", ("ErrorType", e.GetType().Name));
                             published = true;
                             next = null;
                         }
@@ -129,7 +130,7 @@ public sealed class Ownership(ClientOptions options, ILogger<Ownership> logger) 
                             Volatile.Write(ref current, new(current.Revision + 1, next));
                             if (previous?.Generation != next.Generation)
                             {
-                                logger.LogInformation("Selected interactive owner {UserName} ({UserSid}), session {SessionId}, generation {Generation}", next.Name, next.Sid, next.SessionId, next.Generation);
+                                logger.Write(LogLevel.Information, "Selected interactive owner", ("UserName", next.Name), ("UserSid", next.Sid), ("SessionId", next.SessionId), ("Generation", next.Generation));
                             }
 
                             published = true;
@@ -147,7 +148,7 @@ public sealed class Ownership(ClientOptions options, ILogger<Ownership> logger) 
                 {
                     if (attempt == 11)
                     {
-                        logger.LogWarning("Interactive session token is unavailable; session {SessionId}, error {ErrorType}", sessionId, e.GetType().Name);
+                        logger.Write(LogLevel.Warning, "Interactive session token is unavailable", ("SessionId", sessionId), ("ErrorType", e.GetType().Name));
                     }
                 }
 
@@ -177,7 +178,7 @@ public sealed class Ownership(ClientOptions options, ILogger<Ownership> logger) 
             if (current.Owner?.SessionId == sessionId)
             {
                 selection?.Cancel();
-                logger.LogInformation("Owner logged off; {UserName} ({UserSid})", current.Owner.Name, current.Owner.Sid);
+                logger.Write(LogLevel.Information, "Owner logged off", ("UserName", current.Owner.Name), ("UserSid", current.Owner.Sid));
                 Volatile.Write(ref current, new(current.Revision + 1, null));
                 try
                 {

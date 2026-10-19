@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using OpenFsso.Core;
+using OpenFsso.Logging;
 
 namespace OpenFsso.Receiver;
 
@@ -24,12 +25,12 @@ public sealed class SyslogRelay(ReceiverOptions options, ILogger<SyslogRelay> lo
             string line = SyslogFormat.Render(format, change);
             using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(2));
             await socket.SendAsync(Encoding.UTF8.GetBytes(line), new IPEndPoint(IPAddress.Loopback, options.SyslogPort), deadline.Token);
-            logger.LogInformation("Mapping {Action}: {UserName} ({UserSid}) at {SourceIp}; {Reason}; generation {Generation}", change.Action, change.User.Name, change.User.Sid, change.Ip, change.Reason, change.Generation);
+            logger.Write(LogLevel.Information, "Mapping sent to the collector", ("Action", change.Action), ("UserName", change.User.Name), ("UserSid", change.User.Sid), ("SourceIp", change.Ip), ("Reason", change.Reason), ("Generation", change.Generation));
         }
         catch (Exception e) when (e is SocketException or IOException or OperationCanceledException)
         {
             Recovery.Failed();
-            logger.LogError("Local syslog delivery failed for {Action}, source {SourceIp}, identity {UserName}, SID {UserSid}, {Reason}, generation {Generation}; error {ErrorType}", change.Action, change.Ip, change.User.Name, change.User.Sid, change.Reason, change.Generation, e.GetType().Name);
+            logger.Write(LogLevel.Error, "Local syslog delivery failed", ("Action", change.Action), ("UserName", change.User.Name), ("UserSid", change.User.Sid), ("SourceIp", change.Ip), ("Reason", change.Reason), ("Generation", change.Generation), ("ErrorType", e.GetType().Name));
         }
     }
 

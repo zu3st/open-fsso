@@ -44,7 +44,7 @@ syslog.
   and reassertion, and sends syslog to the local collector.
 - `src/OpenFsso.Windows`, `src/OpenFsso.Core`, `src/OpenFsso.Configuration`,
   `src/OpenFsso.Logging`: Windows interop, leases, YAML loading with JSON Schema
-  validation, and ECS JSON logging.
+  validation, and ECS JSON logging with OpenFSSO fields under `openfsso.*`.
 
 ## Build and test
 

@@ -1,4 +1,5 @@
 using OpenFsso.Core;
+using OpenFsso.Logging;
 using OpenFsso.Windows;
 
 namespace OpenFsso.Receiver;
@@ -27,7 +28,7 @@ public sealed class LeaseWorker(SerializedLeases leases, SyslogRelay relay, Rece
             bool restart = pid != 0 && pid != previousPid;
             if ((pid != 0) != collectorAvailable)
             {
-                logger.LogWarning("Collector availability changed to {Available}; PID {CollectorPid}", pid != 0, pid);
+                logger.Write(LogLevel.Warning, "Collector availability changed", ("CollectorAvailable", pid != 0), ("CollectorPid", pid));
             }
 
             Volatile.Write(ref collectorAvailable, pid != 0);

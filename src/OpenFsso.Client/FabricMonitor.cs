@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using Microsoft.Extensions.Logging;
 using OpenFsso.Core;
+using OpenFsso.Logging;
 
 namespace OpenFsso.Client;
 
@@ -55,7 +56,7 @@ public sealed class FabricMonitor
             {
                 version++;
                 state = next;
-                logger.LogInformation("Fabric status changed to {FabricState}", state);
+                logger.Write(LogLevel.Information, "Fabric status changed", ("FabricState", state.ToString()));
             }
 
             status.Fabric(new(state, DateTimeOffset.UtcNow));

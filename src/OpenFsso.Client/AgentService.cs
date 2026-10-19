@@ -2,6 +2,7 @@ using System.ServiceProcess;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OpenFsso.Logging;
 
 namespace OpenFsso.Client;
 
@@ -34,7 +35,7 @@ public sealed class AgentService : ServiceBase
         });
         runtime.Ownership.Restore();
         runtime.Host.StartAsync().GetAwaiter().GetResult();
-        runtime.Host.Services.GetRequiredService<ILogger<AgentService>>().LogInformation("Client service ready; runtime {Runtime}", Environment.Version.ToString());
+        runtime.Host.Services.GetRequiredService<ILogger<AgentService>>().Write(LogLevel.Information, "Client service ready", ("Runtime", Environment.Version.ToString()));
     }
 
     protected override void OnStop()

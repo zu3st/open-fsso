@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OpenFsso.Core;
+using OpenFsso.Logging;
 
 namespace OpenFsso.Client;
 
@@ -26,7 +27,7 @@ public sealed class StatusPipe(Ownership ownership, ClientStatusJournal journal,
             {
                 if (!warned)
                 {
-                    logger.LogWarning("Status pipe is unavailable; the tray shows the service as unavailable until it is created; error {ErrorType}", e.GetType().Name);
+                    logger.Write(LogLevel.Warning, "Status pipe is unavailable; the tray shows the service as unavailable until it is created", ("ErrorType", e.GetType().Name));
                     warned = true;
                 }
 

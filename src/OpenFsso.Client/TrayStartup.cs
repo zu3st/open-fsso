@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OpenFsso.Logging;
 using OpenFsso.Windows;
 
 namespace OpenFsso.Client;
@@ -29,13 +30,13 @@ public sealed class TrayStartup(ILogger<TrayStartup> logger) : BackgroundService
                 try
                 {
                     uint pid = SessionProcess.Start(session.SessionId, executable);
-                    logger.LogInformation("Tray launch requested for session {SessionId}; process {ProcessId}", session.SessionId, pid);
+                    logger.Write(LogLevel.Information, "Tray launch requested", ("SessionId", session.SessionId), ("TrayPid", pid));
                 }
                 catch (Exception error) when (error is Win32Exception or InvalidOperationException or UnauthorizedAccessException)
                 {
                     // A session can disappear while installation is finishing.
                     // Tray availability must not prevent authentication service startup.
-                    logger.LogWarning(error, "Could not start tray in session {SessionId}", session.SessionId);
+                    logger.Write(LogLevel.Warning, error, "Could not start tray", ("SessionId", session.SessionId));
                 }
             }
         }
