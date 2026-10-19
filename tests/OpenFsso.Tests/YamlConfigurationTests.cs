@@ -39,6 +39,8 @@ public sealed class YamlConfigurationTests
         Assert.IsTrue(client.Receivers.All(x => x.CheckRevocation));
         Assert.EndsWith("ip={ip} ", receiver.LoginTemplate);
         Assert.EndsWith("ip={ip} ", receiver.LogoutTemplate);
+        Assert.EndsWith("ip={ip} ", receiver.UpdateTemplate);
+        Assert.Contains("action=update", receiver.UpdateTemplate);
         Assert.Contains("user=\"{user}\"", receiver.LoginTemplate);
     }
 

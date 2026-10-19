@@ -16,6 +16,7 @@
     "CollectorService": { "type": "string", "minLength": 1, "maxLength": 256 },
     "LoginTemplate": { "$ref": "#/$defs/template" },
     "LogoutTemplate": { "$ref": "#/$defs/template" },
+    "UpdateTemplate": { "$ref": "#/$defs/template" },
     "LogDirectory": { "type": "string", "minLength": 1 },
     "HealthApiKey": {
       "description": "A separate random Bearer token for each receiver.",

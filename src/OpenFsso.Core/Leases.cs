@@ -117,7 +117,9 @@ public sealed class LeaseStore(TimeProvider clock, int leaseSeconds = 180)
         return changes;
     }
 
-    public IReadOnlyList<MappingChange> Reassert() => leases.Values.Select(x => new MappingChange("login", x.Ip, x.User, x.Generation, "collector-reassert")).ToArray();
+    // "login" restores the collector's list after its restart or a lost send.
+    // "update" keeps its entries from reaching the dead entry timeout.
+    public IReadOnlyList<MappingChange> Reassert(string action) => leases.Values.Select(x => new MappingChange(action, x.Ip, x.User, x.Generation, "collector-reassert")).ToArray();
     private void Remove(Lease lease, string reason, List<MappingChange> changes)
     {
         leases.Remove(lease.Ip);
@@ -158,7 +160,7 @@ public sealed class SerializedLeases(LeaseStore store, Func<MappingChange, Task>
         }
     }
 
-    public async Task TickAsync(bool reassert, CancellationToken ct)
+    public async Task TickAsync(string? reassert, CancellationToken ct)
     {
         await pipeline.WaitAsync(ct);
         try
@@ -170,9 +172,9 @@ public sealed class SerializedLeases(LeaseStore store, Func<MappingChange, Task>
                 await emit(change);
             }
 
-            if (reassert)
+            if (reassert != null)
             {
-                foreach (var change in store.Reassert())
+                foreach (var change in store.Reassert(reassert))
                 {
                     await emit(change);
                 }

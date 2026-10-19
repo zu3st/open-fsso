@@ -12,4 +12,5 @@ HealthApiKey: ''
 # Keep the trailing space inside each quoted template.
 LoginTemplate: '<134>OpenFsso action=login user="{user}" group="ignored-by-remote-LDAP" ip={ip} '
 LogoutTemplate: '<134>OpenFsso action=logout user="{user}" group="ignored-by-remote-LDAP" ip={ip} '
+UpdateTemplate: '<134>OpenFsso action=update user="{user}" group="ignored-by-remote-LDAP" ip={ip} '
 LogDirectory: 'C:\ProgramData\OpenFsso\OpenFssoReceiver\Logs'

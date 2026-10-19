@@ -34,10 +34,10 @@ public sealed class LeaseWorker(SerializedLeases leases, SyslogRelay relay, Rece
             previousPid = pid;
             long now = TimeProvider.System.GetTimestamp();
             bool periodic = options.ReassertSeconds > 0 && TimeProvider.System.GetElapsedTime(lastReassert) >= TimeSpan.FromSeconds(options.ReassertSeconds);
-            bool reassert = pid != 0 && (restart || periodic || !relay.Healthy);
+            string? reassert = pid == 0 ? null : restart || !relay.Healthy ? "login" : periodic ? "update" : null;
             long deliveryVersion = relay.Recovery.Version;
             await leases.TickAsync(reassert, ct);
-            if (reassert)
+            if (reassert != null)
             {
                 relay.Recovery.CompleteReassert(deliveryVersion);
                 lastReassert = now;

@@ -15,7 +15,12 @@ public sealed class SyslogRelay(ReceiverOptions options, ILogger<SyslogRelay> lo
     {
         try
         {
-            string format = change.Action == "login" ? options.LoginTemplate : options.LogoutTemplate;
+            string format = change.Action switch
+            {
+                "login" => options.LoginTemplate,
+                "update" => options.UpdateTemplate,
+                _ => options.LogoutTemplate
+            };
             string line = SyslogFormat.Render(format, change);
             using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(2));
             await socket.SendAsync(Encoding.UTF8.GetBytes(line), new IPEndPoint(IPAddress.Loopback, options.SyslogPort), deadline.Token);

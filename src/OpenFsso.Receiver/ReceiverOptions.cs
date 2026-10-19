@@ -16,6 +16,7 @@ public sealed record ReceiverOptions
     public string CollectorService { get; init; } = "Fortinet_FSAE";
     public string LoginTemplate { get; init; } = "<134>OpenFsso action=login user=\"{user}\" group=\"ignored-by-remote-LDAP\" ip={ip} ";
     public string LogoutTemplate { get; init; } = "<134>OpenFsso action=logout user=\"{user}\" group=\"ignored-by-remote-LDAP\" ip={ip} ";
+    public string UpdateTemplate { get; init; } = "<134>OpenFsso action=update user=\"{user}\" group=\"ignored-by-remote-LDAP\" ip={ip} ";
     public required string LogDirectory
     {
         get; init;

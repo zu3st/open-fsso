@@ -173,39 +173,48 @@ curl --header "Authorization: Bearer $HEALTH_API_KEY" https://receiver-a.example
 
 ## Fortinet collector
 
-The receiver sends one syslog line per login or logout to the Collector Agent
-on the same host. Use Collector Agent 5.0.0291 or later in Advanced Mode, with
-its syslog server enabled on UDP 514 (the receiver's `SyslogPort`).
+The receiver sends syslog to the Collector Agent on the same host: a login when
+a mapping starts, a logout when it ends, and an hourly update for each active
+mapping. Use Collector Agent 5.0.0291 or later in Advanced Mode, with its
+syslog server enabled on UDP 514 (the receiver's `SyslogPort`).
 
-Add this matching rule under **Advanced Settings > Syslog Source List**. It fits
-the default receiver templates. Replace `EXAMPLE` with the users' NetBIOS domain.
-Users of other domains do not match and are not mapped.
+The default templates produce lines such as:
+
+```text
+<134>OpenFsso action=login user="EXAMPLE\alice" group="ignored-by-remote-LDAP" ip=192.0.2.31 
+```
+
+Add this matching rule under **Advanced Settings > Syslog Source List**.
+Replace `EXAMPLE` with the users' NetBIOS domain. Users of other domains do not
+match and are not mapped. All three events are required.
 
 | Field | Value |
 | --- | --- |
 | Trigger | `OpenFsso` |
-| Login | `action=login` |
-| Logout | `action=logout` |
+| Logon | `action=login` |
+| Logoff | `action=logout` |
+| Update | `action=update` |
 | Username | `user="EXAMPLE\{{:user}}"` |
 | Client IPv4 | `ip={{:client_ip}} ` (with the trailing space) |
 | Group | `group="{{:group}}"`, separator `,` |
 
 Add a syslog source for `127.0.0.1` with this rule and user type
 **Remote User / LDAP**, bound to an LDAP server for the domain (user attribute
-`sAMAccountName`, groups from `memberOf`). The collector then resolves each
-user's groups at every login. The group field in the message is ignored.
+`sAMAccountName`, groups from `memberOf`). The collector resolves the user's
+groups at every login and update. The group field in the message is ignored.
 
 Collector timers:
 
 - **Workstation verify interval** `0`. The collector cannot verify these
   workstations, so its checks only cost time.
-- **Dead entry timeout** stays enabled, 480 minutes by default. It purges every
-  entry that sees no login for that long, even while the user stays logged on.
-  Each receiver therefore re-sends all active logins every `ReassertSeconds`
-  (default 3600). Keep that well below the timeout.
+- **Dead entry timeout** stays enabled, 480 minutes by default. It purges an
+  entry that receives no login or update for that long, even while the user
+  stays logged on. The receiver's update every `ReassertSeconds` (default 3600)
+  prevents that, so keep it well below the timeout.
 - **IP address change verify interval** `0`, since the receiver reports address
   changes itself.
 
+After a collector restart the receiver re-sends all active mappings as logins.
 Disable competing DC polling and workstation DNS identity checks, and block
 direct client syslog (UDP 514) and DC-agent input (UDP 8002) from workstations.
 An unhealthy receiver node may need withdrawal through existing FSSO controls.

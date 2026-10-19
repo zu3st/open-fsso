@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.1.30
 
-- Receivers re-send all active logins every hour by default. The Collector
-  Agent purges syslog logons after its dead entry timeout even while the user
-  stays logged on, and a re-sent login resets that timer.
+- Receivers send an hourly syslog update for every active mapping by default
+  (`ReassertSeconds: 3600`, new `UpdateTemplate`). The Collector Agent purges
+  syslog logons after its dead entry timeout even while the user stays logged
+  on, and an update resets that timer and refreshes the user's groups.
 - The README lists the Collector Agent syslog rule, source and timer settings.
 
 ## 0.1.29

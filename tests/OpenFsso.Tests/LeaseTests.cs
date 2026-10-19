@@ -211,7 +211,7 @@ public sealed class LeaseTests
         first.Presence(Alice, Ip, Request(A));
         var restarted = new LeaseStore(clock);
         Assert.AreEqual(0, restarted.Count);
-        Assert.IsEmpty(restarted.Reassert());
+        Assert.IsEmpty(restarted.Reassert("login"));
         Assert.HasCount(1, restarted.Presence(Alice, Ip, Request(A)).Changes);
     }
 
@@ -232,11 +232,29 @@ public sealed class LeaseTests
         await Task.WhenAll(Enumerable.Range(0, 50).Select(_ => pipeline.PresenceAsync(Alice, Ip, Request(A, first.Reply.LeaseReference), default)));
         Assert.HasCount(1, events);
         clock.Advance(TimeSpan.FromSeconds(181));
-        await Task.WhenAll(pipeline.TickAsync(false, default), pipeline.PresenceAsync(Bob, Ip, Request(B, first.Reply.LeaseReference), default));
+        await Task.WhenAll(pipeline.TickAsync(null, default), pipeline.PresenceAsync(Bob, Ip, Request(B, first.Reply.LeaseReference), default));
         Assert.HasCount(3, events);
         Assert.AreEqual("logout", events[1].Action);
         Assert.AreEqual(Alice, events[1].User);
         Assert.AreEqual(Bob, events[2].User);
+        Assert.AreEqual(1, pipeline.Count);
+    }
+
+    [TestMethod]
+    public async Task PeriodicReassertionSendsAnUpdatePerLeaseWithoutChangingState()
+    {
+        var events = new List<MappingChange>();
+        var pipeline = new SerializedLeases(new LeaseStore(new FakeTimeProvider()), change =>
+        {
+            events.Add(change);
+            return Task.CompletedTask;
+        });
+        await pipeline.PresenceAsync(Alice, Ip, Request(A), default);
+        await pipeline.TickAsync("update", default);
+        Assert.AreEqual("update", events[1].Action);
+        Assert.AreEqual(Alice, events[1].User);
+        Assert.AreEqual(Ip.ToString(), events[1].Ip);
+        Assert.HasCount(2, events);
         Assert.AreEqual(1, pipeline.Count);
     }
 
@@ -270,7 +288,7 @@ public sealed class LeaseTests
         await pipeline.PresenceAsync(Alice, Ip, Request(A), default);
         clock.Advance(TimeSpan.FromSeconds(181));
         fail = true;
-        await Assert.ThrowsAsync<IOException>(() => pipeline.TickAsync(false, default));
+        await Assert.ThrowsAsync<IOException>(() => pipeline.TickAsync(null, default));
         Assert.AreEqual(0, pipeline.Count);
     }
 }
