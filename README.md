@@ -21,7 +21,9 @@ OpenFSSO has each Windows workstation report its signed-in user directly:
 - Fortinet Collector Agent 5.0.0291 or later in Advanced Mode on each receiver
   host.
 - Direct paths from workstations to the receivers, without NAT or proxies, so
-  every receiver sees the address FortiGate sees.
+  every receiver sees the address FortiGate sees. Make the receiver port
+  reachable from workstation networks only, since any domain account can map
+  the address it connects from.
 - The receivers and the AD, KDC, time and PKI services must be reachable
   without FSSO authorization.
 
@@ -103,7 +105,9 @@ The tray shows a blue dot while off-fabric.
 
 Enable the Collector Agent's syslog server on the receiver's `SyslogPort`
 (UDP 514 by default). The receiver sends to it over loopback, so it runs on the
-Collector Agent's host, and sends lines such as:
+Collector Agent's host. The syslog server listens on all interfaces and accepts
+any sender, so block inbound UDP 514 from the network with the host firewall.
+The receiver sends lines such as:
 
 ```text
 <134>OpenFsso action=login user="EXAMPLE\alice" group="ignored-by-remote-LDAP" ip=192.0.2.31 

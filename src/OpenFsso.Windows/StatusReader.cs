@@ -14,7 +14,7 @@ public static class StatusReader
         {
             using var deadline = CancellationTokenSource.CreateLinkedTokenSource(stopping);
             deadline.CancelAfter(TimeSpan.FromSeconds(2));
-            using var pipe = new NamedPipeClientStream(".", ClientStatus.PipeName, PipeDirection.In, PipeOptions.Asynchronous);
+            using var pipe = new NamedPipeClientStream(".", ClientStatus.PipeName, PipeDirection.In, PipeOptions.Asynchronous, System.Security.Principal.TokenImpersonationLevel.Anonymous);
             await pipe.ConnectAsync(deadline.Token);
             // The service name is fixed. Verify its running SCM PID before trusting
             // a snapshot: a user-created pipe with the same name is not authoritative.
