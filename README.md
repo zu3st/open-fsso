@@ -160,7 +160,11 @@ Collector timers:
 | Blue | Off fabric | Outside the configured networks, updates paused |
 
 Scripts can read the status as JSON from `OpenFsso.Client.exe --status`, which
-exits with 1 when the client service is not running.
+exits with 1 when the client service is not running:
+
+```powershell
+(OpenFsso.Client.exe --status | ConvertFrom-Json).View.Indicator -eq 'Connected'
+```
 
 Receivers serve `GET /health` with `Authorization: Bearer <HealthApiKey>`. It
 reports whether the receiver is ready, how many users are mapped, whether the
