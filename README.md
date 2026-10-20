@@ -64,17 +64,16 @@ The client service also starts the tray in sessions that are already signed in.
 
 ## Configuration
 
-Both services read YAML with case-sensitive property names. Single-quote Windows
-paths and the syslog templates, which end with a space. A client lists one to
-eight receivers under `Receivers`. Configuration is read at service start. Check
-a file before deployment with:
+Both services use a YAML file, described by
+[config/client.schema.json](config/client.schema.json) and
+[config/receiver.schema.json](config/receiver.schema.json). A client lists one
+to eight receivers under `Receivers`. Check a file before deployment with:
 
 ```powershell
 OpenFsso.Client.exe --validate-config C:\Release\client.yaml
 ```
 
-The embedded schemas are [config/client.schema.json](config/client.schema.json)
-and [config/receiver.schema.json](config/receiver.schema.json).
+Changes take effect when the service restarts.
 
 ### Fabric detection
 
