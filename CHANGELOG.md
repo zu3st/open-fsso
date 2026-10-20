@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.35
+
+- The receiver asks the domain about the account at each authentication, so
+  about every hour. Disabled, locked-out, expired and deleted accounts are
+  logged out and refused for an hour. Before, a disabled account kept its
+  mapping for the life of its cached Kerberos ticket.
+
 ## 0.1.34
 
 - The client uses one address for FSSO: the local address routed to the first
