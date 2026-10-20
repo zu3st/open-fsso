@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.36
+
+- An Elastic integration in `elastic/openfsso` collects the receiver and client
+  logs with Elastic Agent and adds dashboards for receivers and clients. Releases
+  carry it as `openfsso-<version>.zip`.
+- Every log event carries `event.action`, and most carry `event.category`,
+  `event.type` and `event.outcome`. Logs add `event.kind`, `related.user`,
+  `related.ip` and `service.node.name`, the Windows service name. The `host`
+  block is gone, since log shippers add it.
+- Receiver log lines of a request name the client address in `source.ip`,
+  including rejected identities and failed health key checks.
+
 ## 0.1.35
 
 - The receiver asks the domain about the account at each authentication, so
