@@ -33,6 +33,7 @@ public sealed class LoggingTests
         Assert.AreEqual("open-fsso-test", log.GetProperty("service").GetProperty("name").GetString());
         Assert.IsNotNull(log.GetProperty("service").GetProperty("version").GetString());
         Assert.IsFalse(log.TryGetProperty("agent", out _));
+        Assert.IsFalse(log.TryGetProperty("process", out _));
         Assert.IsFalse(log.TryGetProperty("metadata", out _));
         var details = log.GetProperty("event");
         Assert.IsFalse(details.TryGetProperty("created", out _) || details.TryGetProperty("timezone", out _));

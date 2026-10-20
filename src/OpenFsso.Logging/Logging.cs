@@ -25,9 +25,11 @@ public static class Logging
     {
         MapCustom = (document, e) =>
         {
-            // The application's version replaces the formatter's own agent block.
-            // event.created and event.timezone only repeat @timestamp.
+            // The application's version replaces the formatter's own agent block,
+            // service.name identifies the program, and event.created and
+            // event.timezone only repeat @timestamp.
             document.Agent = null;
+            document.Process = null;
             document.Service = new Service { Name = service, Version = Version };
             document.Event ??= new Event();
             document.Event.Created = null;
