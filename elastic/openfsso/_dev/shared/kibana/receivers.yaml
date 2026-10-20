@@ -12,15 +12,15 @@ dashboards:
     controls:
       - type: options
         label: Host
-        data_view: logs-*
+        data_view: openfsso-receiver
         field: host.name
       - type: options
         label: Receiver
-        data_view: logs-*
+        data_view: openfsso-receiver
         field: service.node.name
       - type: options
         label: User
-        data_view: logs-*
+        data_view: openfsso-receiver
         field: user.name
     panels:
       - size: {w: 48, h: 2}

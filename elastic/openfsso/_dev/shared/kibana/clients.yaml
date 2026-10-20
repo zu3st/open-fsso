@@ -12,15 +12,15 @@ dashboards:
     controls:
       - type: options
         label: Host
-        data_view: logs-*
+        data_view: openfsso-client
         field: host.name
       - type: options
         label: Receiver
-        data_view: logs-*
-        field: openfsso.receiver
+        data_view: openfsso-client
+        field: server.address
       - type: options
         label: User
-        data_view: logs-*
+        data_view: openfsso-client
         field: user.name
     panels:
       - size: {w: 48, h: 2}
@@ -56,7 +56,7 @@ dashboards:
             - WHERE event.action IN ("delivery-failed", "logon-unavailable", "receiver-recovered", "client-ready")
             - INLINE STATS started = MAX(CASE(event.action == "client-ready", @timestamp, NULL)) BY host.name
             - WHERE event.action != "client-ready" AND (started IS NULL OR @timestamp > started)
-            - STATS latest = MAX(CONCAT(TO_STRING(@timestamp), " ", event.action)) BY host.name, openfsso.receiver
+            - STATS latest = MAX(CONCAT(TO_STRING(@timestamp), " ", event.action)) BY host.name, server.address
             - WHERE NOT ENDS_WITH(latest, " receiver-recovered")
             - STATS failing = COUNT_DISTINCT(host.name)
           primary:
@@ -101,18 +101,20 @@ dashboards:
           query:
             - FROM logs-openfsso.client-*
             - WHERE event.action IN ("delivery-failed", "logon-unavailable")
-            - STATS failures = COUNT(*) BY time_bucket = BUCKET(@timestamp, 48, ?_tstart, ?_tend), openfsso.receiver
+            - STATS failures = COUNT(*) BY time_bucket = BUCKET(@timestamp, 48, ?_tstart, ?_tend), server.address
             - SORT time_bucket ASC
           dimension:
             field: time_bucket
             label: Time
             data_type: date
           breakdown:
-            field: openfsso.receiver
+            field: server.address
             label: Receiver
           metrics:
             - field: failures
               label: Failures
+          legend:
+            position: bottom
       - title: Failure causes
         description: HTTP status of a rejection, or the error type.
         size: {w: 16, h: 13}
@@ -143,17 +145,17 @@ dashboards:
             - INLINE STATS started = MAX(CASE(event.action == "client-ready", @timestamp, NULL)) BY host.name
             - WHERE event.action != "client-ready" AND (started IS NULL OR @timestamp > started)
             - EVAL state = CONCAT(TO_STRING(@timestamp), "|", event.action, "|", COALESCE(error.type, ""), "|", COALESCE(TO_STRING(http.response.status_code), ""))
-            - STATS latest = MAX(state) BY host.name, openfsso.receiver
+            - STATS latest = MAX(state) BY host.name, server.address
             - EVAL parts = SPLIT(latest, "|")
             - EVAL since = TO_DATETIME(MV_FIRST(parts)), failure = MV_SLICE(parts, 1, 1), error = MV_SLICE(parts, 2, 2), http_status = MV_SLICE(parts, 3, 3)
             - WHERE failure != "receiver-recovered"
-            - KEEP host.name, openfsso.receiver, since, failure, error, http_status
+            - KEEP host.name, server.address, since, failure, error, http_status
             - SORT since DESC
             - LIMIT 200
           breakdowns:
             - field: 'host.name'
               label: Host
-            - field: 'openfsso.receiver'
+            - field: 'server.address'
               label: Receiver
             - field: 'since'
               label: Since
@@ -234,7 +236,7 @@ dashboards:
           query:
             - FROM logs-openfsso.client-*
             - WHERE log.level IN ("Warning", "Error", "Fatal")
-            - KEEP @timestamp, host.name, log.level, event.action, openfsso.receiver, user.name, error.type, http.response.status_code, error.message
+            - KEEP @timestamp, host.name, log.level, event.action, server.address, user.name, error.type, http.response.status_code, error.message
             - SORT @timestamp DESC
             - LIMIT 200
           breakdowns:
@@ -246,7 +248,7 @@ dashboards:
               label: Level
             - field: 'event.action'
               label: Action
-            - field: 'openfsso.receiver'
+            - field: 'server.address'
               label: Receiver
             - field: 'user.name'
               label: User

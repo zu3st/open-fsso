@@ -13,7 +13,7 @@ that reject requests or lose their collector.
 
 ### Compatibility
 
-The integration reads the logs of OpenFSSO 0.1.36 or later. It needs Kibana
+The integration reads the logs of OpenFSSO 0.1.37 or later. It needs Kibana
 9.5.0 or later.
 
 ### How it works
@@ -31,8 +31,9 @@ the documents. Fields without an ECS equivalent are under `openfsso.*`.
   fabric detection, tray starts and client starts.
 
 Every event has `event.action`, and most have `event.category`, `event.type`
-and `event.outcome`. `service.node.name` is the Windows service name, which
-tells several receivers on one host apart.
+and `event.outcome`. A receiver's events carry its host name in
+`service.node.name`, and a client's events about a receiver carry the same name
+in `server.address`, so both dashboards select receivers by it.
 
 ### Supported use cases
 

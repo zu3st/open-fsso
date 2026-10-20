@@ -162,22 +162,22 @@
                         "references": [],
                         "state": {
                             "visualization": {
-                                "layerId": "d1202beb-5a37-23ac-f1bd-c0f1d5168af5",
+                                "layerId": "f80fe890-917c-da2b-68cb-d53e2573df14",
                                 "layerType": "data",
                                 "metricAccessor": "712f848a-932b-9f3e-d351-6476f82046ca",
                                 "showBar": false,
                                 "applyColorTo": "background"
                             },
                             "query": {
-                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\", \"receiver-recovered\", \"client-ready\")\n| INLINE STATS started = MAX(CASE(event.action == \"client-ready\", @timestamp, NULL)) BY host.name\n| WHERE event.action != \"client-ready\" AND (started IS NULL OR @timestamp > started)\n| STATS latest = MAX(CONCAT(TO_STRING(@timestamp), \" \", event.action)) BY host.name, openfsso.receiver\n| WHERE NOT ENDS_WITH(latest, \" receiver-recovered\")\n| STATS failing = COUNT_DISTINCT(host.name)"
+                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\", \"receiver-recovered\", \"client-ready\")\n| INLINE STATS started = MAX(CASE(event.action == \"client-ready\", @timestamp, NULL)) BY host.name\n| WHERE event.action != \"client-ready\" AND (started IS NULL OR @timestamp > started)\n| STATS latest = MAX(CONCAT(TO_STRING(@timestamp), \" \", event.action)) BY host.name, server.address\n| WHERE NOT ENDS_WITH(latest, \" receiver-recovered\")\n| STATS failing = COUNT_DISTINCT(host.name)"
                             },
                             "filters": [],
                             "datasourceStates": {
                                 "textBased": {
                                     "layers": {
-                                        "d1202beb-5a37-23ac-f1bd-c0f1d5168af5": {
+                                        "f80fe890-917c-da2b-68cb-d53e2573df14": {
                                             "query": {
-                                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\", \"receiver-recovered\", \"client-ready\")\n| INLINE STATS started = MAX(CASE(event.action == \"client-ready\", @timestamp, NULL)) BY host.name\n| WHERE event.action != \"client-ready\" AND (started IS NULL OR @timestamp > started)\n| STATS latest = MAX(CONCAT(TO_STRING(@timestamp), \" \", event.action)) BY host.name, openfsso.receiver\n| WHERE NOT ENDS_WITH(latest, \" receiver-recovered\")\n| STATS failing = COUNT_DISTINCT(host.name)"
+                                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\", \"receiver-recovered\", \"client-ready\")\n| INLINE STATS started = MAX(CASE(event.action == \"client-ready\", @timestamp, NULL)) BY host.name\n| WHERE event.action != \"client-ready\" AND (started IS NULL OR @timestamp > started)\n| STATS latest = MAX(CONCAT(TO_STRING(@timestamp), \" \", event.action)) BY host.name, server.address\n| WHERE NOT ENDS_WITH(latest, \" receiver-recovered\")\n| STATS failing = COUNT_DISTINCT(host.name)"
                                             },
                                             "columns": [
                                                 {
@@ -469,7 +469,7 @@
                             "visualization": {
                                 "layers": [
                                     {
-                                        "layerId": "461eb7f7-c9d2-df71-1937-f7a55d5bb85e",
+                                        "layerId": "0b85b20b-2d34-c595-dfa2-a9c60c29b528",
                                         "accessors": [
                                             "102852c1-990e-076a-0ede-61e8281d728e"
                                         ],
@@ -478,7 +478,7 @@
                                         "xAccessor": "df177ea9-5843-5979-3eb7-326180aaf9c1",
                                         "position": "top",
                                         "showGridlines": false,
-                                        "splitAccessor": "6c28a3c4-1451-76a2-ea1f-401307a24bd4",
+                                        "splitAccessor": "de33555e-af00-709b-5b1b-8f0f4b3a32ae",
                                         "colorMapping": {
                                             "assignments": [],
                                             "specialAssignments": [
@@ -501,20 +501,20 @@
                                 ],
                                 "preferredSeriesType": "bar_stacked",
                                 "legend": {
-                                    "position": "right"
+                                    "position": "bottom"
                                 },
                                 "valueLabels": "hide"
                             },
                             "query": {
-                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\")\n| STATS failures = COUNT(*) BY time_bucket = BUCKET(@timestamp, 48, ?_tstart, ?_tend), openfsso.receiver\n| SORT time_bucket ASC"
+                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\")\n| STATS failures = COUNT(*) BY time_bucket = BUCKET(@timestamp, 48, ?_tstart, ?_tend), server.address\n| SORT time_bucket ASC"
                             },
                             "filters": [],
                             "datasourceStates": {
                                 "textBased": {
                                     "layers": {
-                                        "461eb7f7-c9d2-df71-1937-f7a55d5bb85e": {
+                                        "0b85b20b-2d34-c595-dfa2-a9c60c29b528": {
                                             "query": {
-                                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\")\n| STATS failures = COUNT(*) BY time_bucket = BUCKET(@timestamp, 48, ?_tstart, ?_tend), openfsso.receiver\n| SORT time_bucket ASC"
+                                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\")\n| STATS failures = COUNT(*) BY time_bucket = BUCKET(@timestamp, 48, ?_tstart, ?_tend), server.address\n| SORT time_bucket ASC"
                                             },
                                             "columns": [
                                                 {
@@ -539,8 +539,8 @@
                                                     }
                                                 },
                                                 {
-                                                    "fieldName": "openfsso.receiver",
-                                                    "columnId": "6c28a3c4-1451-76a2-ea1f-401307a24bd4",
+                                                    "fieldName": "server.address",
+                                                    "columnId": "de33555e-af00-709b-5b1b-8f0f4b3a32ae",
                                                     "label": "Receiver",
                                                     "customLabel": true
                                                 }
@@ -568,8 +568,8 @@
                                                     }
                                                 },
                                                 {
-                                                    "fieldName": "openfsso.receiver",
-                                                    "columnId": "6c28a3c4-1451-76a2-ea1f-401307a24bd4",
+                                                    "fieldName": "server.address",
+                                                    "columnId": "de33555e-af00-709b-5b1b-8f0f4b3a32ae",
                                                     "label": "Receiver",
                                                     "customLabel": true
                                                 }
@@ -751,7 +751,7 @@
                                         "isMetric": false
                                     },
                                     {
-                                        "columnId": "c3774bee-7ea3-420a-54c2-8e9ec3bf316b",
+                                        "columnId": "9466871d-df42-c3e8-0b47-6814300ebfab",
                                         "isTransposed": false,
                                         "isMetric": false
                                     },
@@ -776,19 +776,19 @@
                                         "isMetric": false
                                     }
                                 ],
-                                "layerId": "544821bd-8455-be95-a0c8-62708ad4d2d2",
+                                "layerId": "98c3643b-3934-36c5-851a-58c381296eb8",
                                 "layerType": "data"
                             },
                             "query": {
-                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\", \"receiver-recovered\", \"client-ready\")\n| INLINE STATS started = MAX(CASE(event.action == \"client-ready\", @timestamp, NULL)) BY host.name\n| WHERE event.action != \"client-ready\" AND (started IS NULL OR @timestamp > started)\n| EVAL state = CONCAT(TO_STRING(@timestamp), \"|\", event.action, \"|\", COALESCE(error.type, \"\"), \"|\", COALESCE(TO_STRING(http.response.status_code), \"\"))\n| STATS latest = MAX(state) BY host.name, openfsso.receiver\n| EVAL parts = SPLIT(latest, \"|\")\n| EVAL since = TO_DATETIME(MV_FIRST(parts)), failure = MV_SLICE(parts, 1, 1), error = MV_SLICE(parts, 2, 2), http_status = MV_SLICE(parts, 3, 3)\n| WHERE failure != \"receiver-recovered\"\n| KEEP host.name, openfsso.receiver, since, failure, error, http_status\n| SORT since DESC\n| LIMIT 200"
+                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\", \"receiver-recovered\", \"client-ready\")\n| INLINE STATS started = MAX(CASE(event.action == \"client-ready\", @timestamp, NULL)) BY host.name\n| WHERE event.action != \"client-ready\" AND (started IS NULL OR @timestamp > started)\n| EVAL state = CONCAT(TO_STRING(@timestamp), \"|\", event.action, \"|\", COALESCE(error.type, \"\"), \"|\", COALESCE(TO_STRING(http.response.status_code), \"\"))\n| STATS latest = MAX(state) BY host.name, server.address\n| EVAL parts = SPLIT(latest, \"|\")\n| EVAL since = TO_DATETIME(MV_FIRST(parts)), failure = MV_SLICE(parts, 1, 1), error = MV_SLICE(parts, 2, 2), http_status = MV_SLICE(parts, 3, 3)\n| WHERE failure != \"receiver-recovered\"\n| KEEP host.name, server.address, since, failure, error, http_status\n| SORT since DESC\n| LIMIT 200"
                             },
                             "filters": [],
                             "datasourceStates": {
                                 "textBased": {
                                     "layers": {
-                                        "544821bd-8455-be95-a0c8-62708ad4d2d2": {
+                                        "98c3643b-3934-36c5-851a-58c381296eb8": {
                                             "query": {
-                                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\", \"receiver-recovered\", \"client-ready\")\n| INLINE STATS started = MAX(CASE(event.action == \"client-ready\", @timestamp, NULL)) BY host.name\n| WHERE event.action != \"client-ready\" AND (started IS NULL OR @timestamp > started)\n| EVAL state = CONCAT(TO_STRING(@timestamp), \"|\", event.action, \"|\", COALESCE(error.type, \"\"), \"|\", COALESCE(TO_STRING(http.response.status_code), \"\"))\n| STATS latest = MAX(state) BY host.name, openfsso.receiver\n| EVAL parts = SPLIT(latest, \"|\")\n| EVAL since = TO_DATETIME(MV_FIRST(parts)), failure = MV_SLICE(parts, 1, 1), error = MV_SLICE(parts, 2, 2), http_status = MV_SLICE(parts, 3, 3)\n| WHERE failure != \"receiver-recovered\"\n| KEEP host.name, openfsso.receiver, since, failure, error, http_status\n| SORT since DESC\n| LIMIT 200"
+                                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\", \"receiver-recovered\", \"client-ready\")\n| INLINE STATS started = MAX(CASE(event.action == \"client-ready\", @timestamp, NULL)) BY host.name\n| WHERE event.action != \"client-ready\" AND (started IS NULL OR @timestamp > started)\n| EVAL state = CONCAT(TO_STRING(@timestamp), \"|\", event.action, \"|\", COALESCE(error.type, \"\"), \"|\", COALESCE(TO_STRING(http.response.status_code), \"\"))\n| STATS latest = MAX(state) BY host.name, server.address\n| EVAL parts = SPLIT(latest, \"|\")\n| EVAL since = TO_DATETIME(MV_FIRST(parts)), failure = MV_SLICE(parts, 1, 1), error = MV_SLICE(parts, 2, 2), http_status = MV_SLICE(parts, 3, 3)\n| WHERE failure != \"receiver-recovered\"\n| KEEP host.name, server.address, since, failure, error, http_status\n| SORT since DESC\n| LIMIT 200"
                                             },
                                             "columns": [
                                                 {
@@ -798,8 +798,8 @@
                                                     "customLabel": true
                                                 },
                                                 {
-                                                    "fieldName": "openfsso.receiver",
-                                                    "columnId": "c3774bee-7ea3-420a-54c2-8e9ec3bf316b",
+                                                    "fieldName": "server.address",
+                                                    "columnId": "9466871d-df42-c3e8-0b47-6814300ebfab",
                                                     "label": "Receiver",
                                                     "customLabel": true
                                                 },
@@ -836,8 +836,8 @@
                                                     "customLabel": true
                                                 },
                                                 {
-                                                    "fieldName": "openfsso.receiver",
-                                                    "columnId": "c3774bee-7ea3-420a-54c2-8e9ec3bf316b",
+                                                    "fieldName": "server.address",
+                                                    "columnId": "9466871d-df42-c3e8-0b47-6814300ebfab",
                                                     "label": "Receiver",
                                                     "customLabel": true
                                                 },
@@ -1335,7 +1335,7 @@
                                         "isMetric": false
                                     },
                                     {
-                                        "columnId": "c3774bee-7ea3-420a-54c2-8e9ec3bf316b",
+                                        "columnId": "9466871d-df42-c3e8-0b47-6814300ebfab",
                                         "isTransposed": false,
                                         "isMetric": false
                                     },
@@ -1360,19 +1360,19 @@
                                         "isMetric": false
                                     }
                                 ],
-                                "layerId": "359c580f-7625-6337-0553-e0ae2b41d673",
+                                "layerId": "1066423a-0096-7b63-addb-55200b20232f",
                                 "layerType": "data"
                             },
                             "query": {
-                                "esql": "FROM logs-openfsso.client-*\n| WHERE log.level IN (\"Warning\", \"Error\", \"Fatal\")\n| KEEP @timestamp, host.name, log.level, event.action, openfsso.receiver, user.name, error.type, http.response.status_code, error.message\n| SORT @timestamp DESC\n| LIMIT 200"
+                                "esql": "FROM logs-openfsso.client-*\n| WHERE log.level IN (\"Warning\", \"Error\", \"Fatal\")\n| KEEP @timestamp, host.name, log.level, event.action, server.address, user.name, error.type, http.response.status_code, error.message\n| SORT @timestamp DESC\n| LIMIT 200"
                             },
                             "filters": [],
                             "datasourceStates": {
                                 "textBased": {
                                     "layers": {
-                                        "359c580f-7625-6337-0553-e0ae2b41d673": {
+                                        "1066423a-0096-7b63-addb-55200b20232f": {
                                             "query": {
-                                                "esql": "FROM logs-openfsso.client-*\n| WHERE log.level IN (\"Warning\", \"Error\", \"Fatal\")\n| KEEP @timestamp, host.name, log.level, event.action, openfsso.receiver, user.name, error.type, http.response.status_code, error.message\n| SORT @timestamp DESC\n| LIMIT 200"
+                                                "esql": "FROM logs-openfsso.client-*\n| WHERE log.level IN (\"Warning\", \"Error\", \"Fatal\")\n| KEEP @timestamp, host.name, log.level, event.action, server.address, user.name, error.type, http.response.status_code, error.message\n| SORT @timestamp DESC\n| LIMIT 200"
                                             },
                                             "columns": [
                                                 {
@@ -1400,8 +1400,8 @@
                                                     "customLabel": true
                                                 },
                                                 {
-                                                    "fieldName": "openfsso.receiver",
-                                                    "columnId": "c3774bee-7ea3-420a-54c2-8e9ec3bf316b",
+                                                    "fieldName": "server.address",
+                                                    "columnId": "9466871d-df42-c3e8-0b47-6814300ebfab",
                                                     "label": "Receiver",
                                                     "customLabel": true
                                                 },
@@ -1456,8 +1456,8 @@
                                                     "customLabel": true
                                                 },
                                                 {
-                                                    "fieldName": "openfsso.receiver",
-                                                    "columnId": "c3774bee-7ea3-420a-54c2-8e9ec3bf316b",
+                                                    "fieldName": "server.address",
+                                                    "columnId": "9466871d-df42-c3e8-0b47-6814300ebfab",
                                                     "label": "Receiver",
                                                     "customLabel": true
                                                 },
@@ -1722,14 +1722,14 @@
                 "ignoreValidations": false
             },
             "panelsJSON": {
-                "346100b4-fcef-39fc-ab84-45172ed00fe0": {
+                "55276840-cff0-3caf-c0a8-34540c69dd2d": {
                     "grow": false,
                     "order": 0,
                     "width": "medium",
                     "type": "optionsListControl",
                     "explicitInput": {
-                        "id": "346100b4-fcef-39fc-ab84-45172ed00fe0",
-                        "dataViewId": "logs-*",
+                        "id": "55276840-cff0-3caf-c0a8-34540c69dd2d",
+                        "dataViewId": "openfsso-client",
                         "fieldName": "host.name",
                         "title": "Host",
                         "searchTechnique": "prefix",
@@ -1740,15 +1740,15 @@
                         }
                     }
                 },
-                "14682c5e-9311-99a0-f8a1-a9ab40870053": {
+                "d49058b9-12e9-253d-732c-bea5bb89b35f": {
                     "grow": false,
                     "order": 1,
                     "width": "medium",
                     "type": "optionsListControl",
                     "explicitInput": {
-                        "id": "14682c5e-9311-99a0-f8a1-a9ab40870053",
-                        "dataViewId": "logs-*",
-                        "fieldName": "openfsso.receiver",
+                        "id": "d49058b9-12e9-253d-732c-bea5bb89b35f",
+                        "dataViewId": "openfsso-client",
+                        "fieldName": "server.address",
                         "title": "Receiver",
                         "searchTechnique": "prefix",
                         "selectedOptions": [],
@@ -1758,14 +1758,14 @@
                         }
                     }
                 },
-                "6b86aa1a-4c35-ac8e-63a1-038806c973f3": {
+                "754b7b87-4276-6e8d-74fa-666c391beb6e": {
                     "grow": false,
                     "order": 2,
                     "width": "medium",
                     "type": "optionsListControl",
                     "explicitInput": {
-                        "id": "6b86aa1a-4c35-ac8e-63a1-038806c973f3",
-                        "dataViewId": "logs-*",
+                        "id": "754b7b87-4276-6e8d-74fa-666c391beb6e",
+                        "dataViewId": "openfsso-client",
                         "fieldName": "user.name",
                         "title": "User",
                         "searchTechnique": "prefix",
@@ -1798,18 +1798,18 @@
         },
         {
             "type": "index-pattern",
-            "id": "logs-*",
-            "name": "controlGroup_346100b4-fcef-39fc-ab84-45172ed00fe0:optionsListDataView"
+            "id": "openfsso-client",
+            "name": "controlGroup_55276840-cff0-3caf-c0a8-34540c69dd2d:optionsListDataView"
         },
         {
             "type": "index-pattern",
-            "id": "logs-*",
-            "name": "controlGroup_14682c5e-9311-99a0-f8a1-a9ab40870053:optionsListDataView"
+            "id": "openfsso-client",
+            "name": "controlGroup_d49058b9-12e9-253d-732c-bea5bb89b35f:optionsListDataView"
         },
         {
             "type": "index-pattern",
-            "id": "logs-*",
-            "name": "controlGroup_6b86aa1a-4c35-ac8e-63a1-038806c973f3:optionsListDataView"
+            "id": "openfsso-client",
+            "name": "controlGroup_754b7b87-4276-6e8d-74fa-666c391beb6e:optionsListDataView"
         }
     ],
     "type": "dashboard",

@@ -13,7 +13,7 @@ that reject requests or lose their collector.
 
 ### Compatibility
 
-The integration reads the logs of OpenFSSO 0.1.36 or later. It needs Kibana
+The integration reads the logs of OpenFSSO 0.1.37 or later. It needs Kibana
 9.5.0 or later.
 
 ### How it works
@@ -31,8 +31,9 @@ the documents. Fields without an ECS equivalent are under `openfsso.*`.
   fabric detection, tray starts and client starts.
 
 Every event has `event.action`, and most have `event.category`, `event.type`
-and `event.outcome`. `service.node.name` is the Windows service name, which
-tells several receivers on one host apart.
+and `event.outcome`. A receiver's events carry its host name in
+`service.node.name`, and a client's events about a receiver carry the same name
+in `server.address`, so both dashboards select receivers by it.
 
 ### Supported use cases
 
@@ -96,22 +97,22 @@ An example event for `receiver` looks as following:
 {
     "@timestamp": "2026-10-20T06:00:00.123Z",
     "agent": {
-        "ephemeral_id": "43f317ab-ffe6-44dc-acef-19fc1b9e5493",
-        "id": "d9796606-59c3-4617-9dd2-24e291748df6",
-        "name": "elastic-agent-10028",
+        "ephemeral_id": "d606d36f-5813-45de-8ccd-cfe8bef04554",
+        "id": "58d516f2-9803-4c73-aac8-10fb876ec8fc",
+        "name": "elastic-agent-61356",
         "type": "filebeat",
         "version": "9.5.5"
     },
     "data_stream": {
         "dataset": "openfsso.receiver",
-        "namespace": "10441",
+        "namespace": "73177",
         "type": "logs"
     },
     "ecs": {
         "version": "9.0.0"
     },
     "elastic_agent": {
-        "id": "d9796606-59c3-4617-9dd2-24e291748df6",
+        "id": "58d516f2-9803-4c73-aac8-10fb876ec8fc",
         "snapshot": false,
         "version": "9.5.5"
     },
@@ -122,10 +123,10 @@ An example event for `receiver` looks as following:
             "process"
         ],
         "dataset": "openfsso.receiver",
-        "ingested": "2026-10-20T15:12:40Z",
+        "ingested": "2026-10-20T16:54:07Z",
         "kind": "event",
         "module": "openfsso",
-        "original": "{\"@timestamp\":\"2026-10-20T08:00:00.1234567+02:00\",\"log.level\":\"Information\",\"message\":\"Receiver ready; Kerberos presence authentication and strict channel binding verified; Bearer health authentication enabled\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"receiver-ready\",\"category\":[\"process\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"start\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"openfsso\":{\"runtime\":\"10.0.13\"}}",
+        "original": "{\"@timestamp\":\"2026-10-20T08:00:00.1234567+02:00\",\"log.level\":\"Information\",\"message\":\"Receiver ready; Kerberos presence authentication and strict channel binding verified; Bearer health authentication enabled\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"receiver-ready\",\"category\":[\"process\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"start\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"receiver-a.example.test\",\"version\":\"0.1.37\"},\"openfsso\":{\"runtime\":\"10.0.13\"}}",
         "outcome": "success",
         "severity": 2,
         "type": [
@@ -135,16 +136,16 @@ An example event for `receiver` looks as following:
     "host": {
         "architecture": "x86_64",
         "containerized": false,
-        "hostname": "elastic-agent-10028",
+        "hostname": "elastic-agent-61356",
         "ip": [
             "172.18.0.2",
-            "192.168.32.7"
+            "192.168.32.8"
         ],
         "mac": [
-            "2A-4D-85-E6-6F-7D",
-            "D6-87-29-B7-78-1C"
+            "B2-05-F8-45-3A-91",
+            "D2-AE-6A-98-A0-97"
         ],
-        "name": "elastic-agent-10028",
+        "name": "elastic-agent-61356",
         "os": {
             "family": "",
             "kernel": "6.18.54.1-microsoft-standard-WSL2",
@@ -160,8 +161,8 @@ An example event for `receiver` looks as following:
     "log": {
         "file": {
             "device_id": "2096",
-            "fingerprint": "da10ac49bac44a0019ce97139f01a507a08d9753aae3bcf659a2b8153b7d9048",
-            "inode": "3247505",
+            "fingerprint": "f5135b9489aef0106a8a335b58d1e0f31f5ecf14d3521da6c658b975ce923e33",
+            "inode": "3254735",
             "path": "/tmp/service_logs/receiver/events-20261020.jsonl"
         },
         "level": "Information",
@@ -175,9 +176,9 @@ An example event for `receiver` looks as following:
     "service": {
         "name": "open-fsso-receiver",
         "node": {
-            "name": "OpenFssoReceiverA"
+            "name": "receiver-a.example.test"
         },
-        "version": "0.1.36"
+        "version": "0.1.37"
     },
     "tags": [
         "preserve_original_event",
@@ -228,6 +229,9 @@ An example event for `receiver` looks as following:
 | openfsso.suppressed | Number of rejection warnings dropped by the rate limit in the previous minute. | long |
 | related.ip | All of the IPs seen on your event. | ip |
 | related.user | All the user names or other user identifiers seen on the event. | keyword |
+| server.address | Some event server addresses are defined ambiguously. The event will sometimes list an IP, a domain or a unix socket.  You should always store the raw address in the `.address` field. Then it should be duplicated to `.ip` or `.domain`, depending on which one it is. | keyword |
+| server.ip | IP address of the server (IPv4 or IPv6). | ip |
+| server.port | Port of the server. | long |
 | service.name | Name of the service data is collected from. The name of the service is normally user given. This allows for distributed services that run on multiple hosts to correlate the related instances based on the name. In the case of Elasticsearch the `service.name` could contain the cluster name. For Beats the `service.name` is by default a copy of the `service.type` field if no name is specified. | keyword |
 | service.node.name | Name of a service node. This allows for two nodes of the same service running on the same host to be differentiated. Therefore, `service.node.name` should typically be unique across nodes of a given service. In the case of Elasticsearch, the `service.node.name` could contain the unique node name within the Elasticsearch cluster. In cases where the service doesn't have the concept of a node name, the host name or container name can be used to distinguish running instances that make up this service. If those do not provide uniqueness (e.g. multiple instances of the service running on the same host) - the node name can be manually set. | keyword |
 | service.version | Version of the service the data was collected from. This allows to look at a data set only for a specific version of a service. | keyword |
@@ -246,22 +250,22 @@ An example event for `client` looks as following:
 {
     "@timestamp": "2026-10-20T06:00:00.123Z",
     "agent": {
-        "ephemeral_id": "b9eefa09-f35d-4702-a86e-f406d832e68b",
-        "id": "254677b7-dd2e-4dc6-9afd-9769f9cd2c8c",
-        "name": "elastic-agent-10019",
+        "ephemeral_id": "ac1187b7-1648-4b4c-8d91-830e033d1bce",
+        "id": "4f6bd849-8328-4604-9c9f-e2aa72caa466",
+        "name": "elastic-agent-53442",
         "type": "filebeat",
         "version": "9.5.5"
     },
     "data_stream": {
         "dataset": "openfsso.client",
-        "namespace": "51786",
+        "namespace": "50911",
         "type": "logs"
     },
     "ecs": {
         "version": "9.0.0"
     },
     "elastic_agent": {
-        "id": "254677b7-dd2e-4dc6-9afd-9769f9cd2c8c",
+        "id": "4f6bd849-8328-4604-9c9f-e2aa72caa466",
         "snapshot": false,
         "version": "9.5.5"
     },
@@ -272,10 +276,10 @@ An example event for `client` looks as following:
             "process"
         ],
         "dataset": "openfsso.client",
-        "ingested": "2026-10-20T15:11:52Z",
+        "ingested": "2026-10-20T16:53:19Z",
         "kind": "event",
         "module": "openfsso",
-        "original": "{\"@timestamp\":\"2026-10-20T08:00:00.1234567+02:00\",\"log.level\":\"Information\",\"message\":\"Client service ready\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"client-ready\",\"category\":[\"process\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"start\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"openfsso\":{\"runtime\":\"10.0.13\"}}",
+        "original": "{\"@timestamp\":\"2026-10-20T08:00:00.1234567+02:00\",\"log.level\":\"Information\",\"message\":\"Client service ready\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"client-ready\",\"category\":[\"process\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"start\"]},\"service\":{\"name\":\"open-fsso-client\",\"version\":\"0.1.37\"},\"openfsso\":{\"runtime\":\"10.0.13\"}}",
         "outcome": "success",
         "severity": 2,
         "type": [
@@ -285,16 +289,16 @@ An example event for `client` looks as following:
     "host": {
         "architecture": "x86_64",
         "containerized": false,
-        "hostname": "elastic-agent-10019",
+        "hostname": "elastic-agent-53442",
         "ip": [
             "172.18.0.2",
-            "192.168.32.7"
+            "192.168.32.8"
         ],
         "mac": [
-            "96-B2-86-DA-14-77",
-            "E6-AD-89-9D-9C-D9"
+            "82-EB-85-F1-C7-82",
+            "92-51-EC-92-E9-5F"
         ],
-        "name": "elastic-agent-10019",
+        "name": "elastic-agent-53442",
         "os": {
             "family": "",
             "kernel": "6.18.54.1-microsoft-standard-WSL2",
@@ -310,8 +314,8 @@ An example event for `client` looks as following:
     "log": {
         "file": {
             "device_id": "2096",
-            "fingerprint": "404ab1667135138789f4d30ceb7948b367e151d082d2595492d321e245a9ddab",
-            "inode": "3247476",
+            "fingerprint": "289ad9b0cf9250860d163175f4d50449cb464c8b65edeef469909586a7dccd17",
+            "inode": "3254691",
             "path": "/tmp/service_logs/client/events-20261020.jsonl"
         },
         "level": "Information",
@@ -324,10 +328,7 @@ An example event for `client` looks as following:
     },
     "service": {
         "name": "open-fsso-client",
-        "node": {
-            "name": "OpenFssoClient"
-        },
-        "version": "0.1.36"
+        "version": "0.1.37"
     },
     "tags": [
         "preserve_original_event",
@@ -370,12 +371,15 @@ An example event for `client` looks as following:
 | openfsso.attached_sessions | Number of attached user sessions while the client waits for a logon or unlock. | long |
 | openfsso.fabric_state | Fabric detection result, `Disabled`, `OnFabric`, `OffFabric` or `Unavailable`. | keyword |
 | openfsso.generation | Identifier of the selected logon, sent with every renewal. | keyword |
-| openfsso.receiver | Name of the receiver from the client configuration. | keyword |
+| openfsso.receiver | Name of the receiver from the client configuration. server.address holds its host name. | keyword |
 | openfsso.runtime | .NET runtime version of the service. | keyword |
 | openfsso.session_id | Windows session ID of the user session. | long |
 | openfsso.tray_pid | Process ID of a started tray application. | long |
 | related.ip | All of the IPs seen on your event. | ip |
 | related.user | All the user names or other user identifiers seen on the event. | keyword |
+| server.address | Some event server addresses are defined ambiguously. The event will sometimes list an IP, a domain or a unix socket.  You should always store the raw address in the `.address` field. Then it should be duplicated to `.ip` or `.domain`, depending on which one it is. | keyword |
+| server.ip | IP address of the server (IPv4 or IPv6). | ip |
+| server.port | Port of the server. | long |
 | service.name | Name of the service data is collected from. The name of the service is normally user given. This allows for distributed services that run on multiple hosts to correlate the related instances based on the name. In the case of Elasticsearch the `service.name` could contain the cluster name. For Beats the `service.name` is by default a copy of the `service.type` field if no name is specified. | keyword |
 | service.node.name | Name of a service node. This allows for two nodes of the same service running on the same host to be differentiated. Therefore, `service.node.name` should typically be unique across nodes of a given service. In the case of Elasticsearch, the `service.node.name` could contain the unique node name within the Elasticsearch cluster. In cases where the service doesn't have the concept of a node name, the host name or container name can be used to distinguish running instances that make up this service. If those do not provide uniqueness (e.g. multiple instances of the service running on the same host) - the node name can be manually set. | keyword |
 | service.version | Version of the service the data was collected from. This allows to look at a data set only for a specific version of a service. | keyword |

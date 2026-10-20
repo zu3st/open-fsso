@@ -1,7 +1,7 @@
 format_version: 3.6.6
 name: openfsso
 title: OpenFSSO
-version: 0.1.0
+version: 0.1.1
 description: Collect the ECS JSON logs of OpenFSSO receivers and clients with Elastic Agent.
 type: integration
 categories:

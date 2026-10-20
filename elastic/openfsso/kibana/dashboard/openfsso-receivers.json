@@ -1738,14 +1738,14 @@
                 "ignoreValidations": false
             },
             "panelsJSON": {
-                "346100b4-fcef-39fc-ab84-45172ed00fe0": {
+                "cc6ddf1f-88d0-c1ae-e268-594c1cc8fa07": {
                     "grow": false,
                     "order": 0,
                     "width": "medium",
                     "type": "optionsListControl",
                     "explicitInput": {
-                        "id": "346100b4-fcef-39fc-ab84-45172ed00fe0",
-                        "dataViewId": "logs-*",
+                        "id": "cc6ddf1f-88d0-c1ae-e268-594c1cc8fa07",
+                        "dataViewId": "openfsso-receiver",
                         "fieldName": "host.name",
                         "title": "Host",
                         "searchTechnique": "prefix",
@@ -1756,14 +1756,14 @@
                         }
                     }
                 },
-                "64bb83f6-fc2b-5597-d69f-2f2be9868b72": {
+                "c8b30e0c-e8c6-87bb-c93d-26d91285743c": {
                     "grow": false,
                     "order": 1,
                     "width": "medium",
                     "type": "optionsListControl",
                     "explicitInput": {
-                        "id": "64bb83f6-fc2b-5597-d69f-2f2be9868b72",
-                        "dataViewId": "logs-*",
+                        "id": "c8b30e0c-e8c6-87bb-c93d-26d91285743c",
+                        "dataViewId": "openfsso-receiver",
                         "fieldName": "service.node.name",
                         "title": "Receiver",
                         "searchTechnique": "prefix",
@@ -1774,14 +1774,14 @@
                         }
                     }
                 },
-                "6b86aa1a-4c35-ac8e-63a1-038806c973f3": {
+                "93535c06-6fd0-b233-42a2-73ea77a108eb": {
                     "grow": false,
                     "order": 2,
                     "width": "medium",
                     "type": "optionsListControl",
                     "explicitInput": {
-                        "id": "6b86aa1a-4c35-ac8e-63a1-038806c973f3",
-                        "dataViewId": "logs-*",
+                        "id": "93535c06-6fd0-b233-42a2-73ea77a108eb",
+                        "dataViewId": "openfsso-receiver",
                         "fieldName": "user.name",
                         "title": "User",
                         "searchTechnique": "prefix",
@@ -1814,18 +1814,18 @@
         },
         {
             "type": "index-pattern",
-            "id": "logs-*",
-            "name": "controlGroup_346100b4-fcef-39fc-ab84-45172ed00fe0:optionsListDataView"
+            "id": "openfsso-receiver",
+            "name": "controlGroup_cc6ddf1f-88d0-c1ae-e268-594c1cc8fa07:optionsListDataView"
         },
         {
             "type": "index-pattern",
-            "id": "logs-*",
-            "name": "controlGroup_64bb83f6-fc2b-5597-d69f-2f2be9868b72:optionsListDataView"
+            "id": "openfsso-receiver",
+            "name": "controlGroup_c8b30e0c-e8c6-87bb-c93d-26d91285743c:optionsListDataView"
         },
         {
             "type": "index-pattern",
-            "id": "logs-*",
-            "name": "controlGroup_6b86aa1a-4c35-ac8e-63a1-038806c973f3:optionsListDataView"
+            "id": "openfsso-receiver",
+            "name": "controlGroup_93535c06-6fd0-b233-42a2-73ea77a108eb:optionsListDataView"
         }
     ],
     "type": "dashboard",

@@ -1,4 +1,12 @@
 # newer versions go on top
+- version: "0.1.1"
+  changes:
+    - description: The dashboard controls use data views of their own data stream, so they list only OpenFSSO values and find service.node.name.
+      type: bugfix
+      link: https://github.com/zu3st/open-fsso/issues/1
+    - description: The Receiver controls select the receiver's host name, service.node.name on receivers and server.address on clients. It needs OpenFSSO 0.1.37.
+      type: enhancement
+      link: https://github.com/zu3st/open-fsso/issues/1
 - version: "0.1.0"
   changes:
     - description: Initial release with receiver and client logs and dashboards.

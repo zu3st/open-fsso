@@ -1,22 +1,22 @@
 {
     "@timestamp": "2026-10-20T06:00:00.123Z",
     "agent": {
-        "ephemeral_id": "43f317ab-ffe6-44dc-acef-19fc1b9e5493",
-        "id": "d9796606-59c3-4617-9dd2-24e291748df6",
-        "name": "elastic-agent-10028",
+        "ephemeral_id": "d606d36f-5813-45de-8ccd-cfe8bef04554",
+        "id": "58d516f2-9803-4c73-aac8-10fb876ec8fc",
+        "name": "elastic-agent-61356",
         "type": "filebeat",
         "version": "9.5.5"
     },
     "data_stream": {
         "dataset": "openfsso.receiver",
-        "namespace": "10441",
+        "namespace": "73177",
         "type": "logs"
     },
     "ecs": {
         "version": "9.0.0"
     },
     "elastic_agent": {
-        "id": "d9796606-59c3-4617-9dd2-24e291748df6",
+        "id": "58d516f2-9803-4c73-aac8-10fb876ec8fc",
         "snapshot": false,
         "version": "9.5.5"
     },
@@ -27,10 +27,10 @@
             "process"
         ],
         "dataset": "openfsso.receiver",
-        "ingested": "2026-10-20T15:12:40Z",
+        "ingested": "2026-10-20T16:54:07Z",
         "kind": "event",
         "module": "openfsso",
-        "original": "{\"@timestamp\":\"2026-10-20T08:00:00.1234567+02:00\",\"log.level\":\"Information\",\"message\":\"Receiver ready; Kerberos presence authentication and strict channel binding verified; Bearer health authentication enabled\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"receiver-ready\",\"category\":[\"process\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"start\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"openfsso\":{\"runtime\":\"10.0.13\"}}",
+        "original": "{\"@timestamp\":\"2026-10-20T08:00:00.1234567+02:00\",\"log.level\":\"Information\",\"message\":\"Receiver ready; Kerberos presence authentication and strict channel binding verified; Bearer health authentication enabled\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"receiver-ready\",\"category\":[\"process\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"start\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"receiver-a.example.test\",\"version\":\"0.1.37\"},\"openfsso\":{\"runtime\":\"10.0.13\"}}",
         "outcome": "success",
         "severity": 2,
         "type": [
@@ -40,16 +40,16 @@
     "host": {
         "architecture": "x86_64",
         "containerized": false,
-        "hostname": "elastic-agent-10028",
+        "hostname": "elastic-agent-61356",
         "ip": [
             "172.18.0.2",
-            "192.168.32.7"
+            "192.168.32.8"
         ],
         "mac": [
-            "2A-4D-85-E6-6F-7D",
-            "D6-87-29-B7-78-1C"
+            "B2-05-F8-45-3A-91",
+            "D2-AE-6A-98-A0-97"
         ],
-        "name": "elastic-agent-10028",
+        "name": "elastic-agent-61356",
         "os": {
             "family": "",
             "kernel": "6.18.54.1-microsoft-standard-WSL2",
@@ -65,8 +65,8 @@
     "log": {
         "file": {
             "device_id": "2096",
-            "fingerprint": "da10ac49bac44a0019ce97139f01a507a08d9753aae3bcf659a2b8153b7d9048",
-            "inode": "3247505",
+            "fingerprint": "f5135b9489aef0106a8a335b58d1e0f31f5ecf14d3521da6c658b975ce923e33",
+            "inode": "3254735",
             "path": "/tmp/service_logs/receiver/events-20261020.jsonl"
         },
         "level": "Information",
@@ -80,9 +80,9 @@
     "service": {
         "name": "open-fsso-receiver",
         "node": {
-            "name": "OpenFssoReceiverA"
+            "name": "receiver-a.example.test"
         },
-        "version": "0.1.36"
+        "version": "0.1.37"
     },
     "tags": [
         "preserve_original_event",

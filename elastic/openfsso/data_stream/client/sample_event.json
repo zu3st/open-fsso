@@ -1,22 +1,22 @@
 {
     "@timestamp": "2026-10-20T06:00:00.123Z",
     "agent": {
-        "ephemeral_id": "b9eefa09-f35d-4702-a86e-f406d832e68b",
-        "id": "254677b7-dd2e-4dc6-9afd-9769f9cd2c8c",
-        "name": "elastic-agent-10019",
+        "ephemeral_id": "ac1187b7-1648-4b4c-8d91-830e033d1bce",
+        "id": "4f6bd849-8328-4604-9c9f-e2aa72caa466",
+        "name": "elastic-agent-53442",
         "type": "filebeat",
         "version": "9.5.5"
     },
     "data_stream": {
         "dataset": "openfsso.client",
-        "namespace": "51786",
+        "namespace": "50911",
         "type": "logs"
     },
     "ecs": {
         "version": "9.0.0"
     },
     "elastic_agent": {
-        "id": "254677b7-dd2e-4dc6-9afd-9769f9cd2c8c",
+        "id": "4f6bd849-8328-4604-9c9f-e2aa72caa466",
         "snapshot": false,
         "version": "9.5.5"
     },
@@ -27,10 +27,10 @@
             "process"
         ],
         "dataset": "openfsso.client",
-        "ingested": "2026-10-20T15:11:52Z",
+        "ingested": "2026-10-20T16:53:19Z",
         "kind": "event",
         "module": "openfsso",
-        "original": "{\"@timestamp\":\"2026-10-20T08:00:00.1234567+02:00\",\"log.level\":\"Information\",\"message\":\"Client service ready\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"client-ready\",\"category\":[\"process\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"start\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"openfsso\":{\"runtime\":\"10.0.13\"}}",
+        "original": "{\"@timestamp\":\"2026-10-20T08:00:00.1234567+02:00\",\"log.level\":\"Information\",\"message\":\"Client service ready\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"client-ready\",\"category\":[\"process\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"start\"]},\"service\":{\"name\":\"open-fsso-client\",\"version\":\"0.1.37\"},\"openfsso\":{\"runtime\":\"10.0.13\"}}",
         "outcome": "success",
         "severity": 2,
         "type": [
@@ -40,16 +40,16 @@
     "host": {
         "architecture": "x86_64",
         "containerized": false,
-        "hostname": "elastic-agent-10019",
+        "hostname": "elastic-agent-53442",
         "ip": [
             "172.18.0.2",
-            "192.168.32.7"
+            "192.168.32.8"
         ],
         "mac": [
-            "96-B2-86-DA-14-77",
-            "E6-AD-89-9D-9C-D9"
+            "82-EB-85-F1-C7-82",
+            "92-51-EC-92-E9-5F"
         ],
-        "name": "elastic-agent-10019",
+        "name": "elastic-agent-53442",
         "os": {
             "family": "",
             "kernel": "6.18.54.1-microsoft-standard-WSL2",
@@ -65,8 +65,8 @@
     "log": {
         "file": {
             "device_id": "2096",
-            "fingerprint": "404ab1667135138789f4d30ceb7948b367e151d082d2595492d321e245a9ddab",
-            "inode": "3247476",
+            "fingerprint": "289ad9b0cf9250860d163175f4d50449cb464c8b65edeef469909586a7dccd17",
+            "inode": "3254691",
             "path": "/tmp/service_logs/client/events-20261020.jsonl"
         },
         "level": "Information",
@@ -79,10 +79,7 @@
     },
     "service": {
         "name": "open-fsso-client",
-        "node": {
-            "name": "OpenFssoClient"
-        },
-        "version": "0.1.36"
+        "version": "0.1.37"
     },
     "tags": [
         "preserve_original_event",

@@ -7,7 +7,7 @@
       description: Identifier of the selected logon, sent with every renewal.
     - name: receiver
       type: keyword
-      description: Name of the receiver from the client configuration.
+      description: Name of the receiver from the client configuration. server.address holds its host name.
     - name: session_id
       type: long
       description: Windows session ID of the user session.
