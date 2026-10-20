@@ -68,7 +68,7 @@ await console.Stop();
 async Task<ReceiverRuntime> Start()
 {
     var options = ReadOptions();
-    var log = OpenFsso.Logging.Logging.Create(options.LogDirectory, "open-fsso-receiver", options.ServiceName, 100L * 1024 * 1024, options.HealthApiKey);
+    var log = OpenFsso.Logging.Logging.Create(options.LogDirectory, "open-fsso-receiver", options.Host, 100L * 1024 * 1024, options.HealthApiKey);
     var builder = WebApplication.CreateBuilder(new WebApplicationOptions { Args = [], ContentRootPath = AppContext.BaseDirectory });
     // Only the YAML file configures the receiver. Forwarded headers stay off,
     // since the client's IP address must come from the TCP connection.

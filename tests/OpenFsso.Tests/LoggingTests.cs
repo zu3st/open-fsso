@@ -68,6 +68,16 @@ public sealed class LoggingTests
     }
 
     [TestMethod]
+    public void ReceiverEndpointsMapToServerFields()
+    {
+        var server = Format(Event("Receiver recovered", null, new LogEventProperty("ServerAddress", new ScalarValue("receiver-a.example.test")),
+            new LogEventProperty("ServerIp", new ScalarValue("192.0.2.20")), new LogEventProperty("ServerPort", new ScalarValue(8443)))).GetProperty("server");
+        Assert.AreEqual("receiver-a.example.test", server.GetProperty("address").GetString());
+        Assert.AreEqual("192.0.2.20", server.GetProperty("ip").GetString());
+        Assert.AreEqual(8443, server.GetProperty("port").GetInt32());
+    }
+
+    [TestMethod]
     public void FrameworkEventIdsBecomeActions()
     {
         var id = new StructureValue([new LogEventProperty("Id", new ScalarValue(13)), new LogEventProperty("Name", new ScalarValue("AuthenticationSchemeForbidden"))]);

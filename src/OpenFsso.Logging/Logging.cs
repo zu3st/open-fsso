@@ -12,17 +12,17 @@ public static class Logging
 {
     private static readonly string? Version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3);
 
-    public static Serilog.Core.Logger Create(string directory, string service, string node, long limit, params string[] secrets) =>
+    public static Serilog.Core.Logger Create(string directory, string service, string? node, long limit, params string[] secrets) =>
         new LoggerConfiguration().MinimumLevel.Information().MinimumLevel.Override("Microsoft", LogEventLevel.Warning).Enrich.FromLogContext()
             .WriteTo.File(Formatter(service, node, secrets), Path.Combine(directory, "events-.jsonl"), rollingInterval: RollingInterval.Day, fileSizeLimitBytes: limit, rollOnFileSizeLimit: true, retainedFileCountLimit: 14, buffered: false)
             .CreateLogger();
 
     // Properties with an ECS field go there; every other one goes under openfsso.*.
     // ASP.NET's request properties already map to http.request.id, url.path and the trace fields.
-    private static readonly HashSet<string> Mapped = ["UserSid", "UserName", "SourceIp", "ErrorType", "ErrorCode", "Action", "Category", "Type", "Outcome", "Reason", "HttpStatus", "EventId", "MessageTemplate", "SourceContext", "RequestId", "RequestPath", "TraceId", "SpanId", "ParentId"];
+    private static readonly HashSet<string> Mapped = ["UserSid", "UserName", "SourceIp", "ServerAddress", "ServerIp", "ServerPort", "ErrorType", "ErrorCode", "Action", "Category", "Type", "Outcome", "Reason", "HttpStatus", "EventId", "MessageTemplate", "SourceContext", "RequestId", "RequestPath", "TraceId", "SpanId", "ParentId"];
 
-    // service names the program and node its Windows service, which tells receivers on one host apart.
-    public static ITextFormatter Formatter(string service, string node, params string[] secrets) => new MaskingFormatter(new NamespaceFormatter(new EcsTextFormatter(new EcsTextFormatterConfiguration
+    // service names the program. node names the instance, a receiver's host name, so receivers are told apart.
+    public static ITextFormatter Formatter(string service, string? node, params string[] secrets) => new MaskingFormatter(new NamespaceFormatter(new EcsTextFormatter(new EcsTextFormatterConfiguration
     {
         MapCustom = (document, e) =>
         {
@@ -59,6 +59,11 @@ public static class Logging
             if (Value(e, "SourceIp") is { } ip)
             {
                 document.Source = new Source { Ip = ip };
+            }
+
+            if (Value(e, "ServerAddress") is { } server)
+            {
+                document.Server = new Server { Address = server, Ip = Value(e, "ServerIp"), Port = e.Properties.TryGetValue("ServerPort", out var port) && port is ScalarValue { Value: int number } ? number : null };
             }
 
             if (document.User?.Name != null || document.Source != null)

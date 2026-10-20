@@ -154,7 +154,7 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
 
                     if (failed)
                     {
-                        logger.Write(LogEvents.ReceiverRecovered, ("Receiver", endpoint.Name));
+                        logger.Write(LogEvents.ReceiverRecovered, ("Receiver", endpoint.Name), ("ServerAddress", endpoint.Host), ("ServerIp", endpoint.Address), ("ServerPort", endpoint.Port));
                     }
 
                     failed = false;
@@ -179,7 +179,7 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
 
                 if (!failed)
                 {
-                    logger.Write(LogEvents.LogonUnavailable, ("Receiver", endpoint.Name), ("ErrorType", e.InnerException!.GetType().Name));
+                    logger.Write(LogEvents.LogonUnavailable, ("Receiver", endpoint.Name), ("ServerAddress", endpoint.Host), ("ServerIp", endpoint.Address), ("ServerPort", endpoint.Port), ("ErrorType", e.InnerException!.GetType().Name));
                 }
 
                 failed = true;
@@ -193,7 +193,7 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
                 delay = Math.Min(30, Math.Pow(2, failures - 1) * (0.8 + Random.Shared.NextDouble() * 0.4));
                 if (!failed)
                 {
-                    logger.Write(LogEvents.DeliveryFailed, ("Receiver", endpoint.Name), ("ErrorType", e.GetType().Name), ("HttpStatus", (e as ReceiverRejectedException)?.Status));
+                    logger.Write(LogEvents.DeliveryFailed, ("Receiver", endpoint.Name), ("ServerAddress", endpoint.Host), ("ServerIp", endpoint.Address), ("ServerPort", endpoint.Port), ("ErrorType", e.GetType().Name), ("HttpStatus", (e as ReceiverRejectedException)?.Status));
                 }
 
                 failed = true;
