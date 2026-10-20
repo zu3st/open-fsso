@@ -125,6 +125,16 @@ public sealed class ClientStatusTests
     }
 
     [TestMethod]
+    public void StatusJsonWritesEnumsAsNames()
+    {
+        var status = new ClientStatus(1, Now, "Alice", [new("A", "192.0.2.1", LastSentUtc: Now)], new(FabricState.OnFabric, Now));
+        string json = System.Text.Json.JsonSerializer.Serialize(new StatusSnapshot(status, ClientStatusView.Create(status, Now)), StatusJson.Default.StatusSnapshot);
+        Assert.Contains("\"State\":\"OnFabric\"", json);
+        Assert.Contains("\"Indicator\":\"Connected\"", json);
+        Assert.AreEqual(FabricState.OnFabric, System.Text.Json.JsonSerializer.Deserialize(System.Text.Json.JsonSerializer.Serialize(status, StatusJson.Default.ClientStatus), StatusJson.Default.ClientStatus)!.Fabric!.State);
+    }
+
+    [TestMethod]
     public void StaleStatusAndStaleAcknowledgementsCannotStayGreen()
     {
         var journal = new ClientStatusJournal(["A", "B"]);

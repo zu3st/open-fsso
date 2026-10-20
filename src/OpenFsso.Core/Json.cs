@@ -13,7 +13,8 @@ public sealed partial class WireJson : JsonSerializerContext
 {
 }
 
-// The client's status pipe and the tray's --status-json output.
+// The client's status pipe and its --status output, with enums as names.
+[JsonSourceGenerationOptions(UseStringEnumConverter = true)]
 [JsonSerializable(typeof(ClientStatus))]
 [JsonSerializable(typeof(StatusSnapshot))]
 public sealed partial class StatusJson : JsonSerializerContext
