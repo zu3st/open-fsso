@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.33
+
+- `OpenFsso.Client.exe --status` prints the client status as JSON and exits with
+  1 when the service is not running. It replaces `OpenFsso.Tray.exe
+  --status-json`, which wrote to a file. Status values such as the tray
+  indicator are written as names.
+- Clearer README sections on configuration and the Collector Agent.
+
 ## 0.1.32
 
 - The client selects the signed-in user when its service starts, including right
