@@ -118,9 +118,11 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
                     return new PresenceRequest(1, owner.Generation, ip, reference);
                 }
 
+                // The first attempt fails fast; the timeout grows with the back-off.
+                var timeout = TimeSpan.FromSeconds(Math.Min(15, 1 << failures));
                 var reply = release == null
-                    ? await presence!.SendAsync(token, IPAddress.Parse(source), Body, cycle.Token)
-                    : await release.PostAsync(null, "release", IPAddress.Parse(source), Body, cycle.Token);
+                    ? await presence!.SendAsync(token, IPAddress.Parse(source), timeout, Body, cycle.Token)
+                    : await release.PostAsync(null, "release", IPAddress.Parse(source), timeout, Body, cycle.Token);
                 cycle.Token.ThrowIfCancellationRequested();
                 if (!fabric.IsCurrent(location))
                 {

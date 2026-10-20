@@ -101,6 +101,7 @@ public sealed class ClientStatusTests
     {
         var timeout = new System.Net.WebSockets.WebSocketException("Unable to connect", new HttpRequestException(HttpRequestError.ConnectionError, "connect", new TimeoutException()));
         Assert.AreEqual("Connection timed out", OpenFsso.Client.DeliveryError.Describe(timeout));
+        Assert.AreEqual("Connection timed out", OpenFsso.Client.DeliveryError.Describe(new System.Net.WebSockets.WebSocketException("Unable to connect", new OperationCanceledException())));
         var refused = new System.Net.WebSockets.WebSocketException("Unable to connect", new HttpRequestException(HttpRequestError.ConnectionError, "connect"));
         Assert.AreEqual("Could not connect to the receiver", OpenFsso.Client.DeliveryError.Describe(refused));
         var socket = new System.Net.WebSockets.WebSocketException("Unable to connect", new HttpRequestException("connect", new System.Net.Sockets.SocketException((int)System.Net.Sockets.SocketError.ConnectionRefused)));

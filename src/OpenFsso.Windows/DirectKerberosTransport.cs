@@ -22,7 +22,6 @@ public sealed record TransportReply(int Status, string Body, string LocalIp);
 // Dispose to force a new session.
 public sealed class DirectKerberosTransport : IDisposable
 {
-    private static readonly TimeSpan ReplyTimeout = TimeSpan.FromSeconds(15);
     private readonly ReceiverEndpoint endpoint;
     private readonly IPAddress address;
     private readonly string? package;
@@ -58,7 +57,7 @@ public sealed class DirectKerberosTransport : IDisposable
             AllowAutoRedirect = false,
             Credentials = null,
             UseCookies = false,
-            ConnectTimeout = TimeSpan.FromSeconds(8),
+            ConnectTimeout = TimeSpan.FromSeconds(15),
             MaxConnectionsPerServer = 1,
             SslOptions = new SslClientAuthenticationOptions
             {
@@ -79,12 +78,15 @@ public sealed class DirectKerberosTransport : IDisposable
     public bool ConnectedFrom(string address) => localIp is null || localIp == address;
 
     // Presence over the session, opening it first when needed.
-    public async Task<TransportReply> SendAsync(SafeAccessTokenHandle? user, IPAddress source, Func<string, PresenceRequest> body, CancellationToken cancellationToken)
+    // The timeout covers connecting, TLS, Kerberos and the reply together.
+    public async Task<TransportReply> SendAsync(SafeAccessTokenHandle? user, IPAddress source, TimeSpan timeout, Func<string, PresenceRequest> body, CancellationToken cancellationToken)
     {
         this.source = source;
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        deadline.CancelAfter(timeout);
         if (socket is not { State: WebSocketState.Open })
         {
-            int status = await Open(user, cancellationToken);
+            int status = await Open(user, deadline.Token);
             if (status != 101)
             {
                 return new TransportReply(status, "", localIp ?? "");
@@ -92,17 +94,17 @@ public sealed class DirectKerberosTransport : IDisposable
         }
 
         string ip = localIp ?? throw new IOException("The socket address was lost.");
-        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        deadline.CancelAfter(ReplyTimeout);
         await socket!.SendAsync(JsonSerializer.SerializeToUtf8Bytes(body(ip), WireJson.Default.PresenceRequest), WebSocketMessageType.Text, true, deadline.Token);
         var reply = JsonSerializer.Deserialize(await replies!.Reader.ReadAsync(deadline.Token), WireJson.Default.SessionReply) ?? throw new IOException("Receiver reply was empty.");
         return new TransportReply(reply.Status, JsonSerializer.Serialize(reply.Reply, WireJson.Default.PresenceReply), ip);
     }
 
     // One HTTP request on its own connection, used for release.
-    public async Task<TransportReply> PostAsync(SafeAccessTokenHandle? user, string operation, IPAddress source, Func<string, PresenceRequest> body, CancellationToken cancellationToken)
+    public async Task<TransportReply> PostAsync(SafeAccessTokenHandle? user, string operation, IPAddress source, TimeSpan timeout, Func<string, PresenceRequest> body, CancellationToken cancellationToken)
     {
         this.source = source;
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        deadline.CancelAfter(timeout);
         RequireUser(user);
         using var request = new HttpRequestMessage(HttpMethod.Post, new UriBuilder("https", endpoint.Host, endpoint.Port, "/v1/" + operation).Uri)
         {
@@ -112,8 +114,8 @@ public sealed class DirectKerberosTransport : IDisposable
         };
         request.Headers.Host = new UriBuilder("https", endpoint.Host, endpoint.Port).Uri.Authority;
         request.Headers.ConnectionClose = true;
-        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken);
-        string text = await response.Content.ReadAsStringAsync(cancellationToken);
+        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead, deadline.Token);
+        string text = await response.Content.ReadAsStringAsync(deadline.Token);
         return new TransportReply((int)response.StatusCode, text, localIp ?? throw new IOException("The socket address was lost."));
     }
 
@@ -137,11 +139,9 @@ public sealed class DirectKerberosTransport : IDisposable
         next.Options.KeepAliveInterval = TimeSpan.FromSeconds(30);
         next.Options.KeepAliveTimeout = TimeSpan.FromSeconds(30);
         next.Options.CollectHttpResponseDetails = true;
-        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        deadline.CancelAfter(ReplyTimeout);
         try
         {
-            await next.ConnectAsync(new UriBuilder("wss", endpoint.Host, endpoint.Port, "/v1/session").Uri, new HttpMessageInvoker(handler, disposeHandler: false), deadline.Token);
+            await next.ConnectAsync(new UriBuilder("wss", endpoint.Host, endpoint.Port, "/v1/session").Uri, new HttpMessageInvoker(handler, disposeHandler: false), cancellationToken);
         }
         catch (WebSocketException) when (next.HttpStatusCode != 0)
         {

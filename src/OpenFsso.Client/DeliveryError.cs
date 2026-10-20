@@ -56,7 +56,7 @@ public static class DeliveryError
                 return "TLS or Kerberos authentication failed";
             }
 
-            if (inner is TimeoutException)
+            if (inner is TimeoutException or OperationCanceledException)
             {
                 return "Connection timed out";
             }
