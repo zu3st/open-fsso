@@ -159,8 +159,8 @@ Collector timers:
 | Gray | Waiting for logon or unlock | No selected user |
 | Blue | Off fabric | Outside the configured networks, updates paused |
 
-Scripts can query the status with `OpenFsso.Tray.exe --status-json <file>`,
-which writes it to the file as JSON.
+Scripts can read the status as JSON from `OpenFsso.Client.exe --status`, which
+exits with 1 when the client service is not running.
 
 Receivers serve `GET /health` with `Authorization: Bearer <HealthApiKey>`. It
 reports whether the receiver is ready, how many users are mapped, whether the

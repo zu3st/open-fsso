@@ -2,9 +2,9 @@ using System.ComponentModel;
 using System.IO.Pipes;
 using System.Text.Json;
 using OpenFsso.Core;
-using OpenFsso.Windows;
+using Windows.Win32;
 
-namespace OpenFsso.Tray;
+namespace OpenFsso.Windows;
 
 public static class StatusReader
 {
@@ -18,7 +18,7 @@ public static class StatusReader
             await pipe.ConnectAsync(deadline.Token);
             // The service name is fixed. Verify its running SCM PID before trusting
             // a snapshot: a user-created pipe with the same name is not authoritative.
-            if (!GetNamedPipeServerProcessId(pipe.SafePipeHandle, out uint pid) || pid == 0 || ServiceProcess.RunningPid("OpenFssoClient") != pid)
+            if (!PInvoke.GetNamedPipeServerProcessId(pipe.SafePipeHandle, out uint pid) || pid == 0 || ServiceProcess.RunningPid("OpenFssoClient") != pid)
             {
                 return null;
             }

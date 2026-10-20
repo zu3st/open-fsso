@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using OpenFsso.Core;
+using OpenFsso.Windows;
 using Windows.Win32.Foundation;
 
 namespace OpenFsso.Tray;

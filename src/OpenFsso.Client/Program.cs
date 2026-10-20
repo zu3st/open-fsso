@@ -10,9 +10,18 @@ using OpenFsso.Core;
 using OpenFsso.Windows;
 using Serilog;
 
+// Prints the running service's status as JSON, for scripts and monitoring.
+if (args is ["--status"])
+{
+    var status = await StatusReader.Read(default);
+    Console.WriteLine(JsonSerializer.Serialize(new StatusSnapshot(status, ClientStatusView.Create(status, DateTimeOffset.UtcNow)), StatusJson.Default.StatusSnapshot));
+    Environment.ExitCode = status == null ? 1 : 0;
+    return;
+}
+
 if (args.Length != 2 || args[0] is not ("--config" or "--validate-config") || !Path.IsPathFullyQualified(args[1]))
 {
-    throw new ArgumentException("Usage: OpenFsso.Client --config|--validate-config <absolute protected YAML path>");
+    throw new ArgumentException("Usage: OpenFsso.Client --status | --config|--validate-config <absolute protected YAML path>");
 }
 
 ClientOptions ReadOptions()

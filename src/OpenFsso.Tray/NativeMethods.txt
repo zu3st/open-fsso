@@ -23,7 +23,6 @@ SetForegroundWindow
 Shell_NotifyIcon
 TrackPopupMenu
 TranslateMessage
-GetNamedPipeServerProcessId
 WM_APP
 WM_NULL
 WM_CLOSE
