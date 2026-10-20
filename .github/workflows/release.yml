@@ -47,10 +47,21 @@ jobs:
       - name: Build MSIs
         run: python3 tools/build_msi.py --unsigned
 
+      - name: Check and build the Elastic integration
+        env:
+          ELASTIC_PACKAGE_VERSION: 0.126.4
+          ELASTIC_PACKAGE_SHA256: 2d069374dfdd4eb1e32cc2876a26bfbd8aa98fcec58fe904ce26bccfa7ca96b3
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/elastic-package.tar.gz" "https://github.com/elastic/elastic-package/releases/download/v$ELASTIC_PACKAGE_VERSION/elastic-package_${ELASTIC_PACKAGE_VERSION}_linux_amd64.tar.gz"
+          echo "$ELASTIC_PACKAGE_SHA256  $RUNNER_TEMP/elastic-package.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/elastic-package.tar.gz" -C "$RUNNER_TEMP" elastic-package
+          "$RUNNER_TEMP/elastic-package" check -C elastic/openfsso
+
       - name: Collect release files
         run: |
           mkdir release
           cp artifacts/msi/*.msi release/
+          cp build/packages/openfsso-*.zip release/
           python3 tools/package.py
           cp artifacts/release-unsigned.zip "release/OpenFSSO-$VERSION-payload.zip"
           (cd release && sha256sum -- * > SHA256SUMS)

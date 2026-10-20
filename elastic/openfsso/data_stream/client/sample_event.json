@@ -1,0 +1,91 @@
+{
+    "@timestamp": "2026-10-20T06:00:00.123Z",
+    "agent": {
+        "ephemeral_id": "b9eefa09-f35d-4702-a86e-f406d832e68b",
+        "id": "254677b7-dd2e-4dc6-9afd-9769f9cd2c8c",
+        "name": "elastic-agent-10019",
+        "type": "filebeat",
+        "version": "9.5.5"
+    },
+    "data_stream": {
+        "dataset": "openfsso.client",
+        "namespace": "51786",
+        "type": "logs"
+    },
+    "ecs": {
+        "version": "9.0.0"
+    },
+    "elastic_agent": {
+        "id": "254677b7-dd2e-4dc6-9afd-9769f9cd2c8c",
+        "snapshot": false,
+        "version": "9.5.5"
+    },
+    "event": {
+        "action": "client-ready",
+        "agent_id_status": "verified",
+        "category": [
+            "process"
+        ],
+        "dataset": "openfsso.client",
+        "ingested": "2026-10-20T15:11:52Z",
+        "kind": "event",
+        "module": "openfsso",
+        "original": "{\"@timestamp\":\"2026-10-20T08:00:00.1234567+02:00\",\"log.level\":\"Information\",\"message\":\"Client service ready\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"client-ready\",\"category\":[\"process\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"start\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"openfsso\":{\"runtime\":\"10.0.13\"}}",
+        "outcome": "success",
+        "severity": 2,
+        "type": [
+            "start"
+        ]
+    },
+    "host": {
+        "architecture": "x86_64",
+        "containerized": false,
+        "hostname": "elastic-agent-10019",
+        "ip": [
+            "172.18.0.2",
+            "192.168.32.7"
+        ],
+        "mac": [
+            "96-B2-86-DA-14-77",
+            "E6-AD-89-9D-9C-D9"
+        ],
+        "name": "elastic-agent-10019",
+        "os": {
+            "family": "",
+            "kernel": "6.18.54.1-microsoft-standard-WSL2",
+            "name": "Wolfi",
+            "platform": "wolfi",
+            "type": "linux",
+            "version": "20230201"
+        }
+    },
+    "input": {
+        "type": "filestream"
+    },
+    "log": {
+        "file": {
+            "device_id": "2096",
+            "fingerprint": "404ab1667135138789f4d30ceb7948b367e151d082d2595492d321e245a9ddab",
+            "inode": "3247476",
+            "path": "/tmp/service_logs/client/events-20261020.jsonl"
+        },
+        "level": "Information",
+        "logger": "OpenFsso.Client",
+        "offset": 0
+    },
+    "message": "Client service ready",
+    "openfsso": {
+        "runtime": "10.0.13"
+    },
+    "service": {
+        "name": "open-fsso-client",
+        "node": {
+            "name": "OpenFssoClient"
+        },
+        "version": "0.1.36"
+    },
+    "tags": [
+        "preserve_original_event",
+        "openfsso-client"
+    ]
+}

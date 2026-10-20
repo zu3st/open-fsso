@@ -1,0 +1,802 @@
+{
+    "expected": [
+        {
+            "@timestamp": "2026-10-20T06:00:00.123Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "client-ready",
+                "category": [
+                    "process"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:00:00.1234567+02:00\",\"log.level\":\"Information\",\"message\":\"Client service ready\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"client-ready\",\"category\":[\"process\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"start\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"openfsso\":{\"runtime\":\"10.0.13\"}}",
+                "outcome": "success",
+                "severity": 2,
+                "type": [
+                    "start"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Client service ready",
+            "openfsso": {
+                "runtime": "10.0.13"
+            },
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:00:10.123Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "status-pipe-created",
+                "category": [
+                    "process"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:00:10.1235678+02:00\",\"log.level\":\"Information\",\"message\":\"Status pipe created\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"status-pipe-created\",\"category\":[\"process\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"info\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"}}",
+                "outcome": "success",
+                "severity": 2,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Status pipe created",
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:00:20.123Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "fabric-status-changed",
+                "category": [
+                    "network"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:00:20.1236789+02:00\",\"log.level\":\"Information\",\"message\":\"Fabric status changed\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"fabric-status-changed\",\"category\":[\"network\"],\"kind\":\"event\",\"severity\":2,\"type\":[\"info\"]},\"related\":{\"ip\":[\"192.0.2.31\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"source\":{\"ip\":\"192.0.2.31\"},\"openfsso\":{\"fabric_state\":\"OnFabric\"}}",
+                "severity": 2,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Fabric status changed",
+            "openfsso": {
+                "fabric_state": "OnFabric"
+            },
+            "related": {
+                "ip": [
+                    "192.0.2.31"
+                ]
+            },
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "source": {
+                "ip": "192.0.2.31"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:00:30.123Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "waiting-for-logon",
+                "category": [
+                    "session"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:00:30.1237900+02:00\",\"log.level\":\"Information\",\"message\":\"Waiting for an interactive logon or unlock\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"waiting-for-logon\",\"category\":[\"session\"],\"kind\":\"event\",\"severity\":2,\"type\":[\"info\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"openfsso\":{\"attached_sessions\":0}}",
+                "severity": 2,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Waiting for an interactive logon or unlock",
+            "openfsso": {
+                "attached_sessions": 0
+            },
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:00:40.123Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "owner-selected",
+                "category": [
+                    "session"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:00:40.1239011+02:00\",\"log.level\":\"Information\",\"message\":\"Selected interactive owner\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"owner-selected\",\"category\":[\"session\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"start\"]},\"related\":{\"user\":[\"alice\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"user\":{\"domain\":\"EXAMPLE\",\"id\":\"S-1-5-21-1004336348-1177238915-682003330-1104\",\"name\":\"alice\"},\"openfsso\":{\"session_id\":2,\"generation\":\"4ddf1469-66b2-4113-a553-61bc4ed4e526\"}}",
+                "outcome": "success",
+                "severity": 2,
+                "type": [
+                    "start"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Selected interactive owner",
+            "openfsso": {
+                "generation": "4ddf1469-66b2-4113-a553-61bc4ed4e526",
+                "session_id": 2
+            },
+            "related": {
+                "user": [
+                    "alice"
+                ]
+            },
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "domain": "EXAMPLE",
+                "id": "S-1-5-21-1004336348-1177238915-682003330-1104",
+                "name": "alice"
+            }
+        },
+        {
+            "@timestamp": "2026-10-20T06:00:50.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "tray-started",
+                "category": [
+                    "process"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:00:50.1240122+02:00\",\"log.level\":\"Information\",\"message\":\"Tray launch requested\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"tray-started\",\"category\":[\"process\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"start\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"openfsso\":{\"session_id\":2,\"tray_pid\":6120}}",
+                "outcome": "success",
+                "severity": 2,
+                "type": [
+                    "start"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Tray launch requested",
+            "openfsso": {
+                "session_id": 2,
+                "tray_pid": 6120
+            },
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:01:00.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "error": {
+                "type": "ReceiverRejectedException"
+            },
+            "event": {
+                "action": "delivery-failed",
+                "category": [
+                    "network"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:01:00.1241233+02:00\",\"log.level\":\"Warning\",\"message\":\"Receiver delivery failed\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"error\":{\"type\":\"ReceiverRejectedException\"},\"event\":{\"action\":\"delivery-failed\",\"category\":[\"network\"],\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":3,\"type\":[\"connection\"]},\"http\":{\"response.status_code\":409},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"openfsso\":{\"receiver\":\"receiver-b\"}}",
+                "outcome": "failure",
+                "severity": 3,
+                "type": [
+                    "connection"
+                ]
+            },
+            "http": {
+                "response": {
+                    "status_code": 409
+                }
+            },
+            "log": {
+                "level": "Warning",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Receiver delivery failed",
+            "openfsso": {
+                "receiver": "receiver-b"
+            },
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:01:10.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "error": {
+                "type": "HttpRequestException"
+            },
+            "event": {
+                "action": "delivery-failed",
+                "category": [
+                    "network"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:01:10.1242344+02:00\",\"log.level\":\"Warning\",\"message\":\"Receiver delivery failed\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"error\":{\"type\":\"HttpRequestException\"},\"event\":{\"action\":\"delivery-failed\",\"category\":[\"network\"],\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":3,\"type\":[\"connection\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"openfsso\":{\"receiver\":\"receiver-b\"}}",
+                "outcome": "failure",
+                "severity": 3,
+                "type": [
+                    "connection"
+                ]
+            },
+            "log": {
+                "level": "Warning",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Receiver delivery failed",
+            "openfsso": {
+                "receiver": "receiver-b"
+            },
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:01:20.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "receiver-recovered",
+                "category": [
+                    "network"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:01:20.1243455+02:00\",\"log.level\":\"Information\",\"message\":\"Receiver recovered\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"receiver-recovered\",\"category\":[\"network\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"connection\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"openfsso\":{\"receiver\":\"receiver-b\"}}",
+                "outcome": "success",
+                "severity": 2,
+                "type": [
+                    "connection"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Receiver recovered",
+            "openfsso": {
+                "receiver": "receiver-b"
+            },
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:01:30.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "error": {
+                "type": "Win32Exception"
+            },
+            "event": {
+                "action": "logon-unavailable",
+                "category": [
+                    "authentication"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:01:30.1244566+02:00\",\"log.level\":\"Warning\",\"message\":\"Selected user logon is unavailable\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"error\":{\"type\":\"Win32Exception\"},\"event\":{\"action\":\"logon-unavailable\",\"category\":[\"authentication\"],\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":3,\"type\":[\"info\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"openfsso\":{\"receiver\":\"receiver-a\"}}",
+                "outcome": "failure",
+                "severity": 3,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Warning",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Selected user logon is unavailable",
+            "openfsso": {
+                "receiver": "receiver-a"
+            },
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:01:40.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "address-changed",
+                "category": [
+                    "network"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:01:40.1245677+02:00\",\"log.level\":\"Information\",\"message\":\"FSSO address changed\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"address-changed\",\"category\":[\"network\"],\"kind\":\"event\",\"severity\":2,\"type\":[\"info\"]},\"related\":{\"ip\":[\"192.0.2.41\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"source\":{\"ip\":\"192.0.2.41\"}}",
+                "severity": 2,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "FSSO address changed",
+            "related": {
+                "ip": [
+                    "192.0.2.41"
+                ]
+            },
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "source": {
+                "ip": "192.0.2.41"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:01:50.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "error": {
+                "code": "5"
+            },
+            "event": {
+                "action": "session-protocol-unknown",
+                "category": [
+                    "session"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:01:50.1246788+02:00\",\"log.level\":\"Warning\",\"message\":\"Cannot validate session protocol\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"error\":{\"code\":\"5\"},\"event\":{\"action\":\"session-protocol-unknown\",\"category\":[\"session\"],\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":3,\"type\":[\"info\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"openfsso\":{\"session_id\":3}}",
+                "outcome": "failure",
+                "severity": 3,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Warning",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Cannot validate session protocol",
+            "openfsso": {
+                "session_id": 3
+            },
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:02:00.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "error": {
+                "type": "Win32Exception"
+            },
+            "event": {
+                "action": "session-token-unavailable",
+                "category": [
+                    "session"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:02:00.1247899+02:00\",\"log.level\":\"Warning\",\"message\":\"Interactive session token is unavailable\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"error\":{\"type\":\"Win32Exception\"},\"event\":{\"action\":\"session-token-unavailable\",\"category\":[\"session\"],\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":3,\"type\":[\"info\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"openfsso\":{\"session_id\":3}}",
+                "outcome": "failure",
+                "severity": 3,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Warning",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Interactive session token is unavailable",
+            "openfsso": {
+                "session_id": 3
+            },
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:02:10.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "error": {
+                "type": "IOException"
+            },
+            "event": {
+                "action": "owner-state-save-failed",
+                "category": [
+                    "file"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:02:10.1249010+02:00\",\"log.level\":\"Error\",\"message\":\"Owner state could not be saved; renewals stopped\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"error\":{\"type\":\"IOException\"},\"event\":{\"action\":\"owner-state-save-failed\",\"category\":[\"file\"],\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":4,\"type\":[\"change\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"}}",
+                "outcome": "failure",
+                "severity": 4,
+                "type": [
+                    "change"
+                ]
+            },
+            "log": {
+                "level": "Error",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Owner state could not be saved; renewals stopped",
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:02:20.125Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "error": {
+                "type": "IOException"
+            },
+            "event": {
+                "action": "status-pipe-unavailable",
+                "category": [
+                    "process"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:02:20.1250121+02:00\",\"log.level\":\"Warning\",\"message\":\"Status pipe is unavailable; the tray shows the service as unavailable until it is created\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"error\":{\"type\":\"IOException\"},\"event\":{\"action\":\"status-pipe-unavailable\",\"category\":[\"process\"],\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":3,\"type\":[\"info\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"}}",
+                "outcome": "failure",
+                "severity": 3,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Warning",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Status pipe is unavailable; the tray shows the service as unavailable until it is created",
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:02:30.125Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "owner-logged-off",
+                "category": [
+                    "session"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:02:30.1251232+02:00\",\"log.level\":\"Information\",\"message\":\"Owner logged off\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"owner-logged-off\",\"category\":[\"session\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"end\"]},\"related\":{\"user\":[\"alice\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"user\":{\"domain\":\"EXAMPLE\",\"id\":\"S-1-5-21-1004336348-1177238915-682003330-1104\",\"name\":\"alice\"}}",
+                "outcome": "success",
+                "severity": 2,
+                "type": [
+                    "end"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Owner logged off",
+            "related": {
+                "user": [
+                    "alice"
+                ]
+            },
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "domain": "EXAMPLE",
+                "id": "S-1-5-21-1004336348-1177238915-682003330-1104",
+                "name": "alice"
+            }
+        },
+        {
+            "@timestamp": "2026-10-20T06:02:40.125Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "error": {
+                "type": "JsonException"
+            },
+            "event": {
+                "action": "owner-selection-failed",
+                "category": [
+                    "session"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:02:40.1252343+02:00\",\"log.level\":\"Error\",\"message\":\"Owner selection at service start failed closed\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"error\":{\"type\":\"JsonException\"},\"event\":{\"action\":\"owner-selection-failed\",\"category\":[\"session\"],\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":4,\"type\":[\"info\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"}}",
+                "outcome": "failure",
+                "severity": 4,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Error",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Owner selection at service start failed closed",
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:02:50.125Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "owner-selected",
+                "category": [
+                    "session"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:02:50.1253454+02:00\",\"log.level\":\"Information\",\"message\":\"Selected interactive owner at service start\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"owner-selected\",\"category\":[\"session\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"start\"]},\"related\":{\"user\":[\"bob\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"user\":{\"domain\":\"EXAMPLE\",\"id\":\"S-1-5-21-1004336348-1177238915-682003330-1105\",\"name\":\"bob\"},\"openfsso\":{\"session_id\":5,\"generation\":\"0b5e3c1f-1b1e-4c4a-9a51-6ad1f0e7c2d9\"}}",
+                "outcome": "success",
+                "severity": 2,
+                "type": [
+                    "start"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Selected interactive owner at service start",
+            "openfsso": {
+                "generation": "0b5e3c1f-1b1e-4c4a-9a51-6ad1f0e7c2d9",
+                "session_id": 5
+            },
+            "related": {
+                "user": [
+                    "bob"
+                ]
+            },
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "domain": "EXAMPLE",
+                "id": "S-1-5-21-1004336348-1177238915-682003330-1105",
+                "name": "bob"
+            }
+        },
+        {
+            "@timestamp": "2026-10-20T06:03:00.125Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "error": {
+                "stack_trace": "System.InvalidOperationException: The session is not active.\n   at OpenFsso.Windows.SessionProcess.Start(Int32 sessionId)",
+                "type": "System.InvalidOperationException"
+            },
+            "event": {
+                "action": "tray-start-failed",
+                "category": [
+                    "process"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:03:00.1254565+02:00\",\"log.level\":\"Warning\",\"message\":\"Could not start tray\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"error\":{\"stack_trace\":\"System.InvalidOperationException: The session is not active.\\n   at OpenFsso.Windows.SessionProcess.Start(Int32 sessionId)\",\"type\":\"System.InvalidOperationException\"},\"event\":{\"action\":\"tray-start-failed\",\"category\":[\"process\"],\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":3,\"type\":[\"start\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"},\"openfsso\":{\"session_id\":4}}",
+                "outcome": "failure",
+                "severity": 3,
+                "type": [
+                    "start"
+                ]
+            },
+            "log": {
+                "level": "Warning",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Could not start tray",
+            "openfsso": {
+                "session_id": 4
+            },
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:03:10.125Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "session-enumeration-failed",
+                "category": [
+                    "session"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:03:10.1255676+02:00\",\"log.level\":\"Warning\",\"message\":\"Could not enumerate user sessions for tray startup\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Client\"},\"event\":{\"action\":\"session-enumeration-failed\",\"category\":[\"session\"],\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":3,\"type\":[\"info\"]},\"service\":{\"name\":\"open-fsso-client\",\"node.name\":\"OpenFssoClient\",\"version\":\"0.1.36\"}}",
+                "outcome": "failure",
+                "severity": 3,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Warning",
+                "logger": "OpenFsso.Client"
+            },
+            "message": "Could not enumerate user sessions for tray startup",
+            "service": {
+                "name": "open-fsso-client",
+                "node": {
+                    "name": "OpenFssoClient"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        }
+    ]
+}

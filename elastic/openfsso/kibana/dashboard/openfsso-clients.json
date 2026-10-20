@@ -1,0 +1,1820 @@
+{
+    "attributes": {
+        "title": "[Logs OpenFSSO] Clients",
+        "description": "Delivery failures, selected users and versions of the OpenFSSO clients.",
+        "panelsJSON": [
+            {
+                "panelIndex": "5ec9d4e9-3f1c-8f1e-41f0-eb022308081d",
+                "gridData": {
+                    "x": 0,
+                    "y": 0,
+                    "w": 48,
+                    "h": 2,
+                    "i": "5ec9d4e9-3f1c-8f1e-41f0-eb022308081d"
+                },
+                "type": "links",
+                "embeddableConfig": {
+                    "enhancements": {},
+                    "attributes": {
+                        "layout": "horizontal",
+                        "links": [
+                            {
+                                "id": "16b1c2d3-1b14-3299-16a0-f22ef0df75c2",
+                                "order": 0,
+                                "label": "Receivers",
+                                "type": "dashboardLink",
+                                "destinationRefName": "link_16b1c2d3-1b14-3299-16a0-f22ef0df75c2_dashboard"
+                            },
+                            {
+                                "id": "00deb0f0-7667-2ff9-ea9a-9dd3df12b607",
+                                "order": 1,
+                                "label": "Clients",
+                                "type": "dashboardLink",
+                                "destinationRefName": "link_00deb0f0-7667-2ff9-ea9a-9dd3df12b607_dashboard"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "panelIndex": "68dd71f8-a119-b3f3-f734-2e37b16d2514",
+                "gridData": {
+                    "x": 0,
+                    "y": 2,
+                    "w": 12,
+                    "h": 5,
+                    "i": "68dd71f8-a119-b3f3-f734-2e37b16d2514"
+                },
+                "type": "lens",
+                "embeddableConfig": {
+                    "enhancements": {
+                        "dynamicActions": {
+                            "events": []
+                        }
+                    },
+                    "hidePanelTitles": true,
+                    "attributes": {
+                        "title": "Reporting clients",
+                        "visualizationType": "lnsMetric",
+                        "type": "lens",
+                        "references": [],
+                        "state": {
+                            "visualization": {
+                                "layerId": "ad420cb1-8123-6543-ec18-c89ad142c043",
+                                "layerType": "data",
+                                "metricAccessor": "4d1639e6-a71f-e4b4-864f-027617e1dc4d",
+                                "showBar": false,
+                                "applyColorTo": "background"
+                            },
+                            "query": {
+                                "esql": "FROM logs-openfsso.client-*\n| STATS clients = COUNT_DISTINCT(host.name)"
+                            },
+                            "filters": [],
+                            "datasourceStates": {
+                                "textBased": {
+                                    "layers": {
+                                        "ad420cb1-8123-6543-ec18-c89ad142c043": {
+                                            "query": {
+                                                "esql": "FROM logs-openfsso.client-*\n| STATS clients = COUNT_DISTINCT(host.name)"
+                                            },
+                                            "columns": [
+                                                {
+                                                    "fieldName": "clients",
+                                                    "columnId": "4d1639e6-a71f-e4b4-864f-027617e1dc4d",
+                                                    "label": "Reporting clients",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true,
+                                                    "params": {
+                                                        "format": {
+                                                            "id": "number",
+                                                            "params": {
+                                                                "decimals": 0
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "allColumns": [
+                                                {
+                                                    "fieldName": "clients",
+                                                    "columnId": "4d1639e6-a71f-e4b4-864f-027617e1dc4d",
+                                                    "label": "Reporting clients",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true,
+                                                    "params": {
+                                                        "format": {
+                                                            "id": "number",
+                                                            "params": {
+                                                                "decimals": 0
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "timeField": "@timestamp"
+                                        }
+                                    }
+                                }
+                            },
+                            "internalReferences": [],
+                            "adHocDataViews": {}
+                        }
+                    },
+                    "syncTooltips": false,
+                    "syncColors": false,
+                    "syncCursor": true,
+                    "filters": [],
+                    "query": {
+                        "query": "",
+                        "language": "kuery"
+                    }
+                }
+            },
+            {
+                "panelIndex": "d186a10b-e884-c9a9-f7f0-b3059821e427",
+                "gridData": {
+                    "x": 12,
+                    "y": 2,
+                    "w": 12,
+                    "h": 5,
+                    "i": "d186a10b-e884-c9a9-f7f0-b3059821e427"
+                },
+                "type": "lens",
+                "embeddableConfig": {
+                    "enhancements": {
+                        "dynamicActions": {
+                            "events": []
+                        }
+                    },
+                    "hidePanelTitles": true,
+                    "attributes": {
+                        "title": "Failing clients",
+                        "visualizationType": "lnsMetric",
+                        "type": "lens",
+                        "references": [],
+                        "state": {
+                            "visualization": {
+                                "layerId": "d1202beb-5a37-23ac-f1bd-c0f1d5168af5",
+                                "layerType": "data",
+                                "metricAccessor": "712f848a-932b-9f3e-d351-6476f82046ca",
+                                "showBar": false,
+                                "applyColorTo": "background"
+                            },
+                            "query": {
+                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\", \"receiver-recovered\", \"client-ready\")\n| INLINE STATS started = MAX(CASE(event.action == \"client-ready\", @timestamp, NULL)) BY host.name\n| WHERE event.action != \"client-ready\" AND (started IS NULL OR @timestamp > started)\n| STATS latest = MAX(CONCAT(TO_STRING(@timestamp), \" \", event.action)) BY host.name, openfsso.receiver\n| WHERE NOT ENDS_WITH(latest, \" receiver-recovered\")\n| STATS failing = COUNT_DISTINCT(host.name)"
+                            },
+                            "filters": [],
+                            "datasourceStates": {
+                                "textBased": {
+                                    "layers": {
+                                        "d1202beb-5a37-23ac-f1bd-c0f1d5168af5": {
+                                            "query": {
+                                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\", \"receiver-recovered\", \"client-ready\")\n| INLINE STATS started = MAX(CASE(event.action == \"client-ready\", @timestamp, NULL)) BY host.name\n| WHERE event.action != \"client-ready\" AND (started IS NULL OR @timestamp > started)\n| STATS latest = MAX(CONCAT(TO_STRING(@timestamp), \" \", event.action)) BY host.name, openfsso.receiver\n| WHERE NOT ENDS_WITH(latest, \" receiver-recovered\")\n| STATS failing = COUNT_DISTINCT(host.name)"
+                                            },
+                                            "columns": [
+                                                {
+                                                    "fieldName": "failing",
+                                                    "columnId": "712f848a-932b-9f3e-d351-6476f82046ca",
+                                                    "label": "Failing clients",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true,
+                                                    "params": {
+                                                        "format": {
+                                                            "id": "number",
+                                                            "params": {
+                                                                "decimals": 0
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "allColumns": [
+                                                {
+                                                    "fieldName": "failing",
+                                                    "columnId": "712f848a-932b-9f3e-d351-6476f82046ca",
+                                                    "label": "Failing clients",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true,
+                                                    "params": {
+                                                        "format": {
+                                                            "id": "number",
+                                                            "params": {
+                                                                "decimals": 0
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "timeField": "@timestamp"
+                                        }
+                                    }
+                                }
+                            },
+                            "internalReferences": [],
+                            "adHocDataViews": {}
+                        }
+                    },
+                    "syncTooltips": false,
+                    "syncColors": false,
+                    "syncCursor": true,
+                    "filters": [],
+                    "query": {
+                        "query": "",
+                        "language": "kuery"
+                    }
+                }
+            },
+            {
+                "panelIndex": "09e933b7-0642-6080-a0cb-96d941b38083",
+                "gridData": {
+                    "x": 24,
+                    "y": 2,
+                    "w": 12,
+                    "h": 5,
+                    "i": "09e933b7-0642-6080-a0cb-96d941b38083"
+                },
+                "type": "lens",
+                "embeddableConfig": {
+                    "enhancements": {
+                        "dynamicActions": {
+                            "events": []
+                        }
+                    },
+                    "hidePanelTitles": true,
+                    "attributes": {
+                        "title": "Delivery failures",
+                        "visualizationType": "lnsMetric",
+                        "type": "lens",
+                        "references": [],
+                        "state": {
+                            "visualization": {
+                                "layerId": "2bc50e2e-261a-38d0-58d5-0383ac62508e",
+                                "layerType": "data",
+                                "metricAccessor": "76990cad-755e-b562-5283-8614dc2286b4",
+                                "showBar": false,
+                                "applyColorTo": "background"
+                            },
+                            "query": {
+                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\")\n| STATS failures = COUNT(*)"
+                            },
+                            "filters": [],
+                            "datasourceStates": {
+                                "textBased": {
+                                    "layers": {
+                                        "2bc50e2e-261a-38d0-58d5-0383ac62508e": {
+                                            "query": {
+                                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\")\n| STATS failures = COUNT(*)"
+                                            },
+                                            "columns": [
+                                                {
+                                                    "fieldName": "failures",
+                                                    "columnId": "76990cad-755e-b562-5283-8614dc2286b4",
+                                                    "label": "Delivery failures",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true,
+                                                    "params": {
+                                                        "format": {
+                                                            "id": "number",
+                                                            "params": {
+                                                                "decimals": 0
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "allColumns": [
+                                                {
+                                                    "fieldName": "failures",
+                                                    "columnId": "76990cad-755e-b562-5283-8614dc2286b4",
+                                                    "label": "Delivery failures",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true,
+                                                    "params": {
+                                                        "format": {
+                                                            "id": "number",
+                                                            "params": {
+                                                                "decimals": 0
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "timeField": "@timestamp"
+                                        }
+                                    }
+                                }
+                            },
+                            "internalReferences": [],
+                            "adHocDataViews": {}
+                        }
+                    },
+                    "syncTooltips": false,
+                    "syncColors": false,
+                    "syncCursor": true,
+                    "filters": [],
+                    "query": {
+                        "query": "",
+                        "language": "kuery"
+                    }
+                }
+            },
+            {
+                "panelIndex": "60767746-1dcc-9bfc-326e-9e90a380cd32",
+                "gridData": {
+                    "x": 36,
+                    "y": 2,
+                    "w": 12,
+                    "h": 5,
+                    "i": "60767746-1dcc-9bfc-326e-9e90a380cd32"
+                },
+                "type": "lens",
+                "embeddableConfig": {
+                    "enhancements": {
+                        "dynamicActions": {
+                            "events": []
+                        }
+                    },
+                    "hidePanelTitles": true,
+                    "attributes": {
+                        "title": "Signed-in users",
+                        "visualizationType": "lnsMetric",
+                        "type": "lens",
+                        "references": [],
+                        "state": {
+                            "visualization": {
+                                "layerId": "360776cc-1aed-d7ba-f1be-c68a7104abee",
+                                "layerType": "data",
+                                "metricAccessor": "54b9e09b-3255-72b6-5bc8-340854a319c7",
+                                "showBar": false,
+                                "applyColorTo": "background"
+                            },
+                            "query": {
+                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action == \"owner-selected\"\n| STATS users = COUNT_DISTINCT(user.name)"
+                            },
+                            "filters": [],
+                            "datasourceStates": {
+                                "textBased": {
+                                    "layers": {
+                                        "360776cc-1aed-d7ba-f1be-c68a7104abee": {
+                                            "query": {
+                                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action == \"owner-selected\"\n| STATS users = COUNT_DISTINCT(user.name)"
+                                            },
+                                            "columns": [
+                                                {
+                                                    "fieldName": "users",
+                                                    "columnId": "54b9e09b-3255-72b6-5bc8-340854a319c7",
+                                                    "label": "Signed-in users",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true,
+                                                    "params": {
+                                                        "format": {
+                                                            "id": "number",
+                                                            "params": {
+                                                                "decimals": 0
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "allColumns": [
+                                                {
+                                                    "fieldName": "users",
+                                                    "columnId": "54b9e09b-3255-72b6-5bc8-340854a319c7",
+                                                    "label": "Signed-in users",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true,
+                                                    "params": {
+                                                        "format": {
+                                                            "id": "number",
+                                                            "params": {
+                                                                "decimals": 0
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "timeField": "@timestamp"
+                                        }
+                                    }
+                                }
+                            },
+                            "internalReferences": [],
+                            "adHocDataViews": {}
+                        }
+                    },
+                    "syncTooltips": false,
+                    "syncColors": false,
+                    "syncCursor": true,
+                    "filters": [],
+                    "query": {
+                        "query": "",
+                        "language": "kuery"
+                    }
+                }
+            },
+            {
+                "panelIndex": "38e08965-c830-1a47-6fac-521f0a6c8cd2",
+                "gridData": {
+                    "x": 0,
+                    "y": 7,
+                    "w": 32,
+                    "h": 13,
+                    "i": "38e08965-c830-1a47-6fac-521f0a6c8cd2"
+                },
+                "type": "lens",
+                "embeddableConfig": {
+                    "enhancements": {
+                        "dynamicActions": {
+                            "events": []
+                        }
+                    },
+                    "attributes": {
+                        "title": "Delivery failures over time",
+                        "visualizationType": "lnsXY",
+                        "type": "lens",
+                        "references": [],
+                        "state": {
+                            "visualization": {
+                                "layers": [
+                                    {
+                                        "layerId": "461eb7f7-c9d2-df71-1937-f7a55d5bb85e",
+                                        "accessors": [
+                                            "102852c1-990e-076a-0ede-61e8281d728e"
+                                        ],
+                                        "layerType": "data",
+                                        "seriesType": "bar_stacked",
+                                        "xAccessor": "df177ea9-5843-5979-3eb7-326180aaf9c1",
+                                        "position": "top",
+                                        "showGridlines": false,
+                                        "splitAccessor": "6c28a3c4-1451-76a2-ea1f-401307a24bd4",
+                                        "colorMapping": {
+                                            "assignments": [],
+                                            "specialAssignments": [
+                                                {
+                                                    "rule": {
+                                                        "type": "other"
+                                                    },
+                                                    "color": {
+                                                        "type": "loop"
+                                                    },
+                                                    "touched": false
+                                                }
+                                            ],
+                                            "paletteId": "eui_amsterdam_color_blind",
+                                            "colorMode": {
+                                                "type": "categorical"
+                                            }
+                                        }
+                                    }
+                                ],
+                                "preferredSeriesType": "bar_stacked",
+                                "legend": {
+                                    "position": "right"
+                                },
+                                "valueLabels": "hide"
+                            },
+                            "query": {
+                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\")\n| STATS failures = COUNT(*) BY time_bucket = BUCKET(@timestamp, 48, ?_tstart, ?_tend), openfsso.receiver\n| SORT time_bucket ASC"
+                            },
+                            "filters": [],
+                            "datasourceStates": {
+                                "textBased": {
+                                    "layers": {
+                                        "461eb7f7-c9d2-df71-1937-f7a55d5bb85e": {
+                                            "query": {
+                                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\")\n| STATS failures = COUNT(*) BY time_bucket = BUCKET(@timestamp, 48, ?_tstart, ?_tend), openfsso.receiver\n| SORT time_bucket ASC"
+                                            },
+                                            "columns": [
+                                                {
+                                                    "fieldName": "failures",
+                                                    "columnId": "102852c1-990e-076a-0ede-61e8281d728e",
+                                                    "label": "Failures",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true
+                                                },
+                                                {
+                                                    "fieldName": "time_bucket",
+                                                    "columnId": "df177ea9-5843-5979-3eb7-326180aaf9c1",
+                                                    "label": "Time",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "date",
+                                                        "esType": "date"
+                                                    }
+                                                },
+                                                {
+                                                    "fieldName": "openfsso.receiver",
+                                                    "columnId": "6c28a3c4-1451-76a2-ea1f-401307a24bd4",
+                                                    "label": "Receiver",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "allColumns": [
+                                                {
+                                                    "fieldName": "failures",
+                                                    "columnId": "102852c1-990e-076a-0ede-61e8281d728e",
+                                                    "label": "Failures",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true
+                                                },
+                                                {
+                                                    "fieldName": "time_bucket",
+                                                    "columnId": "df177ea9-5843-5979-3eb7-326180aaf9c1",
+                                                    "label": "Time",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "date",
+                                                        "esType": "date"
+                                                    }
+                                                },
+                                                {
+                                                    "fieldName": "openfsso.receiver",
+                                                    "columnId": "6c28a3c4-1451-76a2-ea1f-401307a24bd4",
+                                                    "label": "Receiver",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "timeField": "@timestamp"
+                                        }
+                                    }
+                                }
+                            },
+                            "internalReferences": [],
+                            "adHocDataViews": {}
+                        }
+                    },
+                    "syncTooltips": false,
+                    "syncColors": false,
+                    "syncCursor": true,
+                    "filters": [],
+                    "query": {
+                        "query": "",
+                        "language": "kuery"
+                    }
+                }
+            },
+            {
+                "panelIndex": "c1006843-6a25-947d-917d-4786e9b0f6d4",
+                "gridData": {
+                    "x": 32,
+                    "y": 7,
+                    "w": 16,
+                    "h": 13,
+                    "i": "c1006843-6a25-947d-917d-4786e9b0f6d4"
+                },
+                "type": "lens",
+                "embeddableConfig": {
+                    "enhancements": {
+                        "dynamicActions": {
+                            "events": []
+                        }
+                    },
+                    "attributes": {
+                        "title": "Failure causes",
+                        "visualizationType": "lnsPie",
+                        "type": "lens",
+                        "references": [],
+                        "state": {
+                            "visualization": {
+                                "layers": [
+                                    {
+                                        "layerId": "1b2766fd-fa18-ac54-35a5-651cfeeb6519",
+                                        "layerType": "data",
+                                        "colorMapping": {
+                                            "assignments": [],
+                                            "specialAssignments": [
+                                                {
+                                                    "rule": {
+                                                        "type": "other"
+                                                    },
+                                                    "color": {
+                                                        "type": "loop"
+                                                    },
+                                                    "touched": false
+                                                }
+                                            ],
+                                            "paletteId": "eui_amsterdam_color_blind",
+                                            "colorMode": {
+                                                "type": "categorical"
+                                            }
+                                        },
+                                        "primaryGroups": [
+                                            "31003a32-4674-d027-f792-4020c24419bc"
+                                        ],
+                                        "metrics": [
+                                            "bcea9a33-1f43-24f7-f7f8-bc3c52628799"
+                                        ],
+                                        "numberDisplay": "percent",
+                                        "categoryDisplay": "default",
+                                        "legendDisplay": "default",
+                                        "legendPosition": "right",
+                                        "nestedLegend": false
+                                    }
+                                ],
+                                "shape": "pie"
+                            },
+                            "query": {
+                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\")\n| EVAL cause = CASE(http.response.status_code IS NOT NULL, CONCAT(\"HTTP \", TO_STRING(http.response.status_code)), event.action == \"logon-unavailable\", \"Logon unavailable\", error.type)\n| STATS failures = COUNT(*) BY cause\n| SORT failures DESC\n| LIMIT 10"
+                            },
+                            "filters": [],
+                            "datasourceStates": {
+                                "textBased": {
+                                    "layers": {
+                                        "1b2766fd-fa18-ac54-35a5-651cfeeb6519": {
+                                            "query": {
+                                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\")\n| EVAL cause = CASE(http.response.status_code IS NOT NULL, CONCAT(\"HTTP \", TO_STRING(http.response.status_code)), event.action == \"logon-unavailable\", \"Logon unavailable\", error.type)\n| STATS failures = COUNT(*) BY cause\n| SORT failures DESC\n| LIMIT 10"
+                                            },
+                                            "columns": [
+                                                {
+                                                    "fieldName": "failures",
+                                                    "columnId": "bcea9a33-1f43-24f7-f7f8-bc3c52628799",
+                                                    "label": "Failures",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true
+                                                },
+                                                {
+                                                    "fieldName": "cause",
+                                                    "columnId": "31003a32-4674-d027-f792-4020c24419bc",
+                                                    "label": "Cause",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "allColumns": [
+                                                {
+                                                    "fieldName": "failures",
+                                                    "columnId": "bcea9a33-1f43-24f7-f7f8-bc3c52628799",
+                                                    "label": "Failures",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true
+                                                },
+                                                {
+                                                    "fieldName": "cause",
+                                                    "columnId": "31003a32-4674-d027-f792-4020c24419bc",
+                                                    "label": "Cause",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "timeField": "@timestamp"
+                                        }
+                                    }
+                                }
+                            },
+                            "internalReferences": [],
+                            "adHocDataViews": {}
+                        }
+                    },
+                    "syncTooltips": false,
+                    "syncColors": false,
+                    "syncCursor": true,
+                    "filters": [],
+                    "query": {
+                        "query": "",
+                        "language": "kuery"
+                    }
+                }
+            },
+            {
+                "panelIndex": "c7cd0461-d8b5-82a0-f3d0-e98d3a403bff",
+                "gridData": {
+                    "x": 0,
+                    "y": 20,
+                    "w": 48,
+                    "h": 12,
+                    "i": "c7cd0461-d8b5-82a0-f3d0-e98d3a403bff"
+                },
+                "type": "lens",
+                "embeddableConfig": {
+                    "enhancements": {
+                        "dynamicActions": {
+                            "events": []
+                        }
+                    },
+                    "attributes": {
+                        "title": "Failing clients",
+                        "visualizationType": "lnsDatatable",
+                        "type": "lens",
+                        "references": [],
+                        "state": {
+                            "visualization": {
+                                "columns": [
+                                    {
+                                        "columnId": "bc738a69-b90b-aa17-4d1b-4accde72fe13",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "c3774bee-7ea3-420a-54c2-8e9ec3bf316b",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "a8ee04e8-82b8-9369-1448-919fa684ef2b",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "16495bea-82e0-ecfa-93ce-c5fa8fa64c7b",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "709d7288-0ee7-bbac-ed9b-2c4197f95b0b",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "be864ab9-3784-0ed5-0371-044f98b54ded",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    }
+                                ],
+                                "layerId": "544821bd-8455-be95-a0c8-62708ad4d2d2",
+                                "layerType": "data"
+                            },
+                            "query": {
+                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\", \"receiver-recovered\", \"client-ready\")\n| INLINE STATS started = MAX(CASE(event.action == \"client-ready\", @timestamp, NULL)) BY host.name\n| WHERE event.action != \"client-ready\" AND (started IS NULL OR @timestamp > started)\n| EVAL state = CONCAT(TO_STRING(@timestamp), \"|\", event.action, \"|\", COALESCE(error.type, \"\"), \"|\", COALESCE(TO_STRING(http.response.status_code), \"\"))\n| STATS latest = MAX(state) BY host.name, openfsso.receiver\n| EVAL parts = SPLIT(latest, \"|\")\n| EVAL since = TO_DATETIME(MV_FIRST(parts)), failure = MV_SLICE(parts, 1, 1), error = MV_SLICE(parts, 2, 2), http_status = MV_SLICE(parts, 3, 3)\n| WHERE failure != \"receiver-recovered\"\n| KEEP host.name, openfsso.receiver, since, failure, error, http_status\n| SORT since DESC\n| LIMIT 200"
+                            },
+                            "filters": [],
+                            "datasourceStates": {
+                                "textBased": {
+                                    "layers": {
+                                        "544821bd-8455-be95-a0c8-62708ad4d2d2": {
+                                            "query": {
+                                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"delivery-failed\", \"logon-unavailable\", \"receiver-recovered\", \"client-ready\")\n| INLINE STATS started = MAX(CASE(event.action == \"client-ready\", @timestamp, NULL)) BY host.name\n| WHERE event.action != \"client-ready\" AND (started IS NULL OR @timestamp > started)\n| EVAL state = CONCAT(TO_STRING(@timestamp), \"|\", event.action, \"|\", COALESCE(error.type, \"\"), \"|\", COALESCE(TO_STRING(http.response.status_code), \"\"))\n| STATS latest = MAX(state) BY host.name, openfsso.receiver\n| EVAL parts = SPLIT(latest, \"|\")\n| EVAL since = TO_DATETIME(MV_FIRST(parts)), failure = MV_SLICE(parts, 1, 1), error = MV_SLICE(parts, 2, 2), http_status = MV_SLICE(parts, 3, 3)\n| WHERE failure != \"receiver-recovered\"\n| KEEP host.name, openfsso.receiver, since, failure, error, http_status\n| SORT since DESC\n| LIMIT 200"
+                                            },
+                                            "columns": [
+                                                {
+                                                    "fieldName": "host.name",
+                                                    "columnId": "bc738a69-b90b-aa17-4d1b-4accde72fe13",
+                                                    "label": "Host",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "openfsso.receiver",
+                                                    "columnId": "c3774bee-7ea3-420a-54c2-8e9ec3bf316b",
+                                                    "label": "Receiver",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "since",
+                                                    "columnId": "a8ee04e8-82b8-9369-1448-919fa684ef2b",
+                                                    "label": "Since",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "failure",
+                                                    "columnId": "16495bea-82e0-ecfa-93ce-c5fa8fa64c7b",
+                                                    "label": "Failure",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "error",
+                                                    "columnId": "709d7288-0ee7-bbac-ed9b-2c4197f95b0b",
+                                                    "label": "Error",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "http_status",
+                                                    "columnId": "be864ab9-3784-0ed5-0371-044f98b54ded",
+                                                    "label": "HTTP status",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "allColumns": [
+                                                {
+                                                    "fieldName": "host.name",
+                                                    "columnId": "bc738a69-b90b-aa17-4d1b-4accde72fe13",
+                                                    "label": "Host",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "openfsso.receiver",
+                                                    "columnId": "c3774bee-7ea3-420a-54c2-8e9ec3bf316b",
+                                                    "label": "Receiver",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "since",
+                                                    "columnId": "a8ee04e8-82b8-9369-1448-919fa684ef2b",
+                                                    "label": "Since",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "failure",
+                                                    "columnId": "16495bea-82e0-ecfa-93ce-c5fa8fa64c7b",
+                                                    "label": "Failure",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "error",
+                                                    "columnId": "709d7288-0ee7-bbac-ed9b-2c4197f95b0b",
+                                                    "label": "Error",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "http_status",
+                                                    "columnId": "be864ab9-3784-0ed5-0371-044f98b54ded",
+                                                    "label": "HTTP status",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "timeField": "@timestamp"
+                                        }
+                                    }
+                                }
+                            },
+                            "internalReferences": [],
+                            "adHocDataViews": {}
+                        }
+                    },
+                    "syncTooltips": false,
+                    "syncColors": false,
+                    "syncCursor": true,
+                    "filters": [],
+                    "query": {
+                        "query": "",
+                        "language": "kuery"
+                    }
+                }
+            },
+            {
+                "panelIndex": "9f7a2148-26b9-fd4b-936a-cb527cf4395f",
+                "gridData": {
+                    "x": 0,
+                    "y": 32,
+                    "w": 16,
+                    "h": 12,
+                    "i": "9f7a2148-26b9-fd4b-936a-cb527cf4395f"
+                },
+                "type": "lens",
+                "embeddableConfig": {
+                    "enhancements": {
+                        "dynamicActions": {
+                            "events": []
+                        }
+                    },
+                    "attributes": {
+                        "title": "Client versions",
+                        "visualizationType": "lnsPie",
+                        "type": "lens",
+                        "references": [],
+                        "state": {
+                            "visualization": {
+                                "layers": [
+                                    {
+                                        "layerId": "7e0a7d8f-373b-8d1a-7ae7-f488da868fe9",
+                                        "layerType": "data",
+                                        "colorMapping": {
+                                            "assignments": [],
+                                            "specialAssignments": [
+                                                {
+                                                    "rule": {
+                                                        "type": "other"
+                                                    },
+                                                    "color": {
+                                                        "type": "loop"
+                                                    },
+                                                    "touched": false
+                                                }
+                                            ],
+                                            "paletteId": "eui_amsterdam_color_blind",
+                                            "colorMode": {
+                                                "type": "categorical"
+                                            }
+                                        },
+                                        "primaryGroups": [
+                                            "8800b763-8663-e0ba-d50a-657aae1b78d3"
+                                        ],
+                                        "metrics": [
+                                            "bce0c9c7-c88e-5ca1-a49b-645d2bc0cc72"
+                                        ],
+                                        "numberDisplay": "percent",
+                                        "categoryDisplay": "default",
+                                        "legendDisplay": "default",
+                                        "legendPosition": "right",
+                                        "nestedLegend": false
+                                    }
+                                ],
+                                "shape": "pie"
+                            },
+                            "query": {
+                                "esql": "FROM logs-openfsso.client-*\n| WHERE service.version IS NOT NULL\n| STATS latest = MAX(CONCAT(TO_STRING(@timestamp), \" \", service.version)) BY host.name\n| EVAL version = MV_LAST(SPLIT(latest, \" \"))\n| STATS clients = COUNT(*) BY version\n| SORT clients DESC\n| LIMIT 10"
+                            },
+                            "filters": [],
+                            "datasourceStates": {
+                                "textBased": {
+                                    "layers": {
+                                        "7e0a7d8f-373b-8d1a-7ae7-f488da868fe9": {
+                                            "query": {
+                                                "esql": "FROM logs-openfsso.client-*\n| WHERE service.version IS NOT NULL\n| STATS latest = MAX(CONCAT(TO_STRING(@timestamp), \" \", service.version)) BY host.name\n| EVAL version = MV_LAST(SPLIT(latest, \" \"))\n| STATS clients = COUNT(*) BY version\n| SORT clients DESC\n| LIMIT 10"
+                                            },
+                                            "columns": [
+                                                {
+                                                    "fieldName": "clients",
+                                                    "columnId": "bce0c9c7-c88e-5ca1-a49b-645d2bc0cc72",
+                                                    "label": "Clients",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true
+                                                },
+                                                {
+                                                    "fieldName": "version",
+                                                    "columnId": "8800b763-8663-e0ba-d50a-657aae1b78d3",
+                                                    "label": "Version",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "allColumns": [
+                                                {
+                                                    "fieldName": "clients",
+                                                    "columnId": "bce0c9c7-c88e-5ca1-a49b-645d2bc0cc72",
+                                                    "label": "Clients",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true
+                                                },
+                                                {
+                                                    "fieldName": "version",
+                                                    "columnId": "8800b763-8663-e0ba-d50a-657aae1b78d3",
+                                                    "label": "Version",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "timeField": "@timestamp"
+                                        }
+                                    }
+                                }
+                            },
+                            "internalReferences": [],
+                            "adHocDataViews": {}
+                        }
+                    },
+                    "syncTooltips": false,
+                    "syncColors": false,
+                    "syncCursor": true,
+                    "filters": [],
+                    "query": {
+                        "query": "",
+                        "language": "kuery"
+                    }
+                }
+            },
+            {
+                "panelIndex": "0eafeca4-9a1b-4bcd-225e-930e51f874c2",
+                "gridData": {
+                    "x": 16,
+                    "y": 32,
+                    "w": 16,
+                    "h": 12,
+                    "i": "0eafeca4-9a1b-4bcd-225e-930e51f874c2"
+                },
+                "type": "lens",
+                "embeddableConfig": {
+                    "enhancements": {
+                        "dynamicActions": {
+                            "events": []
+                        }
+                    },
+                    "attributes": {
+                        "title": "Fabric state",
+                        "visualizationType": "lnsPie",
+                        "type": "lens",
+                        "references": [],
+                        "state": {
+                            "visualization": {
+                                "layers": [
+                                    {
+                                        "layerId": "959aa24b-fea3-64b3-ebfa-25bf11ac2afd",
+                                        "layerType": "data",
+                                        "colorMapping": {
+                                            "assignments": [],
+                                            "specialAssignments": [
+                                                {
+                                                    "rule": {
+                                                        "type": "other"
+                                                    },
+                                                    "color": {
+                                                        "type": "loop"
+                                                    },
+                                                    "touched": false
+                                                }
+                                            ],
+                                            "paletteId": "eui_amsterdam_color_blind",
+                                            "colorMode": {
+                                                "type": "categorical"
+                                            }
+                                        },
+                                        "primaryGroups": [
+                                            "8ceb3a87-a11f-ed46-fb00-b32534c884e2"
+                                        ],
+                                        "metrics": [
+                                            "bce0c9c7-c88e-5ca1-a49b-645d2bc0cc72"
+                                        ],
+                                        "numberDisplay": "percent",
+                                        "categoryDisplay": "default",
+                                        "legendDisplay": "default",
+                                        "legendPosition": "right",
+                                        "nestedLegend": false
+                                    }
+                                ],
+                                "shape": "pie"
+                            },
+                            "query": {
+                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action == \"fabric-status-changed\"\n| STATS latest = MAX(CONCAT(TO_STRING(@timestamp), \" \", openfsso.fabric_state)) BY host.name\n| EVAL state = MV_LAST(SPLIT(latest, \" \"))\n| STATS clients = COUNT(*) BY state\n| SORT clients DESC\n| LIMIT 10"
+                            },
+                            "filters": [],
+                            "datasourceStates": {
+                                "textBased": {
+                                    "layers": {
+                                        "959aa24b-fea3-64b3-ebfa-25bf11ac2afd": {
+                                            "query": {
+                                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action == \"fabric-status-changed\"\n| STATS latest = MAX(CONCAT(TO_STRING(@timestamp), \" \", openfsso.fabric_state)) BY host.name\n| EVAL state = MV_LAST(SPLIT(latest, \" \"))\n| STATS clients = COUNT(*) BY state\n| SORT clients DESC\n| LIMIT 10"
+                                            },
+                                            "columns": [
+                                                {
+                                                    "fieldName": "clients",
+                                                    "columnId": "bce0c9c7-c88e-5ca1-a49b-645d2bc0cc72",
+                                                    "label": "Clients",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true
+                                                },
+                                                {
+                                                    "fieldName": "state",
+                                                    "columnId": "8ceb3a87-a11f-ed46-fb00-b32534c884e2",
+                                                    "label": "Fabric state",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "allColumns": [
+                                                {
+                                                    "fieldName": "clients",
+                                                    "columnId": "bce0c9c7-c88e-5ca1-a49b-645d2bc0cc72",
+                                                    "label": "Clients",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true
+                                                },
+                                                {
+                                                    "fieldName": "state",
+                                                    "columnId": "8ceb3a87-a11f-ed46-fb00-b32534c884e2",
+                                                    "label": "Fabric state",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "timeField": "@timestamp"
+                                        }
+                                    }
+                                }
+                            },
+                            "internalReferences": [],
+                            "adHocDataViews": {}
+                        }
+                    },
+                    "syncTooltips": false,
+                    "syncColors": false,
+                    "syncCursor": true,
+                    "filters": [],
+                    "query": {
+                        "query": "",
+                        "language": "kuery"
+                    }
+                }
+            },
+            {
+                "panelIndex": "521bc619-3f02-8e07-d5e3-a02e695629f5",
+                "gridData": {
+                    "x": 32,
+                    "y": 32,
+                    "w": 16,
+                    "h": 12,
+                    "i": "521bc619-3f02-8e07-d5e3-a02e695629f5"
+                },
+                "type": "lens",
+                "embeddableConfig": {
+                    "enhancements": {
+                        "dynamicActions": {
+                            "events": []
+                        }
+                    },
+                    "attributes": {
+                        "title": "Sign-ins and sign-offs over time",
+                        "visualizationType": "lnsXY",
+                        "type": "lens",
+                        "references": [],
+                        "state": {
+                            "visualization": {
+                                "layers": [
+                                    {
+                                        "layerId": "545b0c8d-eed1-948a-e1d0-95e1584b9add",
+                                        "accessors": [
+                                            "ff6c6454-644d-31cb-925f-d59a2d0e89ff"
+                                        ],
+                                        "layerType": "data",
+                                        "seriesType": "bar_stacked",
+                                        "xAccessor": "df177ea9-5843-5979-3eb7-326180aaf9c1",
+                                        "position": "top",
+                                        "showGridlines": false,
+                                        "splitAccessor": "63f333c5-0182-6cfb-60bf-e6db3c7d6677",
+                                        "colorMapping": {
+                                            "assignments": [],
+                                            "specialAssignments": [
+                                                {
+                                                    "rule": {
+                                                        "type": "other"
+                                                    },
+                                                    "color": {
+                                                        "type": "loop"
+                                                    },
+                                                    "touched": false
+                                                }
+                                            ],
+                                            "paletteId": "eui_amsterdam_color_blind",
+                                            "colorMode": {
+                                                "type": "categorical"
+                                            }
+                                        }
+                                    }
+                                ],
+                                "preferredSeriesType": "bar_stacked",
+                                "legend": {
+                                    "position": "bottom"
+                                },
+                                "valueLabels": "hide"
+                            },
+                            "query": {
+                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"owner-selected\", \"owner-logged-off\")\n| STATS events = COUNT(*) BY time_bucket = BUCKET(@timestamp, 24, ?_tstart, ?_tend), event.action\n| SORT time_bucket ASC"
+                            },
+                            "filters": [],
+                            "datasourceStates": {
+                                "textBased": {
+                                    "layers": {
+                                        "545b0c8d-eed1-948a-e1d0-95e1584b9add": {
+                                            "query": {
+                                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"owner-selected\", \"owner-logged-off\")\n| STATS events = COUNT(*) BY time_bucket = BUCKET(@timestamp, 24, ?_tstart, ?_tend), event.action\n| SORT time_bucket ASC"
+                                            },
+                                            "columns": [
+                                                {
+                                                    "fieldName": "events",
+                                                    "columnId": "ff6c6454-644d-31cb-925f-d59a2d0e89ff",
+                                                    "label": "Events",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true
+                                                },
+                                                {
+                                                    "fieldName": "time_bucket",
+                                                    "columnId": "df177ea9-5843-5979-3eb7-326180aaf9c1",
+                                                    "label": "Time",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "date",
+                                                        "esType": "date"
+                                                    }
+                                                },
+                                                {
+                                                    "fieldName": "event.action",
+                                                    "columnId": "63f333c5-0182-6cfb-60bf-e6db3c7d6677",
+                                                    "label": "Event",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "allColumns": [
+                                                {
+                                                    "fieldName": "events",
+                                                    "columnId": "ff6c6454-644d-31cb-925f-d59a2d0e89ff",
+                                                    "label": "Events",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "number",
+                                                        "esType": "long"
+                                                    },
+                                                    "inMetricDimension": true
+                                                },
+                                                {
+                                                    "fieldName": "time_bucket",
+                                                    "columnId": "df177ea9-5843-5979-3eb7-326180aaf9c1",
+                                                    "label": "Time",
+                                                    "customLabel": true,
+                                                    "meta": {
+                                                        "type": "date",
+                                                        "esType": "date"
+                                                    }
+                                                },
+                                                {
+                                                    "fieldName": "event.action",
+                                                    "columnId": "63f333c5-0182-6cfb-60bf-e6db3c7d6677",
+                                                    "label": "Event",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "timeField": "@timestamp"
+                                        }
+                                    }
+                                }
+                            },
+                            "internalReferences": [],
+                            "adHocDataViews": {}
+                        }
+                    },
+                    "syncTooltips": false,
+                    "syncColors": false,
+                    "syncCursor": true,
+                    "filters": [],
+                    "query": {
+                        "query": "",
+                        "language": "kuery"
+                    }
+                }
+            },
+            {
+                "panelIndex": "5e4162c6-7a08-3bf8-2450-6ad038f33946",
+                "gridData": {
+                    "x": 0,
+                    "y": 44,
+                    "w": 48,
+                    "h": 14,
+                    "i": "5e4162c6-7a08-3bf8-2450-6ad038f33946"
+                },
+                "type": "lens",
+                "embeddableConfig": {
+                    "enhancements": {
+                        "dynamicActions": {
+                            "events": []
+                        }
+                    },
+                    "attributes": {
+                        "title": "Warnings and errors",
+                        "visualizationType": "lnsDatatable",
+                        "type": "lens",
+                        "references": [],
+                        "state": {
+                            "visualization": {
+                                "columns": [
+                                    {
+                                        "columnId": "74ec61cc-5457-84f6-3414-5e9f2ab0e2a0",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "bc738a69-b90b-aa17-4d1b-4accde72fe13",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "e73e91b8-52f2-fe41-088d-470c76262f25",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "0ca20712-5b29-8617-8e61-b1dcbccfff80",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "c3774bee-7ea3-420a-54c2-8e9ec3bf316b",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "d0c4661a-5131-8ed6-2d7e-03df289b0d53",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "f8a8df42-682a-c2c0-7ffb-672fbc8c0c53",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "c9759406-0db4-68c0-bac7-7a973d33e946",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "27bfe1ef-bb72-e648-7dbd-f97495a21cf3",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    }
+                                ],
+                                "layerId": "359c580f-7625-6337-0553-e0ae2b41d673",
+                                "layerType": "data"
+                            },
+                            "query": {
+                                "esql": "FROM logs-openfsso.client-*\n| WHERE log.level IN (\"Warning\", \"Error\", \"Fatal\")\n| KEEP @timestamp, host.name, log.level, event.action, openfsso.receiver, user.name, error.type, http.response.status_code, error.message\n| SORT @timestamp DESC\n| LIMIT 200"
+                            },
+                            "filters": [],
+                            "datasourceStates": {
+                                "textBased": {
+                                    "layers": {
+                                        "359c580f-7625-6337-0553-e0ae2b41d673": {
+                                            "query": {
+                                                "esql": "FROM logs-openfsso.client-*\n| WHERE log.level IN (\"Warning\", \"Error\", \"Fatal\")\n| KEEP @timestamp, host.name, log.level, event.action, openfsso.receiver, user.name, error.type, http.response.status_code, error.message\n| SORT @timestamp DESC\n| LIMIT 200"
+                                            },
+                                            "columns": [
+                                                {
+                                                    "fieldName": "@timestamp",
+                                                    "columnId": "74ec61cc-5457-84f6-3414-5e9f2ab0e2a0",
+                                                    "label": "Time",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "host.name",
+                                                    "columnId": "bc738a69-b90b-aa17-4d1b-4accde72fe13",
+                                                    "label": "Host",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "log.level",
+                                                    "columnId": "e73e91b8-52f2-fe41-088d-470c76262f25",
+                                                    "label": "Level",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "event.action",
+                                                    "columnId": "0ca20712-5b29-8617-8e61-b1dcbccfff80",
+                                                    "label": "Action",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "openfsso.receiver",
+                                                    "columnId": "c3774bee-7ea3-420a-54c2-8e9ec3bf316b",
+                                                    "label": "Receiver",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "user.name",
+                                                    "columnId": "d0c4661a-5131-8ed6-2d7e-03df289b0d53",
+                                                    "label": "User",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "error.type",
+                                                    "columnId": "f8a8df42-682a-c2c0-7ffb-672fbc8c0c53",
+                                                    "label": "Error",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "http.response.status_code",
+                                                    "columnId": "c9759406-0db4-68c0-bac7-7a973d33e946",
+                                                    "label": "HTTP status",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "error.message",
+                                                    "columnId": "27bfe1ef-bb72-e648-7dbd-f97495a21cf3",
+                                                    "label": "Message",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "allColumns": [
+                                                {
+                                                    "fieldName": "@timestamp",
+                                                    "columnId": "74ec61cc-5457-84f6-3414-5e9f2ab0e2a0",
+                                                    "label": "Time",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "host.name",
+                                                    "columnId": "bc738a69-b90b-aa17-4d1b-4accde72fe13",
+                                                    "label": "Host",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "log.level",
+                                                    "columnId": "e73e91b8-52f2-fe41-088d-470c76262f25",
+                                                    "label": "Level",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "event.action",
+                                                    "columnId": "0ca20712-5b29-8617-8e61-b1dcbccfff80",
+                                                    "label": "Action",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "openfsso.receiver",
+                                                    "columnId": "c3774bee-7ea3-420a-54c2-8e9ec3bf316b",
+                                                    "label": "Receiver",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "user.name",
+                                                    "columnId": "d0c4661a-5131-8ed6-2d7e-03df289b0d53",
+                                                    "label": "User",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "error.type",
+                                                    "columnId": "f8a8df42-682a-c2c0-7ffb-672fbc8c0c53",
+                                                    "label": "Error",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "http.response.status_code",
+                                                    "columnId": "c9759406-0db4-68c0-bac7-7a973d33e946",
+                                                    "label": "HTTP status",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "error.message",
+                                                    "columnId": "27bfe1ef-bb72-e648-7dbd-f97495a21cf3",
+                                                    "label": "Message",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "timeField": "@timestamp"
+                                        }
+                                    }
+                                }
+                            },
+                            "internalReferences": [],
+                            "adHocDataViews": {}
+                        }
+                    },
+                    "syncTooltips": false,
+                    "syncColors": false,
+                    "syncCursor": true,
+                    "filters": [],
+                    "query": {
+                        "query": "",
+                        "language": "kuery"
+                    }
+                }
+            },
+            {
+                "panelIndex": "4ae93064-c2dd-ca43-0def-92cc51401771",
+                "gridData": {
+                    "x": 0,
+                    "y": 58,
+                    "w": 48,
+                    "h": 14,
+                    "i": "4ae93064-c2dd-ca43-0def-92cc51401771"
+                },
+                "type": "lens",
+                "embeddableConfig": {
+                    "enhancements": {
+                        "dynamicActions": {
+                            "events": []
+                        }
+                    },
+                    "attributes": {
+                        "title": "Selected users",
+                        "visualizationType": "lnsDatatable",
+                        "type": "lens",
+                        "references": [],
+                        "state": {
+                            "visualization": {
+                                "columns": [
+                                    {
+                                        "columnId": "74ec61cc-5457-84f6-3414-5e9f2ab0e2a0",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "bc738a69-b90b-aa17-4d1b-4accde72fe13",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "0ca20712-5b29-8617-8e61-b1dcbccfff80",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "b3d94119-31bf-3f64-b96c-ee8b9f4958a1",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "d0c4661a-5131-8ed6-2d7e-03df289b0d53",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    },
+                                    {
+                                        "columnId": "b1c9baba-d60b-c1a1-d88b-245814bf50c3",
+                                        "isTransposed": false,
+                                        "isMetric": false
+                                    }
+                                ],
+                                "layerId": "e4b17174-460d-6bf7-6780-29ef6c601ab0",
+                                "layerType": "data"
+                            },
+                            "query": {
+                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"owner-selected\", \"owner-logged-off\", \"waiting-for-logon\")\n| KEEP @timestamp, host.name, event.action, user.domain, user.name, openfsso.session_id\n| SORT @timestamp DESC\n| LIMIT 500"
+                            },
+                            "filters": [],
+                            "datasourceStates": {
+                                "textBased": {
+                                    "layers": {
+                                        "e4b17174-460d-6bf7-6780-29ef6c601ab0": {
+                                            "query": {
+                                                "esql": "FROM logs-openfsso.client-*\n| WHERE event.action IN (\"owner-selected\", \"owner-logged-off\", \"waiting-for-logon\")\n| KEEP @timestamp, host.name, event.action, user.domain, user.name, openfsso.session_id\n| SORT @timestamp DESC\n| LIMIT 500"
+                                            },
+                                            "columns": [
+                                                {
+                                                    "fieldName": "@timestamp",
+                                                    "columnId": "74ec61cc-5457-84f6-3414-5e9f2ab0e2a0",
+                                                    "label": "Time",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "host.name",
+                                                    "columnId": "bc738a69-b90b-aa17-4d1b-4accde72fe13",
+                                                    "label": "Host",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "event.action",
+                                                    "columnId": "0ca20712-5b29-8617-8e61-b1dcbccfff80",
+                                                    "label": "Action",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "user.domain",
+                                                    "columnId": "b3d94119-31bf-3f64-b96c-ee8b9f4958a1",
+                                                    "label": "Domain",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "user.name",
+                                                    "columnId": "d0c4661a-5131-8ed6-2d7e-03df289b0d53",
+                                                    "label": "User",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "openfsso.session_id",
+                                                    "columnId": "b1c9baba-d60b-c1a1-d88b-245814bf50c3",
+                                                    "label": "Session",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "allColumns": [
+                                                {
+                                                    "fieldName": "@timestamp",
+                                                    "columnId": "74ec61cc-5457-84f6-3414-5e9f2ab0e2a0",
+                                                    "label": "Time",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "host.name",
+                                                    "columnId": "bc738a69-b90b-aa17-4d1b-4accde72fe13",
+                                                    "label": "Host",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "event.action",
+                                                    "columnId": "0ca20712-5b29-8617-8e61-b1dcbccfff80",
+                                                    "label": "Action",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "user.domain",
+                                                    "columnId": "b3d94119-31bf-3f64-b96c-ee8b9f4958a1",
+                                                    "label": "Domain",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "user.name",
+                                                    "columnId": "d0c4661a-5131-8ed6-2d7e-03df289b0d53",
+                                                    "label": "User",
+                                                    "customLabel": true
+                                                },
+                                                {
+                                                    "fieldName": "openfsso.session_id",
+                                                    "columnId": "b1c9baba-d60b-c1a1-d88b-245814bf50c3",
+                                                    "label": "Session",
+                                                    "customLabel": true
+                                                }
+                                            ],
+                                            "timeField": "@timestamp"
+                                        }
+                                    }
+                                }
+                            },
+                            "internalReferences": [],
+                            "adHocDataViews": {}
+                        }
+                    },
+                    "syncTooltips": false,
+                    "syncColors": false,
+                    "syncCursor": true,
+                    "filters": [],
+                    "query": {
+                        "query": "",
+                        "language": "kuery"
+                    }
+                }
+            }
+        ],
+        "optionsJSON": {
+            "useMargins": true,
+            "syncColors": false,
+            "syncCursor": true,
+            "syncTooltips": false,
+            "hidePanelTitles": false
+        },
+        "kibanaSavedObjectMeta": {
+            "searchSourceJSON": {
+                "filter": [
+                    {
+                        "$state": {
+                            "store": "appState"
+                        },
+                        "meta": {
+                            "disabled": false,
+                            "negate": false,
+                            "alias": null,
+                            "type": "phrase",
+                            "key": "data_stream.dataset",
+                            "field": "data_stream.dataset",
+                            "params": {
+                                "query": "openfsso.client"
+                            }
+                        },
+                        "query": {
+                            "match_phrase": {
+                                "data_stream.dataset": "openfsso.client"
+                            }
+                        }
+                    }
+                ],
+                "query": {
+                    "query": "",
+                    "language": "kuery"
+                }
+            }
+        },
+        "timeRestore": true,
+        "timeFrom": "now-24h",
+        "timeTo": "now",
+        "version": 1,
+        "controlGroupInput": {
+            "chainingSystem": "HIERARCHICAL",
+            "controlStyle": "oneLine",
+            "ignoreParentSettingsJSON": {
+                "ignoreFilters": false,
+                "ignoreQuery": false,
+                "ignoreTimerange": false,
+                "ignoreValidations": false
+            },
+            "panelsJSON": {
+                "346100b4-fcef-39fc-ab84-45172ed00fe0": {
+                    "grow": false,
+                    "order": 0,
+                    "width": "medium",
+                    "type": "optionsListControl",
+                    "explicitInput": {
+                        "id": "346100b4-fcef-39fc-ab84-45172ed00fe0",
+                        "dataViewId": "logs-*",
+                        "fieldName": "host.name",
+                        "title": "Host",
+                        "searchTechnique": "prefix",
+                        "selectedOptions": [],
+                        "sort": {
+                            "by": "_count",
+                            "direction": "desc"
+                        }
+                    }
+                },
+                "14682c5e-9311-99a0-f8a1-a9ab40870053": {
+                    "grow": false,
+                    "order": 1,
+                    "width": "medium",
+                    "type": "optionsListControl",
+                    "explicitInput": {
+                        "id": "14682c5e-9311-99a0-f8a1-a9ab40870053",
+                        "dataViewId": "logs-*",
+                        "fieldName": "openfsso.receiver",
+                        "title": "Receiver",
+                        "searchTechnique": "prefix",
+                        "selectedOptions": [],
+                        "sort": {
+                            "by": "_count",
+                            "direction": "desc"
+                        }
+                    }
+                },
+                "6b86aa1a-4c35-ac8e-63a1-038806c973f3": {
+                    "grow": false,
+                    "order": 2,
+                    "width": "medium",
+                    "type": "optionsListControl",
+                    "explicitInput": {
+                        "id": "6b86aa1a-4c35-ac8e-63a1-038806c973f3",
+                        "dataViewId": "logs-*",
+                        "fieldName": "user.name",
+                        "title": "User",
+                        "searchTechnique": "prefix",
+                        "selectedOptions": [],
+                        "sort": {
+                            "by": "_count",
+                            "direction": "desc"
+                        }
+                    }
+                }
+            },
+            "showApplySelections": false
+        }
+    },
+    "coreMigrationVersion": "8.8.0",
+    "created_at": "2023-10-01T00:00:00Z",
+    "created_by": "admin",
+    "id": "openfsso-clients",
+    "managed": false,
+    "references": [
+        {
+            "type": "dashboard",
+            "id": "openfsso-receivers",
+            "name": "5ec9d4e9-3f1c-8f1e-41f0-eb022308081d:link_16b1c2d3-1b14-3299-16a0-f22ef0df75c2_dashboard"
+        },
+        {
+            "type": "dashboard",
+            "id": "openfsso-clients",
+            "name": "5ec9d4e9-3f1c-8f1e-41f0-eb022308081d:link_00deb0f0-7667-2ff9-ea9a-9dd3df12b607_dashboard"
+        },
+        {
+            "type": "index-pattern",
+            "id": "logs-*",
+            "name": "controlGroup_346100b4-fcef-39fc-ab84-45172ed00fe0:optionsListDataView"
+        },
+        {
+            "type": "index-pattern",
+            "id": "logs-*",
+            "name": "controlGroup_14682c5e-9311-99a0-f8a1-a9ab40870053:optionsListDataView"
+        },
+        {
+            "type": "index-pattern",
+            "id": "logs-*",
+            "name": "controlGroup_6b86aa1a-4c35-ac8e-63a1-038806c973f3:optionsListDataView"
+        }
+    ],
+    "type": "dashboard",
+    "typeMigrationVersion": "10.2.0",
+    "updated_at": "2023-10-01T00:00:00Z",
+    "updated_by": "admin",
+    "version": "1"
+}

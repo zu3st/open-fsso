@@ -1,0 +1,39 @@
+format_version: 3.6.6
+name: openfsso
+title: OpenFSSO
+version: 0.1.0
+description: Collect the ECS JSON logs of OpenFSSO receivers and clients with Elastic Agent.
+type: integration
+categories:
+  - security
+  - network
+conditions:
+  kibana:
+    version: "^9.5.0"
+  elastic:
+    subscription: basic
+screenshots:
+  - src: /img/openfsso-receivers.png
+    title: Receivers dashboard
+    size: 1600x1996
+    type: image/png
+  - src: /img/openfsso-clients.png
+    title: Clients dashboard
+    size: 1600x2024
+    type: image/png
+icons:
+  - src: /img/openfsso-logo.svg
+    title: OpenFSSO logo
+    size: 32x32
+    type: image/svg+xml
+policy_templates:
+  - name: openfsso
+    title: OpenFSSO logs
+    description: Collect logs from OpenFSSO receivers on Collector Agent hosts and from OpenFSSO clients on workstations.
+    inputs:
+      - type: filestream
+        title: Collect OpenFSSO logs
+        description: Read the services' ECS JSON log files. Enable the receiver logs in the policy for Collector Agent hosts and the client logs in the policy for workstations.
+owner:
+  github: zu3st
+  type: community

@@ -1,0 +1,31 @@
+- name: openfsso
+  type: group
+  description: Fields of OpenFSSO receiver events without an ECS equivalent.
+  fields:
+    - name: generation
+      type: keyword
+      description: Identifier of the client's selected logon, which renews or replaces a mapping.
+    - name: claimed_ip
+      type: keyword
+      description: Address a client claimed for its connection when the receiver rejected the claim, or `invalid`.
+    - name: authentication_type
+      type: keyword
+      description: Authentication package of an identity the receiver rejected.
+    - name: authentication_scheme
+      type: keyword
+      description: ASP.NET authentication scheme of an authentication event, `Windows` for presence sessions or `HealthKey` for the health endpoint.
+    - name: failure_message
+      type: keyword
+      description: Reason an authentication scheme gave for a failed authentication.
+    - name: collector_available
+      type: boolean
+      description: Whether the Collector Agent service runs.
+    - name: collector_pid
+      type: long
+      description: Process ID of the Collector Agent service, 0 when it is stopped.
+    - name: runtime
+      type: keyword
+      description: .NET runtime version of the service.
+    - name: suppressed
+      type: long
+      description: Number of rejection warnings dropped by the rate limit in the previous minute.

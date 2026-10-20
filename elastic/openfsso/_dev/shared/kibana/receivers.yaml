@@ -1,0 +1,276 @@
+---
+dashboards:
+  - id: openfsso-receivers
+    name: '[Logs OpenFSSO] Receivers'
+    description: Mappings, rejected requests and collector availability of the OpenFSSO receivers.
+    minimum_kibana_version: '9.5.0'
+    time_range:
+      from: now-24h
+    filters:
+      - field: data_stream.dataset
+        equals: openfsso.receiver
+    controls:
+      - type: options
+        label: Host
+        data_view: logs-*
+        field: host.name
+      - type: options
+        label: Receiver
+        data_view: logs-*
+        field: service.node.name
+      - type: options
+        label: User
+        data_view: logs-*
+        field: user.name
+    panels:
+      - size: {w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Receivers
+              dashboard: openfsso-receivers
+            - label: Clients
+              dashboard: openfsso-clients
+
+      - title: Mapped users
+        hide_title: true
+        description: Users whose latest mapping event since the receiver's last start is a login or an update.
+        size: {w: 12, h: 5}
+        esql:
+          type: metric
+          query:
+            - FROM logs-openfsso.receiver-*
+            - WHERE (event.category == "session" AND event.outcome == "success") OR event.action == "receiver-ready"
+            - INLINE STATS started = MAX(CASE(event.action == "receiver-ready", @timestamp, NULL)) BY host.name, service.node.name
+            - WHERE event.category == "session" AND (started IS NULL OR @timestamp > started)
+            - STATS latest = MAX(CONCAT(TO_STRING(@timestamp), " ", event.action)) BY host.name, service.node.name, user.name, source.ip
+            - WHERE NOT ENDS_WITH(latest, " logout")
+            - STATS mapped = COUNT_DISTINCT(user.name)
+          primary:
+            field: mapped
+            label: Mapped users
+            format: {type: number, decimals: 0}
+      - title: Rejected requests
+        hide_title: true
+        description: Rejected address claims and identities, accounts the domain revoked, and failed health key checks.
+        size: {w: 12, h: 5}
+        esql:
+          type: metric
+          query:
+            - FROM logs-openfsso.receiver-*
+            - WHERE event.action IN ("ip-claim-rejected", "identity-rejected", "account-revoked") OR (openfsso.authentication_scheme == "HealthKey" AND event.outcome == "failure")
+            - STATS rejected = COUNT(*)
+          primary:
+            field: rejected
+            label: Rejected requests
+            format: {type: number, decimals: 0}
+      - title: Syslog failures
+        hide_title: true
+        description: Mappings the receiver could not send to the local Collector Agent.
+        size: {w: 12, h: 5}
+        esql:
+          type: metric
+          query:
+            - FROM logs-openfsso.receiver-*
+            - WHERE event.category == "session" AND event.outcome == "failure"
+            - STATS failures = COUNT(*)
+          primary:
+            field: failures
+            label: Syslog failures
+            format: {type: number, decimals: 0}
+      - title: Collector outages
+        hide_title: true
+        description: Times a receiver found the Collector Agent service stopped.
+        size: {w: 12, h: 5}
+        esql:
+          type: metric
+          query:
+            - FROM logs-openfsso.receiver-*
+            - WHERE event.action == "collector-availability-changed" AND openfsso.collector_available == false
+            - STATS outages = COUNT(*)
+          primary:
+            field: outages
+            label: Collector outages
+            format: {type: number, decimals: 0}
+
+      - title: Mapping events over time
+        description: Logins, hourly updates and logouts sent to the collector.
+        size: {w: 32, h: 13}
+        esql:
+          type: bar
+          mode: stacked
+          query:
+            - FROM logs-openfsso.receiver-*
+            - WHERE event.category == "session"
+            - EVAL event = CASE(event.outcome == "failure", CONCAT(event.action, " failed"), event.action)
+            - STATS events = COUNT(*) BY time_bucket = BUCKET(@timestamp, 48, ?_tstart, ?_tend), event
+            - SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          breakdown:
+            field: event
+            label: Event
+          metrics:
+            - field: events
+              label: Events
+      - title: Logout reasons
+        description: Release at sign-off, lease expiry, replacement by another user, or account revocation.
+        size: {w: 16, h: 13}
+        esql:
+          type: pie
+          query:
+            - FROM logs-openfsso.receiver-*
+            - WHERE event.action == "logout"
+            - STATS logouts = COUNT(*) BY event.reason
+            - SORT logouts DESC
+            - LIMIT 10
+          metrics:
+            - field: logouts
+              label: Logouts
+          breakdowns:
+            - field: event.reason
+              label: Reason
+
+      - title: Rejections over time
+        description: Requests the receiver refused, by kind.
+        size: {w: 32, h: 13}
+        esql:
+          type: bar
+          mode: stacked
+          query:
+            - FROM logs-openfsso.receiver-*
+            - WHERE event.action IN ("ip-claim-rejected", "identity-rejected", "account-revoked", "account-check-failed") OR (openfsso.authentication_scheme == "HealthKey" AND event.outcome == "failure")
+            - EVAL rejection = CASE(openfsso.authentication_scheme == "HealthKey", "health-key-failed", event.action)
+            - STATS rejections = COUNT(*) BY time_bucket = BUCKET(@timestamp, 48, ?_tstart, ?_tend), rejection
+            - SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          breakdown:
+            field: rejection
+            label: Rejection
+          metrics:
+            - field: rejections
+              label: Rejections
+          legend:
+            position: bottom
+      - title: Rejected sources
+        description: Client addresses of refused requests.
+        size: {w: 16, h: 13}
+        esql:
+          type: datatable
+          query:
+            - FROM logs-openfsso.receiver-*
+            - WHERE event.action IN ("ip-claim-rejected", "identity-rejected", "account-revoked") OR (openfsso.authentication_scheme == "HealthKey" AND event.outcome == "failure")
+            - EVAL rejection = CASE(openfsso.authentication_scheme == "HealthKey", "health-key-failed", event.action)
+            - STATS rejections = COUNT(*), latest = MAX(@timestamp) BY source.ip, rejection
+            - SORT rejections DESC
+            - LIMIT 50
+          metrics:
+            - field: 'rejections'
+              label: Rejections
+          breakdowns:
+            - field: 'source.ip'
+              label: Source
+            - field: 'rejection'
+              label: Rejection
+            - field: 'latest'
+              label: Latest
+
+      - title: Receivers
+        description: State of each receiver in the time range. The collector state is the latest one the receiver reported.
+        size: {w: 48, h: 10}
+        esql:
+          type: datatable
+          query:
+            - FROM logs-openfsso.receiver-*
+            - WHERE service.node.name IS NOT NULL
+            - EVAL collector = CASE(event.action == "collector-availability-changed", CONCAT(TO_STRING(@timestamp), CASE(openfsso.collector_available, " running", " stopped")), NULL)
+            - STATS last_start = MAX(CASE(event.action == "receiver-ready", @timestamp, NULL)), version = MAX(CASE(service.version IS NOT NULL, CONCAT(TO_STRING(@timestamp), " ", service.version), NULL)), collector = MAX(collector), mapping_events = COUNT(CASE(event.category == "session" AND event.outcome == "success", 1, NULL)), syslog_failures = COUNT(CASE(event.category == "session" AND event.outcome == "failure", 1, NULL)), warnings = COUNT(CASE(log.level IN ("Warning", "Error", "Fatal"), 1, NULL)) BY host.name, service.node.name
+            - EVAL collector = MV_LAST(SPLIT(collector, " ")), version = MV_LAST(SPLIT(version, " "))
+            - SORT host.name, service.node.name
+          metrics:
+            - field: 'mapping_events'
+              label: Mapping events
+            - field: 'syslog_failures'
+              label: Syslog failures
+            - field: 'warnings'
+              label: Warnings
+          breakdowns:
+            - field: 'host.name'
+              label: Host
+            - field: 'service.node.name'
+              label: Receiver
+            - field: 'version'
+              label: Version
+            - field: 'last_start'
+              label: Last start
+            - field: 'collector'
+              label: Collector
+
+      - title: Warnings and errors
+        description: The latest warnings and errors of the receivers.
+        size: {w: 48, h: 14}
+        esql:
+          type: datatable
+          query:
+            - FROM logs-openfsso.receiver-*
+            - WHERE log.level IN ("Warning", "Error", "Fatal")
+            - KEEP @timestamp, host.name, service.node.name, log.level, event.action, user.name, source.ip, error.type, error.code, message
+            - SORT @timestamp DESC
+            - LIMIT 200
+          breakdowns:
+            - field: '@timestamp'
+              label: Time
+            - field: 'host.name'
+              label: Host
+            - field: 'service.node.name'
+              label: Receiver
+            - field: 'log.level'
+              label: Level
+            - field: 'event.action'
+              label: Action
+            - field: 'user.name'
+              label: User
+            - field: 'source.ip'
+              label: Source
+            - field: 'error.type'
+              label: Error
+            - field: 'error.code'
+              label: Code
+            - field: 'message'
+              label: Message
+
+      - title: Mapping events
+        description: The latest mapping events with user and address.
+        size: {w: 48, h: 14}
+        esql:
+          type: datatable
+          query:
+            - FROM logs-openfsso.receiver-*
+            - WHERE event.category == "session"
+            - KEEP @timestamp, host.name, service.node.name, event.action, event.outcome, event.reason, user.domain, user.name, source.ip
+            - SORT @timestamp DESC
+            - LIMIT 500
+          breakdowns:
+            - field: '@timestamp'
+              label: Time
+            - field: 'host.name'
+              label: Host
+            - field: 'service.node.name'
+              label: Receiver
+            - field: 'event.action'
+              label: Action
+            - field: 'event.outcome'
+              label: Outcome
+            - field: 'event.reason'
+              label: Reason
+            - field: 'user.domain'
+              label: Domain
+            - field: 'user.name'
+              label: User
+            - field: 'source.ip'
+              label: Address

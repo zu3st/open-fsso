@@ -1,0 +1,83 @@
+---
+description: Pipeline for the ECS JSON logs of OpenFSSO receivers and clients.
+processors:
+  - rename:
+      tag: rename_message_to_event_original
+      field: message
+      target_field: event.original
+      ignore_missing: true
+      if: ctx.event?.original == null
+  - remove:
+      tag: remove_message
+      field: message
+      ignore_missing: true
+      if: ctx.event?.original != null
+  - json:
+      tag: json_event_original
+      field: event.original
+      target_field: _temp_.json
+  - date:
+      tag: date_timestamp
+      field: _temp_.json.@timestamp
+      target_field: '@timestamp'
+      formats:
+        - ISO8601
+      if: ctx._temp_?.json != null && ctx._temp_.json['@timestamp'] != null
+  # The services write ECS with dotted keys such as log.level, the format of
+  # Elastic's ECS logging libraries. They become objects merged into the document.
+  - script:
+      tag: script_merge_ecs_fields
+      lang: painless
+      description: Merges the logged fields into the document.
+      source: |
+        void put(Map target, String key, def value) {
+          int dot = key.indexOf('.');
+          if (dot >= 0) {
+            String head = key.substring(0, dot);
+            if (!(target.get(head) instanceof Map)) {
+              target.put(head, new HashMap());
+            }
+            put((Map) target.get(head), key.substring(dot + 1), value);
+          } else if (value instanceof Map) {
+            if (!(target.get(key) instanceof Map)) {
+              target.put(key, new HashMap());
+            }
+            for (def entry : ((Map) value).entrySet()) {
+              put((Map) target.get(key), entry.getKey(), entry.getValue());
+            }
+          } else if (value != null) {
+            target.put(key, value);
+          }
+        }
+        for (def entry : ctx._temp_.json.entrySet()) {
+          if (entry.getKey() != '@timestamp') {
+            put(ctx, entry.getKey(), entry.getValue());
+          }
+        }
+  - remove:
+      tag: remove_temp
+      field: _temp_
+      ignore_missing: true
+  - remove:
+      tag: remove_event_original
+      field: event.original
+      ignore_missing: true
+      if: ctx.tags == null || !ctx.tags.contains('preserve_original_event')
+on_failure:
+  - set:
+      tag: set_pipeline_error_kind
+      field: event.kind
+      value: pipeline_error
+  - append:
+      tag: append_pipeline_error_message
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        {{{#_ingest.on_failure_processor_tag}}}with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        {{{/_ingest.on_failure_processor_tag}}}in pipeline '{{{ _ingest.pipeline }}}'
+        failed with message '{{{ _ingest.on_failure_message }}}'
+  - append:
+      tag: append_preserve_original_event_tag
+      field: tags
+      value: preserve_original_event
+      allow_duplicates: false

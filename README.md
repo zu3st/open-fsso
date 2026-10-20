@@ -179,6 +179,24 @@ answers 200 when all is well and 503 otherwise:
 curl --header "Authorization: Bearer $HEALTH_API_KEY" https://receiver-a.example.test:8443/health
 ```
 
+## Elastic integration
+
+The integration in [elastic/openfsso](elastic/openfsso) collects the receiver
+and client logs with Elastic Agent and adds dashboards for both. Each release
+carries it as `openfsso-<version>.zip` for Kibana 9.5 or later. Upload it under
+**Integrations > Create new integration > Upload it as a .zip**, or with the
+Fleet API:
+
+```bash
+curl --header "kbn-xsrf: true" --header "Content-Type: application/zip" --user elastic --data-binary @openfsso-0.1.0.zip https://kibana.example.test:5601/api/fleet/epm/packages
+```
+
+Add it to two agent policies. The policy for the Collector Agent hosts keeps
+only **OpenFSSO receiver logs** on, and the policy for the workstations keeps
+only **OpenFSSO client logs** on.
+
+![The OpenFSSO clients dashboard in Kibana](elastic/openfsso/img/openfsso-clients.png)
+
 ## How it works in detail
 
 - **Identity** comes only from the receiver's Kerberos authentication of the
@@ -220,6 +238,16 @@ The first command checks formatting, runs the tests and publishes the
 executables to `artifacts/`. The second builds the client and server MSIs into
 `artifacts/msi/`.
 
+The Elastic integration builds with
+[elastic-package](https://github.com/elastic/elastic-package), which writes
+`build/packages/openfsso-<version>.zip`. Its dashboards are written as YAML in
+`_dev/shared/kibana` and compiled to `kibana/dashboard` with Elastic's
+[kb-dashboard](https://pypi.org/project/kb-dashboard-cli/) compiler.
+
+```bash
+elastic-package check -C elastic/openfsso
+```
+
 ## Repository layout
 
 - `src/OpenFsso.Client`: workstation service
@@ -232,3 +260,5 @@ executables to `artifacts/`. The second builds the client and server MSIs into
 - `config/`: example configurations and their JSON Schemas
 - `deploy/msi/`: WiX installer sources
 - `tools/`: formatting and packaging helpers
+- `elastic/openfsso`: Elastic integration in the layout of Elastic's
+  integrations repository

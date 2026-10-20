@@ -1,0 +1,283 @@
+---
+dashboards:
+  - id: openfsso-clients
+    name: '[Logs OpenFSSO] Clients'
+    description: Delivery failures, selected users and versions of the OpenFSSO clients.
+    minimum_kibana_version: '9.5.0'
+    time_range:
+      from: now-24h
+    filters:
+      - field: data_stream.dataset
+        equals: openfsso.client
+    controls:
+      - type: options
+        label: Host
+        data_view: logs-*
+        field: host.name
+      - type: options
+        label: Receiver
+        data_view: logs-*
+        field: openfsso.receiver
+      - type: options
+        label: User
+        data_view: logs-*
+        field: user.name
+    panels:
+      - size: {w: 48, h: 2}
+        links:
+          layout: horizontal
+          items:
+            - label: Receivers
+              dashboard: openfsso-receivers
+            - label: Clients
+              dashboard: openfsso-clients
+
+      - title: Reporting clients
+        hide_title: true
+        description: Workstations that logged any event in the time range.
+        size: {w: 12, h: 5}
+        esql:
+          type: metric
+          query:
+            - FROM logs-openfsso.client-*
+            - STATS clients = COUNT_DISTINCT(host.name)
+          primary:
+            field: clients
+            label: Reporting clients
+            format: {type: number, decimals: 0}
+      - title: Failing clients
+        hide_title: true
+        description: Clients whose latest delivery event for a receiver since their last start is a failure.
+        size: {w: 12, h: 5}
+        esql:
+          type: metric
+          query:
+            - FROM logs-openfsso.client-*
+            - WHERE event.action IN ("delivery-failed", "logon-unavailable", "receiver-recovered", "client-ready")
+            - INLINE STATS started = MAX(CASE(event.action == "client-ready", @timestamp, NULL)) BY host.name
+            - WHERE event.action != "client-ready" AND (started IS NULL OR @timestamp > started)
+            - STATS latest = MAX(CONCAT(TO_STRING(@timestamp), " ", event.action)) BY host.name, openfsso.receiver
+            - WHERE NOT ENDS_WITH(latest, " receiver-recovered")
+            - STATS failing = COUNT_DISTINCT(host.name)
+          primary:
+            field: failing
+            label: Failing clients
+            format: {type: number, decimals: 0}
+      - title: Delivery failures
+        hide_title: true
+        description: Transitions from delivering to failing, per client and receiver.
+        size: {w: 12, h: 5}
+        esql:
+          type: metric
+          query:
+            - FROM logs-openfsso.client-*
+            - WHERE event.action IN ("delivery-failed", "logon-unavailable")
+            - STATS failures = COUNT(*)
+          primary:
+            field: failures
+            label: Delivery failures
+            format: {type: number, decimals: 0}
+      - title: Signed-in users
+        hide_title: true
+        description: Users a client selected as the signed-in owner.
+        size: {w: 12, h: 5}
+        esql:
+          type: metric
+          query:
+            - FROM logs-openfsso.client-*
+            - WHERE event.action == "owner-selected"
+            - STATS users = COUNT_DISTINCT(user.name)
+          primary:
+            field: users
+            label: Signed-in users
+            format: {type: number, decimals: 0}
+
+      - title: Delivery failures over time
+        description: Transitions from delivering to failing, by receiver.
+        size: {w: 32, h: 13}
+        esql:
+          type: bar
+          mode: stacked
+          query:
+            - FROM logs-openfsso.client-*
+            - WHERE event.action IN ("delivery-failed", "logon-unavailable")
+            - STATS failures = COUNT(*) BY time_bucket = BUCKET(@timestamp, 48, ?_tstart, ?_tend), openfsso.receiver
+            - SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          breakdown:
+            field: openfsso.receiver
+            label: Receiver
+          metrics:
+            - field: failures
+              label: Failures
+      - title: Failure causes
+        description: HTTP status of a rejection, or the error type.
+        size: {w: 16, h: 13}
+        esql:
+          type: pie
+          query:
+            - FROM logs-openfsso.client-*
+            - WHERE event.action IN ("delivery-failed", "logon-unavailable")
+            - EVAL cause = CASE(http.response.status_code IS NOT NULL, CONCAT("HTTP ", TO_STRING(http.response.status_code)), event.action == "logon-unavailable", "Logon unavailable", error.type)
+            - STATS failures = COUNT(*) BY cause
+            - SORT failures DESC
+            - LIMIT 10
+          metrics:
+            - field: failures
+              label: Failures
+          breakdowns:
+            - field: cause
+              label: Cause
+
+      - title: Failing clients
+        description: Clients whose latest delivery event for a receiver since their last start is a failure.
+        size: {w: 48, h: 12}
+        esql:
+          type: datatable
+          query:
+            - FROM logs-openfsso.client-*
+            - WHERE event.action IN ("delivery-failed", "logon-unavailable", "receiver-recovered", "client-ready")
+            - INLINE STATS started = MAX(CASE(event.action == "client-ready", @timestamp, NULL)) BY host.name
+            - WHERE event.action != "client-ready" AND (started IS NULL OR @timestamp > started)
+            - EVAL state = CONCAT(TO_STRING(@timestamp), "|", event.action, "|", COALESCE(error.type, ""), "|", COALESCE(TO_STRING(http.response.status_code), ""))
+            - STATS latest = MAX(state) BY host.name, openfsso.receiver
+            - EVAL parts = SPLIT(latest, "|")
+            - EVAL since = TO_DATETIME(MV_FIRST(parts)), failure = MV_SLICE(parts, 1, 1), error = MV_SLICE(parts, 2, 2), http_status = MV_SLICE(parts, 3, 3)
+            - WHERE failure != "receiver-recovered"
+            - KEEP host.name, openfsso.receiver, since, failure, error, http_status
+            - SORT since DESC
+            - LIMIT 200
+          breakdowns:
+            - field: 'host.name'
+              label: Host
+            - field: 'openfsso.receiver'
+              label: Receiver
+            - field: 'since'
+              label: Since
+            - field: 'failure'
+              label: Failure
+            - field: 'error'
+              label: Error
+            - field: 'http_status'
+              label: HTTP status
+
+      - title: Client versions
+        description: Workstations per OpenFSSO version, from each one's latest event.
+        size: {w: 16, h: 12}
+        esql:
+          type: pie
+          query:
+            - FROM logs-openfsso.client-*
+            - WHERE service.version IS NOT NULL
+            - STATS latest = MAX(CONCAT(TO_STRING(@timestamp), " ", service.version)) BY host.name
+            - EVAL version = MV_LAST(SPLIT(latest, " "))
+            - STATS clients = COUNT(*) BY version
+            - SORT clients DESC
+            - LIMIT 10
+          metrics:
+            - field: clients
+              label: Clients
+          breakdowns:
+            - field: version
+              label: Version
+      - title: Fabric state
+        description: The latest fabric state each client reported.
+        size: {w: 16, h: 12}
+        esql:
+          type: pie
+          query:
+            - FROM logs-openfsso.client-*
+            - WHERE event.action == "fabric-status-changed"
+            - STATS latest = MAX(CONCAT(TO_STRING(@timestamp), " ", openfsso.fabric_state)) BY host.name
+            - EVAL state = MV_LAST(SPLIT(latest, " "))
+            - STATS clients = COUNT(*) BY state
+            - SORT clients DESC
+            - LIMIT 10
+          metrics:
+            - field: clients
+              label: Clients
+          breakdowns:
+            - field: state
+              label: Fabric state
+      - title: Sign-ins and sign-offs over time
+        description: Owner selections and sign-offs on the workstations.
+        size: {w: 16, h: 12}
+        esql:
+          type: bar
+          mode: stacked
+          query:
+            - FROM logs-openfsso.client-*
+            - WHERE event.action IN ("owner-selected", "owner-logged-off")
+            - STATS events = COUNT(*) BY time_bucket = BUCKET(@timestamp, 24, ?_tstart, ?_tend), event.action
+            - SORT time_bucket ASC
+          dimension:
+            field: time_bucket
+            label: Time
+            data_type: date
+          breakdown:
+            field: event.action
+            label: Event
+          metrics:
+            - field: events
+              label: Events
+          legend:
+            position: bottom
+
+      - title: Warnings and errors
+        description: The latest warnings and errors of the clients.
+        size: {w: 48, h: 14}
+        esql:
+          type: datatable
+          query:
+            - FROM logs-openfsso.client-*
+            - WHERE log.level IN ("Warning", "Error", "Fatal")
+            - KEEP @timestamp, host.name, log.level, event.action, openfsso.receiver, user.name, error.type, http.response.status_code, error.message
+            - SORT @timestamp DESC
+            - LIMIT 200
+          breakdowns:
+            - field: '@timestamp'
+              label: Time
+            - field: 'host.name'
+              label: Host
+            - field: 'log.level'
+              label: Level
+            - field: 'event.action'
+              label: Action
+            - field: 'openfsso.receiver'
+              label: Receiver
+            - field: 'user.name'
+              label: User
+            - field: 'error.type'
+              label: Error
+            - field: 'http.response.status_code'
+              label: HTTP status
+            - field: 'error.message'
+              label: Message
+
+      - title: Selected users
+        description: The latest owner changes per workstation.
+        size: {w: 48, h: 14}
+        esql:
+          type: datatable
+          query:
+            - FROM logs-openfsso.client-*
+            - WHERE event.action IN ("owner-selected", "owner-logged-off", "waiting-for-logon")
+            - KEEP @timestamp, host.name, event.action, user.domain, user.name, openfsso.session_id
+            - SORT @timestamp DESC
+            - LIMIT 500
+          breakdowns:
+            - field: '@timestamp'
+              label: Time
+            - field: 'host.name'
+              label: Host
+            - field: 'event.action'
+              label: Action
+            - field: 'user.domain'
+              label: Domain
+            - field: 'user.name'
+              label: User
+            - field: 'openfsso.session_id'
+              label: Session

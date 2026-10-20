@@ -1,0 +1,62 @@
+title: OpenFSSO receiver logs
+type: logs
+streams:
+  - input: filestream
+    template_path: filestream.yml.hbs
+    title: OpenFSSO receiver logs
+    description: Collect the logs of OpenFSSO receivers on Collector Agent hosts.
+    vars:
+      - name: paths
+        type: text
+        title: Paths
+        description: The services' ECS JSON log files. Adjust them when LogDirectory differs from the default.
+        multi: true
+        required: true
+        show_user: true
+        default:
+          - 'C:\ProgramData\OpenFsso\OpenFssoReceiver*\Logs\events-*.jsonl'
+      - name: exclude_files
+        type: text
+        title: Exclude files
+        description: Regular expressions for files to skip.
+        multi: true
+        required: false
+        show_user: false
+      - name: ignore_older
+        type: text
+        title: Ignore events older than
+        description: Skip files not modified within this time, for example 72h.
+        multi: false
+        required: false
+        show_user: false
+        default: 72h
+      - name: tags
+        type: text
+        title: Tags
+        multi: true
+        required: true
+        show_user: false
+        default:
+          - openfsso-receiver
+      - name: preserve_original_event
+        type: bool
+        title: Preserve original event
+        description: Keep the raw log line in the field `event.original`.
+        multi: false
+        required: true
+        show_user: true
+        default: false
+      - name: custom
+        type: yaml
+        title: Additional filestream options
+        description: Further [filestream options](https://www.elastic.co/docs/reference/beats/filebeat/filebeat-input-filestream).
+        multi: false
+        required: false
+        show_user: false
+      - name: processors
+        type: yaml
+        title: Processors
+        description: Agent processors that run before the logs are sent. See [Processors](https://www.elastic.co/docs/reference/beats/filebeat/filtering-enhancing-data).
+        multi: false
+        required: false
+        show_user: false

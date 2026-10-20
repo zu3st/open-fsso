@@ -1,0 +1,721 @@
+{
+    "expected": [
+        {
+            "@timestamp": "2026-10-20T06:00:00.123Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "receiver-ready",
+                "category": [
+                    "process"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:00:00.1234567+02:00\",\"log.level\":\"Information\",\"message\":\"Receiver ready; Kerberos presence authentication and strict channel binding verified; Bearer health authentication enabled\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"receiver-ready\",\"category\":[\"process\"],\"kind\":\"event\",\"outcome\":\"success\",\"severity\":2,\"type\":[\"start\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"openfsso\":{\"runtime\":\"10.0.13\"}}",
+                "outcome": "success",
+                "severity": 2,
+                "type": [
+                    "start"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "Receiver ready; Kerberos presence authentication and strict channel binding verified; Bearer health authentication enabled",
+            "openfsso": {
+                "runtime": "10.0.13"
+            },
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:00:10.123Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "collector-availability-changed",
+                "category": [
+                    "process"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:00:10.1235678+02:00\",\"log.level\":\"Warning\",\"message\":\"Collector availability changed\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"collector-availability-changed\",\"category\":[\"process\"],\"kind\":\"event\",\"severity\":3,\"type\":[\"change\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"openfsso\":{\"collector_available\":true,\"collector_pid\":3188}}",
+                "severity": 3,
+                "type": [
+                    "change"
+                ]
+            },
+            "log": {
+                "level": "Warning",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "Collector availability changed",
+            "openfsso": {
+                "collector_available": true,
+                "collector_pid": 3188
+            },
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:00:20.123Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "authentication-scheme-challenged",
+                "category": [
+                    "authentication"
+                ],
+                "code": "12",
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:00:20.1236789+02:00\",\"log.level\":\"Information\",\"message\":\"AuthenticationScheme: \\\"Windows\\\" was challenged.\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"authentication-scheme-challenged\",\"category\":[\"authentication\"],\"code\":\"12\",\"kind\":\"event\",\"severity\":2,\"type\":[\"start\"]},\"http\":{\"request.id\":\"4000000d-0000-fc00-b63f-84710c796701\"},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"url\":{\"path\":\"/v1/session\"},\"openfsso\":{\"authentication_scheme\":\"Windows\"}}",
+                "severity": 2,
+                "type": [
+                    "start"
+                ]
+            },
+            "http": {
+                "request": {
+                    "id": "4000000d-0000-fc00-b63f-84710c796701"
+                }
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "AuthenticationScheme: \"Windows\" was challenged.",
+            "openfsso": {
+                "authentication_scheme": "Windows"
+            },
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "url": {
+                "path": "/v1/session"
+            }
+        },
+        {
+            "@timestamp": "2026-10-20T06:00:30.123Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "login",
+                "category": [
+                    "session"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:00:30.1237900+02:00\",\"log.level\":\"Information\",\"message\":\"Mapping sent to the collector\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"login\",\"category\":[\"session\"],\"kind\":\"event\",\"outcome\":\"success\",\"reason\":\"presence\",\"severity\":2,\"type\":[\"start\"]},\"http\":{\"request.id\":\"4000000d-0000-fc00-b63f-84710c796701\"},\"related\":{\"ip\":[\"192.0.2.31\"],\"user\":[\"alice\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"source\":{\"ip\":\"192.0.2.31\"},\"url\":{\"path\":\"/v1/session\"},\"user\":{\"domain\":\"EXAMPLE\",\"id\":\"S-1-5-21-1004336348-1177238915-682003330-1104\",\"name\":\"alice\"},\"openfsso\":{\"generation\":\"4ddf1469-66b2-4113-a553-61bc4ed4e526\"}}",
+                "outcome": "success",
+                "reason": "presence",
+                "severity": 2,
+                "type": [
+                    "start"
+                ]
+            },
+            "http": {
+                "request": {
+                    "id": "4000000d-0000-fc00-b63f-84710c796701"
+                }
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "Mapping sent to the collector",
+            "openfsso": {
+                "generation": "4ddf1469-66b2-4113-a553-61bc4ed4e526"
+            },
+            "related": {
+                "ip": [
+                    "192.0.2.31"
+                ],
+                "user": [
+                    "alice"
+                ]
+            },
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "source": {
+                "ip": "192.0.2.31"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "url": {
+                "path": "/v1/session"
+            },
+            "user": {
+                "domain": "EXAMPLE",
+                "id": "S-1-5-21-1004336348-1177238915-682003330-1104",
+                "name": "alice"
+            }
+        },
+        {
+            "@timestamp": "2026-10-20T06:00:40.123Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "update",
+                "category": [
+                    "session"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:00:40.1239011+02:00\",\"log.level\":\"Information\",\"message\":\"Mapping sent to the collector\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"update\",\"category\":[\"session\"],\"kind\":\"event\",\"outcome\":\"success\",\"reason\":\"reassert\",\"severity\":2,\"type\":[\"info\"]},\"related\":{\"ip\":[\"192.0.2.31\"],\"user\":[\"alice\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"source\":{\"ip\":\"192.0.2.31\"},\"user\":{\"domain\":\"EXAMPLE\",\"id\":\"S-1-5-21-1004336348-1177238915-682003330-1104\",\"name\":\"alice\"},\"openfsso\":{\"generation\":\"4ddf1469-66b2-4113-a553-61bc4ed4e526\"}}",
+                "outcome": "success",
+                "reason": "reassert",
+                "severity": 2,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "Mapping sent to the collector",
+            "openfsso": {
+                "generation": "4ddf1469-66b2-4113-a553-61bc4ed4e526"
+            },
+            "related": {
+                "ip": [
+                    "192.0.2.31"
+                ],
+                "user": [
+                    "alice"
+                ]
+            },
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "source": {
+                "ip": "192.0.2.31"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "domain": "EXAMPLE",
+                "id": "S-1-5-21-1004336348-1177238915-682003330-1104",
+                "name": "alice"
+            }
+        },
+        {
+            "@timestamp": "2026-10-20T06:00:50.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "logout",
+                "category": [
+                    "session"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:00:50.1240122+02:00\",\"log.level\":\"Information\",\"message\":\"Mapping sent to the collector\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"logout\",\"category\":[\"session\"],\"kind\":\"event\",\"outcome\":\"success\",\"reason\":\"expired\",\"severity\":2,\"type\":[\"end\"]},\"related\":{\"ip\":[\"192.0.2.31\"],\"user\":[\"alice\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"source\":{\"ip\":\"192.0.2.31\"},\"user\":{\"domain\":\"EXAMPLE\",\"id\":\"S-1-5-21-1004336348-1177238915-682003330-1104\",\"name\":\"alice\"},\"openfsso\":{\"generation\":\"4ddf1469-66b2-4113-a553-61bc4ed4e526\"}}",
+                "outcome": "success",
+                "reason": "expired",
+                "severity": 2,
+                "type": [
+                    "end"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "Mapping sent to the collector",
+            "openfsso": {
+                "generation": "4ddf1469-66b2-4113-a553-61bc4ed4e526"
+            },
+            "related": {
+                "ip": [
+                    "192.0.2.31"
+                ],
+                "user": [
+                    "alice"
+                ]
+            },
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "source": {
+                "ip": "192.0.2.31"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "domain": "EXAMPLE",
+                "id": "S-1-5-21-1004336348-1177238915-682003330-1104",
+                "name": "alice"
+            }
+        },
+        {
+            "@timestamp": "2026-10-20T06:01:00.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "error": {
+                "type": "SocketException"
+            },
+            "event": {
+                "action": "login",
+                "category": [
+                    "session"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:01:00.1241233+02:00\",\"log.level\":\"Error\",\"message\":\"Local syslog delivery failed\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"error\":{\"type\":\"SocketException\"},\"event\":{\"action\":\"login\",\"category\":[\"session\"],\"kind\":\"event\",\"outcome\":\"failure\",\"reason\":\"presence\",\"severity\":4,\"type\":[\"start\"]},\"related\":{\"ip\":[\"192.0.2.32\"],\"user\":[\"bob\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"source\":{\"ip\":\"192.0.2.32\"},\"user\":{\"domain\":\"EXAMPLE\",\"id\":\"S-1-5-21-1004336348-1177238915-682003330-1105\",\"name\":\"bob\"},\"openfsso\":{\"generation\":\"0b5e3c1f-1b1e-4c4a-9a51-6ad1f0e7c2d9\"}}",
+                "outcome": "failure",
+                "reason": "presence",
+                "severity": 4,
+                "type": [
+                    "start"
+                ]
+            },
+            "log": {
+                "level": "Error",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "Local syslog delivery failed",
+            "openfsso": {
+                "generation": "0b5e3c1f-1b1e-4c4a-9a51-6ad1f0e7c2d9"
+            },
+            "related": {
+                "ip": [
+                    "192.0.2.32"
+                ],
+                "user": [
+                    "bob"
+                ]
+            },
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "source": {
+                "ip": "192.0.2.32"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "domain": "EXAMPLE",
+                "id": "S-1-5-21-1004336348-1177238915-682003330-1105",
+                "name": "bob"
+            }
+        },
+        {
+            "@timestamp": "2026-10-20T06:01:10.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "ip-claim-rejected",
+                "category": [
+                    "network"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:01:10.1242344+02:00\",\"log.level\":\"Warning\",\"message\":\"Rejected socket IP claim\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"ip-claim-rejected\",\"category\":[\"network\"],\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":3,\"type\":[\"denied\"]},\"related\":{\"ip\":[\"192.0.2.33\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"source\":{\"ip\":\"192.0.2.33\"},\"openfsso\":{\"claimed_ip\":\"198.51.100.7\"}}",
+                "outcome": "failure",
+                "severity": 3,
+                "type": [
+                    "denied"
+                ]
+            },
+            "log": {
+                "level": "Warning",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "Rejected socket IP claim",
+            "openfsso": {
+                "claimed_ip": "198.51.100.7"
+            },
+            "related": {
+                "ip": [
+                    "192.0.2.33"
+                ]
+            },
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "source": {
+                "ip": "192.0.2.33"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:01:20.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "identity-rejected",
+                "category": [
+                    "authentication"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:01:20.1243455+02:00\",\"log.level\":\"Warning\",\"message\":\"Rejected authenticated identity\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"identity-rejected\",\"category\":[\"authentication\"],\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":3,\"type\":[\"info\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"openfsso\":{\"authentication_type\":\"NTLM\"}}",
+                "outcome": "failure",
+                "severity": 3,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Warning",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "Rejected authenticated identity",
+            "openfsso": {
+                "authentication_type": "NTLM"
+            },
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:01:30.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "authentication-scheme-forbidden",
+                "category": [
+                    "authentication"
+                ],
+                "code": "13",
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:01:30.1244566+02:00\",\"log.level\":\"Information\",\"message\":\"AuthenticationScheme: \\\"Windows\\\" was forbidden.\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"authentication-scheme-forbidden\",\"category\":[\"authentication\"],\"code\":\"13\",\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":2,\"type\":[\"info\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"openfsso\":{\"authentication_scheme\":\"Windows\"}}",
+                "outcome": "failure",
+                "severity": 2,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "AuthenticationScheme: \"Windows\" was forbidden.",
+            "openfsso": {
+                "authentication_scheme": "Windows"
+            },
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:01:40.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "error": {
+                "code": "0xC000006E/0xC0000072"
+            },
+            "event": {
+                "action": "account-revoked",
+                "category": [
+                    "authentication"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:01:40.1245677+02:00\",\"log.level\":\"Warning\",\"message\":\"Account revoked by the domain; mappings removed\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"error\":{\"code\":\"0xC000006E/0xC0000072\"},\"event\":{\"action\":\"account-revoked\",\"category\":[\"authentication\"],\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":3,\"type\":[\"info\"]},\"related\":{\"user\":[\"bob\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"user\":{\"domain\":\"EXAMPLE\",\"id\":\"S-1-5-21-1004336348-1177238915-682003330-1105\",\"name\":\"bob\"}}",
+                "outcome": "failure",
+                "severity": 3,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Warning",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "Account revoked by the domain; mappings removed",
+            "related": {
+                "user": [
+                    "bob"
+                ]
+            },
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "domain": "EXAMPLE",
+                "id": "S-1-5-21-1004336348-1177238915-682003330-1105",
+                "name": "bob"
+            }
+        },
+        {
+            "@timestamp": "2026-10-20T06:01:50.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "logout",
+                "category": [
+                    "session"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:01:50.1246788+02:00\",\"log.level\":\"Information\",\"message\":\"Mapping sent to the collector\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"logout\",\"category\":[\"session\"],\"kind\":\"event\",\"outcome\":\"success\",\"reason\":\"account-revoked\",\"severity\":2,\"type\":[\"end\"]},\"related\":{\"ip\":[\"192.0.2.32\"],\"user\":[\"bob\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"source\":{\"ip\":\"192.0.2.32\"},\"user\":{\"domain\":\"EXAMPLE\",\"id\":\"S-1-5-21-1004336348-1177238915-682003330-1105\",\"name\":\"bob\"},\"openfsso\":{\"generation\":\"0b5e3c1f-1b1e-4c4a-9a51-6ad1f0e7c2d9\"}}",
+                "outcome": "success",
+                "reason": "account-revoked",
+                "severity": 2,
+                "type": [
+                    "end"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "Mapping sent to the collector",
+            "openfsso": {
+                "generation": "0b5e3c1f-1b1e-4c4a-9a51-6ad1f0e7c2d9"
+            },
+            "related": {
+                "ip": [
+                    "192.0.2.32"
+                ],
+                "user": [
+                    "bob"
+                ]
+            },
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "source": {
+                "ip": "192.0.2.32"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "domain": "EXAMPLE",
+                "id": "S-1-5-21-1004336348-1177238915-682003330-1105",
+                "name": "bob"
+            }
+        },
+        {
+            "@timestamp": "2026-10-20T06:02:00.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "error": {
+                "code": "0xC000005E/0x00000000"
+            },
+            "event": {
+                "action": "account-check-failed",
+                "category": [
+                    "authentication"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:02:00.1247899+02:00\",\"log.level\":\"Warning\",\"message\":\"Account status check failed; mapping allowed\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"error\":{\"code\":\"0xC000005E/0x00000000\"},\"event\":{\"action\":\"account-check-failed\",\"category\":[\"authentication\"],\"kind\":\"event\",\"outcome\":\"unknown\",\"severity\":3,\"type\":[\"info\"]},\"related\":{\"user\":[\"alice\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"user\":{\"domain\":\"EXAMPLE\",\"id\":\"S-1-5-21-1004336348-1177238915-682003330-1104\",\"name\":\"alice\"}}",
+                "outcome": "unknown",
+                "severity": 3,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Warning",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "Account status check failed; mapping allowed",
+            "related": {
+                "user": [
+                    "alice"
+                ]
+            },
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "domain": "EXAMPLE",
+                "id": "S-1-5-21-1004336348-1177238915-682003330-1104",
+                "name": "alice"
+            }
+        },
+        {
+            "@timestamp": "2026-10-20T06:02:10.124Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "rejection-warnings-suppressed",
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:02:10.1249010+02:00\",\"log.level\":\"Warning\",\"message\":\"Suppressed further rejection warnings in the previous minute\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"rejection-warnings-suppressed\",\"kind\":\"event\",\"severity\":3},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"openfsso\":{\"suppressed\":41}}",
+                "severity": 3
+            },
+            "log": {
+                "level": "Warning",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "Suppressed further rejection warnings in the previous minute",
+            "openfsso": {
+                "suppressed": 41
+            },
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:02:20.125Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "authentication-scheme-not-authenticated-with-failure",
+                "category": [
+                    "authentication"
+                ],
+                "code": "7",
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:02:20.1250121+02:00\",\"log.level\":\"Information\",\"message\":\"\\\"HealthKey\\\" was not authenticated. Failure message: \\\"Invalid health key.\\\"\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"authentication-scheme-not-authenticated-with-failure\",\"category\":[\"authentication\"],\"code\":\"7\",\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":2,\"type\":[\"info\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"},\"openfsso\":{\"authentication_scheme\":\"HealthKey\",\"failure_message\":\"Invalid health key.\"}}",
+                "outcome": "failure",
+                "severity": 2,
+                "type": [
+                    "info"
+                ]
+            },
+            "log": {
+                "level": "Information",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "\"HealthKey\" was not authenticated. Failure message: \"Invalid health key.\"",
+            "openfsso": {
+                "authentication_scheme": "HealthKey",
+                "failure_message": "Invalid health key."
+            },
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-10-20T06:02:30.125Z",
+            "ecs": {
+                "version": "9.0.0"
+            },
+            "event": {
+                "action": "connection-timing-unavailable",
+                "category": [
+                    "web"
+                ],
+                "kind": "event",
+                "original": "{\"@timestamp\":\"2026-10-20T08:02:30.1251232+02:00\",\"log.level\":\"Error\",\"message\":\"Native HTTP.sys connection timing is unavailable; requests fail closed\",\"ecs.version\":\"9.0.0\",\"log\":{\"logger\":\"OpenFsso.Receiver\"},\"event\":{\"action\":\"connection-timing-unavailable\",\"category\":[\"web\"],\"kind\":\"event\",\"outcome\":\"failure\",\"severity\":4,\"type\":[\"error\"]},\"service\":{\"name\":\"open-fsso-receiver\",\"node.name\":\"OpenFssoReceiverA\",\"version\":\"0.1.36\"}}",
+                "outcome": "failure",
+                "severity": 4,
+                "type": [
+                    "error"
+                ]
+            },
+            "log": {
+                "level": "Error",
+                "logger": "OpenFsso.Receiver"
+            },
+            "message": "Native HTTP.sys connection timing is unavailable; requests fail closed",
+            "service": {
+                "name": "open-fsso-receiver",
+                "node": {
+                    "name": "OpenFssoReceiverA"
+                },
+                "version": "0.1.36"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        }
+    ]
+}

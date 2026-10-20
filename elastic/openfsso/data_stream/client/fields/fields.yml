@@ -1,0 +1,25 @@
+- name: openfsso
+  type: group
+  description: Fields of OpenFSSO client events without an ECS equivalent.
+  fields:
+    - name: generation
+      type: keyword
+      description: Identifier of the selected logon, sent with every renewal.
+    - name: receiver
+      type: keyword
+      description: Name of the receiver from the client configuration.
+    - name: session_id
+      type: long
+      description: Windows session ID of the user session.
+    - name: tray_pid
+      type: long
+      description: Process ID of a started tray application.
+    - name: attached_sessions
+      type: long
+      description: Number of attached user sessions while the client waits for a logon or unlock.
+    - name: fabric_state
+      type: keyword
+      description: Fabric detection result, `Disabled`, `OnFabric`, `OffFabric` or `Unavailable`.
+    - name: runtime
+      type: keyword
+      description: .NET runtime version of the service.

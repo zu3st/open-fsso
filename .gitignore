@@ -3,6 +3,7 @@
 **/bin/
 **/obj/
 artifacts/
+/build/
 __pycache__/
 *.py[cod]
 .env
