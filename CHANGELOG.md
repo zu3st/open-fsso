@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.37
+
+- Receiver logs name the receiver by its host name in `service.node.name`
+  instead of its Windows service name. Client events about a receiver carry its
+  host name, address and port in `server.address`, `server.ip` and
+  `server.port`.
+- Elastic integration 0.1.1. Its dashboard controls use data views of their own
+  data stream, so they list only OpenFSSO values, and both dashboards select
+  receivers by host name.
+
 ## 0.1.36
 
 - An Elastic integration in `elastic/openfsso` collects the receiver and client
