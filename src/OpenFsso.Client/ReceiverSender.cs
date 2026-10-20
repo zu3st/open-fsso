@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Net;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Security.Authentication;
@@ -18,7 +19,6 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
     private CancellationTokenSource? active;
     private Guid? reference;
     private OwnerRecord? previousOwner;
-    private string? previousIp;
     private bool failed;
     private DirectKerberosTransport? presence;
     private Guid presenceGeneration;
@@ -85,7 +85,8 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
                     status.Attempt(endpoint.Name, state.Revision, DateTimeOffset.UtcNow);
                 }
 
-                if (reconnect || operation == "release" || presenceGeneration != owner.Generation || presence?.UsesCurrentRoute() == false)
+                string source = location.SourceIp ?? throw new SocketException((int)SocketError.NetworkUnreachable);
+                if (reconnect || operation == "release" || presenceGeneration != owner.Generation || presence?.ConnectedFrom(source) == false)
                 {
                     Disconnect();
                 }
@@ -97,7 +98,6 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
                 {
                     presence ??= new DirectKerberosTransport(endpoint)
                     {
-                        SocketConnected = ip => status.Socket(endpoint.Name, ownership.Current.Revision, ip),
                         Closed = Wake
                     };
                 }
@@ -105,7 +105,7 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
                 if (release == null)
                 {
                     // Shown before connecting, so a failing attempt still names its address.
-                    status.Socket(endpoint.Name, state.Revision, presence!.RouteSource());
+                    status.Socket(endpoint.Name, state.Revision, source);
                 }
 
                 PresenceRequest Body(string ip)
@@ -119,8 +119,8 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
                 }
 
                 var reply = release == null
-                    ? await presence!.SendAsync(token, Body, cycle.Token)
-                    : await release.PostAsync(null, "release", Body, cycle.Token);
+                    ? await presence!.SendAsync(token, IPAddress.Parse(source), Body, cycle.Token)
+                    : await release.PostAsync(null, "release", IPAddress.Parse(source), Body, cycle.Token);
                 cycle.Token.ThrowIfCancellationRequested();
                 if (!fabric.IsCurrent(location))
                 {
@@ -148,12 +148,6 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
                     if (operation == "presence")
                     {
                         status.Sent(endpoint.Name, state.Revision, reply.LocalIp, DateTimeOffset.UtcNow);
-                    }
-
-                    if (previousIp != reply.LocalIp)
-                    {
-                        logger.Write(LogLevel.Information, "Receiver path uses a new socket IP", ("Receiver", endpoint.Name), ("SourceIp", reply.LocalIp));
-                        previousIp = reply.LocalIp;
                     }
 
                     if (failed)

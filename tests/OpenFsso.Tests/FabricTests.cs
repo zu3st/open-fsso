@@ -228,6 +228,18 @@ public sealed class FabricTests
     }
 
     [TestMethod]
+    public void TheFirstReceiversRouteIsTheFssoAddress()
+    {
+        var provider = new NetworkSource { Networks = [Network("10.1.2.3")] };
+        provider.Routes["192.0.2.1"] = "10.1.2.3";
+        provider.Routes["192.0.2.2"] = "10.9.9.9";
+        var monitor = new FabricMonitor(Options("    clientIp: [10.0.0.0/8]"), provider, new(["A", "B"]), NullLogger<FabricMonitor>.Instance);
+        Assert.AreEqual("10.1.2.3", monitor.Check().SourceIp);
+        provider.Routes.Clear();
+        Assert.IsNull(monitor.Check().SourceIp);
+    }
+
+    [TestMethod]
     public void DisabledDetectionSkipsNetworkInspectionAndErrorsSuppressSends()
     {
         var options = YamlConfiguration.Parse(Client, ConfigurationSchema.Client, ClientJson.Default.ClientOptions);
@@ -255,6 +267,8 @@ public sealed class FabricTests
             get; private set;
         }
         public IReadOnlySet<string> LastTargets { get; private set; } = new HashSet<string>();
+        public Dictionary<string, string> Routes { get; } = [];
+        public string? RouteSource(string address, int port) => Routes.GetValueOrDefault(address);
         public IReadOnlyList<FabricNetwork> Capture(IReadOnlySet<string> resolveMacFor)
         {
             Reads++;

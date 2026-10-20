@@ -2,10 +2,13 @@ using System.ComponentModel;
 using Microsoft.Extensions.Logging;
 using OpenFsso.Core;
 using OpenFsso.Logging;
+using OpenFsso.Windows;
 
 namespace OpenFsso.Client;
 
-public readonly record struct FabricDecision(long Version, bool Allowed);
+// SourceIp is the FSSO address: the local address routed to the first receiver.
+// Every receiver connection uses it, so all receivers map the same address.
+public readonly record struct FabricDecision(long Version, bool Allowed, string? SourceIp);
 
 public sealed class FabricMonitor
 {
@@ -14,7 +17,9 @@ public sealed class FabricMonitor
     private readonly IFabricNetwork network;
     private readonly ClientStatusJournal status;
     private readonly ILogger<FabricMonitor> logger;
+    private readonly ReceiverEndpoint first;
     private FabricState state;
+    private string? source;
     private long version;
     public event Action? Changed;
 
@@ -24,6 +29,7 @@ public sealed class FabricMonitor
         this.network = network;
         this.status = status;
         this.logger = logger;
+        first = options.Receivers[0];
         state = evaluator.Enabled ? FabricState.Unavailable : FabricState.Disabled;
         status.Fabric(new(state, DateTimeOffset.UtcNow));
     }
@@ -51,16 +57,22 @@ public sealed class FabricMonitor
                 next = FabricState.Unavailable;
             }
 
+            string? routed = network.RouteSource(first.Address, first.Port);
             changed = state != next;
             if (changed)
             {
                 version++;
                 state = next;
-                logger.Write(LogLevel.Information, "Fabric status changed", ("FabricState", state.ToString()));
+                logger.Write(LogLevel.Information, "Fabric status changed", ("FabricState", state.ToString()), ("SourceIp", routed));
+            }
+            else if (routed != source)
+            {
+                logger.Write(LogLevel.Information, "FSSO address changed", ("SourceIp", routed));
             }
 
+            source = routed;
             status.Fabric(new(state, DateTimeOffset.UtcNow));
-            decision = new(version, state is FabricState.Disabled or FabricState.OnFabric);
+            decision = new(version, state is FabricState.Disabled or FabricState.OnFabric, routed);
         }
 
         if (changed)

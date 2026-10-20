@@ -30,14 +30,11 @@ public sealed class DirectKerberosTransport : IDisposable
     private readonly HttpClient client;
     private SafeAccessTokenHandle? token;
     private volatile string? localIp;
+    private IPAddress? source;
     private ClientWebSocket? socket;
     private Channel<byte[]>? replies;
     private volatile bool disposed;
 
-    public Action<string>? SocketConnected
-    {
-        get; init;
-    }
     // Raised when an open session ends without Dispose, such as a missed pong.
     public Action? Closed
     {
@@ -78,21 +75,13 @@ public sealed class DirectKerberosTransport : IDisposable
         };
     }
 
-    // The local address Windows would use for the receiver, from the routing table
-    // alone; connecting a UDP socket sends nothing.
-    public string RouteSource()
-    {
-        using var probe = new Socket(address.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-        probe.Connect(address, endpoint.Port);
-        return ((IPEndPoint)probe.LocalEndPoint!).Address.ToString();
-    }
-
-    // A new preferred path, for example a VPN, needs a new connection.
-    public bool UsesCurrentRoute() => localIp is not { } current || RouteSource() == current;
+    // True while there is no session or it uses the given local address.
+    public bool ConnectedFrom(string address) => localIp is null || localIp == address;
 
     // Presence over the session, opening it first when needed.
-    public async Task<TransportReply> SendAsync(SafeAccessTokenHandle? user, Func<string, PresenceRequest> body, CancellationToken cancellationToken)
+    public async Task<TransportReply> SendAsync(SafeAccessTokenHandle? user, IPAddress source, Func<string, PresenceRequest> body, CancellationToken cancellationToken)
     {
+        this.source = source;
         if (socket is not { State: WebSocketState.Open })
         {
             int status = await Open(user, cancellationToken);
@@ -111,8 +100,9 @@ public sealed class DirectKerberosTransport : IDisposable
     }
 
     // One HTTP request on its own connection, used for release.
-    public async Task<TransportReply> PostAsync(SafeAccessTokenHandle? user, string operation, Func<string, PresenceRequest> body, CancellationToken cancellationToken)
+    public async Task<TransportReply> PostAsync(SafeAccessTokenHandle? user, string operation, IPAddress source, Func<string, PresenceRequest> body, CancellationToken cancellationToken)
     {
+        this.source = source;
         RequireUser(user);
         using var request = new HttpRequestMessage(HttpMethod.Post, new UriBuilder("https", endpoint.Host, endpoint.Port, "/v1/" + operation).Uri)
         {
@@ -226,9 +216,13 @@ public sealed class DirectKerberosTransport : IDisposable
         };
         try
         {
+            if (source != null)
+            {
+                socket.Bind(new IPEndPoint(source, 0));
+            }
+
             await socket.ConnectAsync(new IPEndPoint(address, endpoint.Port), ct);
             localIp = ((IPEndPoint)socket.LocalEndPoint!).Address.ToString();
-            SocketConnected?.Invoke(localIp);
             return new NetworkStream(socket, ownsSocket: true);
         }
         catch

@@ -57,6 +57,21 @@ public sealed class WindowsFabricNetwork : IFabricNetwork
         return result;
     }
 
+    // Connecting a UDP socket only consults the routing table; it sends nothing.
+    public string? RouteSource(string address, int port)
+    {
+        try
+        {
+            using var probe = new Socket(IPAddress.Parse(address).AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            probe.Connect(IPAddress.Parse(address), port);
+            return ((IPEndPoint)probe.LocalEndPoint!).Address.ToString();
+        }
+        catch (SocketException)
+        {
+            return null;
+        }
+    }
+
     private static bool OnLink(UnicastIPAddressInformation source, IPAddress server) => new IPNetwork(source.Address, source.PrefixLength).Contains(server);
 
     private static unsafe string? ReadMac(int index, IPAddress source, IPAddress server)

@@ -53,6 +53,9 @@ public sealed record FabricNetwork(int InterfaceIndex, string[] ClientIps, DhcpS
 public interface IFabricNetwork
 {
     IReadOnlyList<FabricNetwork> Capture(IReadOnlySet<string> resolveMacFor);
+
+    // The local address Windows routes to a destination, or null without a route.
+    string? RouteSource(string address, int port);
 }
 
 // Each complete rule sees one adapter; unrelated adapters cannot complete an AND.
