@@ -13,7 +13,7 @@ public sealed class LoggingTests
     private static JsonElement Format(LogEvent logEvent)
     {
         using var output = new StringWriter();
-        OpenFsso.Logging.Logging.Formatter("open-fsso-test", Secret).Format(logEvent, output);
+        OpenFsso.Logging.Logging.Formatter("open-fsso-test", "OpenFssoTest", Secret).Format(logEvent, output);
         Assert.DoesNotContain(Secret, output.ToString());
         Assert.DoesNotContain(JsonEncodedText.Encode(Secret).ToString(), output.ToString());
         return JsonDocument.Parse(output.ToString()).RootElement;
@@ -27,7 +27,7 @@ public sealed class LoggingTests
     {
         var log = Format(Event("Mapping sent to the collector", null,
             new("UserName", new ScalarValue("DOMAIN\\Alice")), new("UserSid", new ScalarValue("S-1-5-21-1")), new("SourceIp", new ScalarValue("192.0.2.10")),
-            new("Action", new ScalarValue("login")), new("Reason", new ScalarValue("presence")), new("SessionId", new ScalarValue(2)), new("HttpStatus", new ScalarValue(503)),
+            new("Action", new ScalarValue("login")), new("Category", new ScalarValue("session")), new("Type", new ScalarValue("start")), new("Outcome", new ScalarValue("success")), new("Reason", new ScalarValue("presence")), new("SessionId", new ScalarValue(2)), new("HttpStatus", new ScalarValue(503)),
             new("RequestPath", new ScalarValue("/v1/session"))));
         Assert.AreEqual("Mapping sent to the collector", log.GetProperty("message").GetString());
         Assert.AreEqual("open-fsso-test", log.GetProperty("service").GetProperty("name").GetString());
@@ -38,6 +38,14 @@ public sealed class LoggingTests
         var details = log.GetProperty("event");
         Assert.IsFalse(details.TryGetProperty("created", out _) || details.TryGetProperty("timezone", out _));
         Assert.AreEqual("login", details.GetProperty("action").GetString());
+        Assert.AreEqual("event", details.GetProperty("kind").GetString());
+        Assert.AreEqual("session", details.GetProperty("category")[0].GetString());
+        Assert.AreEqual("start", details.GetProperty("type")[0].GetString());
+        Assert.AreEqual("success", details.GetProperty("outcome").GetString());
+        Assert.AreEqual("OpenFssoTest", log.GetProperty("service").GetProperty("node.name").GetString());
+        Assert.AreEqual("Alice", log.GetProperty("related").GetProperty("user")[0].GetString());
+        Assert.AreEqual("192.0.2.10", log.GetProperty("related").GetProperty("ip")[0].GetString());
+        Assert.IsFalse(log.TryGetProperty("host", out _));
         Assert.AreEqual("presence", details.GetProperty("reason").GetString());
         Assert.AreEqual("S-1-5-21-1", log.GetProperty("user").GetProperty("id").GetString());
         Assert.AreEqual("Alice", log.GetProperty("user").GetProperty("name").GetString());
@@ -57,6 +65,16 @@ public sealed class LoggingTests
         var log = Format(Event("Receiver recovered", null, new LogEventProperty("Receiver", new ScalarValue("A"))));
         Assert.IsFalse(log.TryGetProperty("user", out _));
         Assert.AreEqual("A", log.GetProperty("openfsso").GetProperty("receiver").GetString());
+    }
+
+    [TestMethod]
+    public void FrameworkEventIdsBecomeActions()
+    {
+        var id = new StructureValue([new LogEventProperty("Id", new ScalarValue(13)), new LogEventProperty("Name", new ScalarValue("AuthenticationSchemeForbidden"))]);
+        var details = Format(Event("AuthenticationScheme: Windows was forbidden.", null, new LogEventProperty("EventId", id))).GetProperty("event");
+        Assert.AreEqual("authentication-scheme-forbidden", details.GetProperty("action").GetString());
+        Assert.AreEqual("authentication", details.GetProperty("category")[0].GetString());
+        Assert.AreEqual("failure", details.GetProperty("outcome").GetString());
     }
 
     [TestMethod]

@@ -12,30 +12,40 @@ public static class Logging
 {
     private static readonly string? Version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3);
 
-    public static Serilog.Core.Logger Create(string directory, string service, long limit, params string[] secrets) =>
+    public static Serilog.Core.Logger Create(string directory, string service, string node, long limit, params string[] secrets) =>
         new LoggerConfiguration().MinimumLevel.Information().MinimumLevel.Override("Microsoft", LogEventLevel.Warning).Enrich.FromLogContext()
-            .WriteTo.File(Formatter(service, secrets), Path.Combine(directory, "events-.jsonl"), rollingInterval: RollingInterval.Day, fileSizeLimitBytes: limit, rollOnFileSizeLimit: true, retainedFileCountLimit: 14, buffered: false)
+            .WriteTo.File(Formatter(service, node, secrets), Path.Combine(directory, "events-.jsonl"), rollingInterval: RollingInterval.Day, fileSizeLimitBytes: limit, rollOnFileSizeLimit: true, retainedFileCountLimit: 14, buffered: false)
             .CreateLogger();
 
     // Properties with an ECS field go there; every other one goes under openfsso.*.
     // ASP.NET's request properties already map to http.request.id, url.path and the trace fields.
-    private static readonly HashSet<string> Mapped = ["UserSid", "UserName", "SourceIp", "ErrorType", "ErrorCode", "Action", "Reason", "HttpStatus", "MessageTemplate", "SourceContext", "RequestId", "RequestPath", "TraceId", "SpanId", "ParentId"];
+    private static readonly HashSet<string> Mapped = ["UserSid", "UserName", "SourceIp", "ErrorType", "ErrorCode", "Action", "Category", "Type", "Outcome", "Reason", "HttpStatus", "EventId", "MessageTemplate", "SourceContext", "RequestId", "RequestPath", "TraceId", "SpanId", "ParentId"];
 
-    public static ITextFormatter Formatter(string service, params string[] secrets) => new MaskingFormatter(new NamespaceFormatter(new EcsTextFormatter(new EcsTextFormatterConfiguration
+    // service names the program and node its Windows service, which tells receivers on one host apart.
+    public static ITextFormatter Formatter(string service, string node, params string[] secrets) => new MaskingFormatter(new NamespaceFormatter(new EcsTextFormatter(new EcsTextFormatterConfiguration
     {
         MapCustom = (document, e) =>
         {
             // The application's version replaces the formatter's own agent block,
             // service.name identifies the program, and event.created and
-            // event.timezone only repeat @timestamp.
+            // event.timezone only repeat @timestamp. The shipper adds the host.
             document.Agent = null;
             document.Process = null;
-            document.Service = new Service { Name = service, Version = Version };
+            document.Host = null;
+            document.Service = new Service { Name = service, NodeName = node, Version = Version };
             document.Event ??= new Event();
             document.Event.Created = null;
             document.Event.Timezone = null;
+            document.Event.Kind = "event";
             document.Event.Action = Value(e, "Action");
+            document.Event.Category = Value(e, "Category") is { } category ? [category] : null;
+            document.Event.Type = Value(e, "Type") is { } type ? [type] : null;
+            document.Event.Outcome = Value(e, "Outcome");
             document.Event.Reason = Value(e, "Reason");
+            if (document.Event.Action == null && e.Properties.TryGetValue("EventId", out var id) && id is StructureValue framework)
+            {
+                Classify(document.Event, framework);
+            }
 
             // user describes the user the event is about, never the service account.
             document.User = null;
@@ -51,10 +61,15 @@ public static class Logging
                 document.Source = new Source { Ip = ip };
             }
 
-            if (Value(e, "ErrorType") is { } type)
+            if (document.User?.Name != null || document.Source != null)
+            {
+                document.Related = new Related { User = document.User?.Name is { } name ? [name] : null, Ip = document.Source?.Ip is { } address ? [address] : null };
+            }
+
+            if (Value(e, "ErrorType") is { } errorType)
             {
                 document.Error ??= new Error();
-                document.Error.Type = type;
+                document.Error.Type = errorType;
             }
 
             if (Value(e, "ErrorCode") is { } code)
@@ -79,6 +94,24 @@ public static class Logging
             return document;
         }
     })), secrets);
+
+    // Framework events carry an EventId such as AuthenticationSchemeForbidden, which becomes
+    // the action authentication-scheme-forbidden. Authentication results are classified too.
+    private static void Classify(Event details, StructureValue id)
+    {
+        if (id.Properties.FirstOrDefault(x => x.Name == "Name")?.Value is not ScalarValue { Value: string name })
+        {
+            return;
+        }
+
+        details.Action = string.Concat(name.Select((c, i) => char.IsUpper(c) ? (i > 0 ? "-" : "") + char.ToLowerInvariant(c) : c.ToString()));
+        if (name.StartsWith("AuthenticationScheme", StringComparison.Ordinal))
+        {
+            details.Category = ["authentication"];
+            details.Type = [name.EndsWith("Challenged", StringComparison.Ordinal) ? "start" : "info"];
+            details.Outcome = name.Contains("NotAuthenticated", StringComparison.Ordinal) || name.EndsWith("Forbidden", StringComparison.Ordinal) ? "failure" : null;
+        }
+    }
 
     private static string? Value(LogEvent e, string name) => e.Properties.TryGetValue(name, out var value) ? Text(value) : null;
 

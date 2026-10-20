@@ -63,11 +63,11 @@ public sealed class FabricMonitor
             {
                 version++;
                 state = next;
-                logger.Write(LogLevel.Information, "Fabric status changed", ("FabricState", state.ToString()), ("SourceIp", routed));
+                logger.Write(LogEvents.FabricChanged, ("FabricState", state.ToString()), ("SourceIp", routed));
             }
             else if (routed != source)
             {
-                logger.Write(LogLevel.Information, "FSSO address changed", ("SourceIp", routed));
+                logger.Write(LogEvents.AddressChanged, ("SourceIp", routed));
             }
 
             source = routed;

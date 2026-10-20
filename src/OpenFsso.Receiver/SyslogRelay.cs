@@ -25,12 +25,12 @@ public sealed class SyslogRelay(ReceiverOptions options, ILogger<SyslogRelay> lo
             string line = SyslogFormat.Render(format, change);
             using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(2));
             await socket.SendAsync(Encoding.UTF8.GetBytes(line), new IPEndPoint(IPAddress.Loopback, options.SyslogPort), deadline.Token);
-            logger.Write(LogLevel.Information, "Mapping sent to the collector", ("Action", change.Action), ("UserName", change.User.Name), ("UserSid", change.User.Sid), ("SourceIp", change.Ip), ("Reason", change.Reason), ("Generation", change.Generation));
+            logger.Write(LogEvents.MappingSent(change.Action), ("UserName", change.User.Name), ("UserSid", change.User.Sid), ("SourceIp", change.Ip), ("Reason", change.Reason), ("Generation", change.Generation));
         }
         catch (Exception e) when (e is SocketException or IOException or OperationCanceledException)
         {
             Recovery.Failed();
-            logger.Write(LogLevel.Error, "Local syslog delivery failed", ("Action", change.Action), ("UserName", change.User.Name), ("UserSid", change.User.Sid), ("SourceIp", change.Ip), ("Reason", change.Reason), ("Generation", change.Generation), ("ErrorType", e.GetType().Name));
+            logger.Write(LogEvents.MappingFailed(change.Action), ("UserName", change.User.Name), ("UserSid", change.User.Sid), ("SourceIp", change.Ip), ("Reason", change.Reason), ("Generation", change.Generation), ("ErrorType", e.GetType().Name));
         }
     }
 

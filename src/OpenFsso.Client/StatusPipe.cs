@@ -27,7 +27,7 @@ public sealed class StatusPipe(Ownership ownership, ClientStatusJournal journal,
             {
                 if (!warned)
                 {
-                    logger.Write(LogLevel.Warning, "Status pipe is unavailable; the tray shows the service as unavailable until it is created", ("ErrorType", e.GetType().Name));
+                    logger.Write(LogEvents.StatusPipeUnavailable, ("ErrorType", e.GetType().Name));
                     warned = true;
                 }
 
@@ -37,7 +37,7 @@ public sealed class StatusPipe(Ownership ownership, ClientStatusJournal journal,
 
             if (warned)
             {
-                logger.LogInformation("Status pipe created");
+                logger.Write(LogEvents.StatusPipeCreated);
             }
 
             using (reservation)

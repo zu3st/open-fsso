@@ -17,7 +17,7 @@ public sealed class RejectionLog(ILogger logger, TimeProvider clock)
         if (Allow())
         {
             // Only a parsed address reaches the log, never the client's raw text.
-            logger.Write(LogLevel.Warning, "Rejected socket IP claim", ("ClaimedIp", IPAddress.TryParse(claimed, out var ip) ? ip.ToString() : "invalid"), ("SourceIp", source.ToString()));
+            logger.Write(LogEvents.IpClaimRejected, ("ClaimedIp", IPAddress.TryParse(claimed, out var ip) ? ip.ToString() : "invalid"), ("SourceIp", source.ToString()));
         }
     }
 
@@ -25,16 +25,16 @@ public sealed class RejectionLog(ILogger logger, TimeProvider clock)
     {
         if (Allow())
         {
-            logger.Write(LogLevel.Warning, "Rejected authenticated identity", ("AuthenticationType", authenticationType));
+            logger.Write(LogEvents.IdentityRejected, ("AuthenticationType", authenticationType));
         }
     }
 
     // Authenticated users, so these are not rate limited.
     public void AccountRevoked(AuthenticatedUser user, string detail) =>
-        logger.Write(LogLevel.Warning, "Account revoked by the domain; mappings removed", ("UserName", user.Name), ("UserSid", user.Sid), ("ErrorCode", detail));
+        logger.Write(LogEvents.AccountRevoked, ("UserName", user.Name), ("UserSid", user.Sid), ("ErrorCode", detail));
 
     public void AccountUnknown(AuthenticatedUser user, string detail) =>
-        logger.Write(LogLevel.Warning, "Account status check failed; mapping allowed", ("UserName", user.Name), ("UserSid", user.Sid), ("ErrorCode", detail));
+        logger.Write(LogEvents.AccountUnknown, ("UserName", user.Name), ("UserSid", user.Sid), ("ErrorCode", detail));
 
     private bool Allow()
     {
@@ -62,7 +62,7 @@ public sealed class RejectionLog(ILogger logger, TimeProvider clock)
 
         if (dropped > 0)
         {
-            logger.Write(LogLevel.Warning, "Suppressed further rejection warnings in the previous minute", ("Suppressed", dropped));
+            logger.Write(LogEvents.RejectionsSuppressed, ("Suppressed", dropped));
         }
 
         return allowed;

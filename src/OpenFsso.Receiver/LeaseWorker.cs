@@ -28,7 +28,7 @@ public sealed class LeaseWorker(SerializedLeases leases, SyslogRelay relay, Rece
             bool restart = pid != 0 && pid != previousPid;
             if ((pid != 0) != collectorAvailable)
             {
-                logger.Write(LogLevel.Warning, "Collector availability changed", ("CollectorAvailable", pid != 0), ("CollectorPid", pid));
+                logger.Write(LogEvents.CollectorChanged, ("CollectorAvailable", pid != 0), ("CollectorPid", pid));
             }
 
             Volatile.Write(ref collectorAvailable, pid != 0);

@@ -60,7 +60,7 @@ using (var identity = WindowsIdentity.GetCurrent())
 using var service = new AgentService(() =>
 {
     var options = ReadOptions();
-    var log = OpenFsso.Logging.Logging.Create(options.LogDirectory, "open-fsso-client", 20L * 1024 * 1024);
+    var log = OpenFsso.Logging.Logging.Create(options.LogDirectory, "open-fsso-client", "OpenFssoClient", 20L * 1024 * 1024);
     try
     {
         var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings { Args = [], ContentRootPath = AppContext.BaseDirectory });

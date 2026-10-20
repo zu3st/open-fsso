@@ -68,7 +68,7 @@ await console.Stop();
 async Task<ReceiverRuntime> Start()
 {
     var options = ReadOptions();
-    var log = OpenFsso.Logging.Logging.Create(options.LogDirectory, "open-fsso-receiver", 100L * 1024 * 1024, options.HealthApiKey);
+    var log = OpenFsso.Logging.Logging.Create(options.LogDirectory, "open-fsso-receiver", options.ServiceName, 100L * 1024 * 1024, options.HealthApiKey);
     var builder = WebApplication.CreateBuilder(new WebApplicationOptions { Args = [], ContentRootPath = AppContext.BaseDirectory });
     // Only the YAML file configures the receiver. Forwarded headers stay off,
     // since the client's IP address must come from the TCP connection.
@@ -122,13 +122,17 @@ async Task<ReceiverRuntime> Start()
             context.Response.Headers.Connection = "close";
             if (timing == null && Interlocked.Exchange(ref timingWarning, 1) == 0)
             {
-                app.Logger.LogError("Native HTTP.sys connection timing is unavailable; requests fail closed");
+                app.Logger.Write(LogEvents.ConnectionTimingUnavailable);
             }
 
             return;
         }
 
-        await next(context);
+        // Every log line of a request names the client's address, including the framework's authentication events.
+        using (app.Logger.BeginScope(new List<KeyValuePair<string, object?>> { new("SourceIp", context.Connection.RemoteIpAddress?.ToString()) }))
+        {
+            await next(context);
+        }
     });
     app.UseAuthentication();
     app.UseAuthorization();
@@ -188,7 +192,7 @@ async Task<ReceiverRuntime> Start()
 
     startup.Activate(System.Diagnostics.Stopwatch.GetTimestamp());
     Volatile.Write(ref ready, 1);
-    app.Logger.Write(LogLevel.Information, "Receiver ready; Kerberos presence authentication and strict channel binding verified; Bearer health authentication enabled", ("Runtime", Environment.Version.ToString()));
+    app.Logger.Write(LogEvents.ReceiverReady, ("Runtime", Environment.Version.ToString()));
     return new ReceiverRuntime(app, async () =>
     {
         Volatile.Write(ref ready, 0);

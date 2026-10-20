@@ -35,7 +35,7 @@ public sealed class AgentService : ServiceBase
         });
         runtime.Ownership.Restore();
         runtime.Host.StartAsync().GetAwaiter().GetResult();
-        runtime.Host.Services.GetRequiredService<ILogger<AgentService>>().Write(LogLevel.Information, "Client service ready", ("Runtime", Environment.Version.ToString()));
+        runtime.Host.Services.GetRequiredService<ILogger<AgentService>>().Write(LogEvents.ClientReady, ("Runtime", Environment.Version.ToString()));
     }
 
     protected override void OnStop()

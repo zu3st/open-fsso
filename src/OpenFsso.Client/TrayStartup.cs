@@ -30,19 +30,19 @@ public sealed class TrayStartup(ILogger<TrayStartup> logger) : BackgroundService
                 try
                 {
                     uint pid = SessionProcess.Start(session.SessionId, executable);
-                    logger.Write(LogLevel.Information, "Tray launch requested", ("SessionId", session.SessionId), ("TrayPid", pid));
+                    logger.Write(LogEvents.TrayStarted, ("SessionId", session.SessionId), ("TrayPid", pid));
                 }
                 catch (Exception error) when (error is Win32Exception or InvalidOperationException or UnauthorizedAccessException)
                 {
                     // A session can disappear while installation is finishing.
                     // Tray availability must not prevent authentication service startup.
-                    logger.Write(LogLevel.Warning, error, "Could not start tray", ("SessionId", session.SessionId));
+                    logger.Write(error, LogEvents.TrayFailed, ("SessionId", session.SessionId));
                 }
             }
         }
         catch (Win32Exception error)
         {
-            logger.LogWarning(error, "Could not enumerate user sessions for tray startup");
+            logger.Write(error, LogEvents.SessionsUnavailable);
         }
 
         return Task.CompletedTask;
