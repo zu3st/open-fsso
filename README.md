@@ -101,12 +101,9 @@ The tray shows a blue dot while off-fabric.
 
 ## Fortinet collector
 
-The receiver sends syslog to the Collector Agent on the same host: a login when
-a mapping starts, a logout when it ends, and an hourly update for each active
-mapping. Use Collector Agent 5.0.0291 or later in Advanced Mode, with its
-syslog server enabled on UDP 514 (the receiver's `SyslogPort`).
-
-The default templates produce lines such as:
+Enable the Collector Agent's syslog server on the receiver's `SyslogPort`
+(UDP 514 by default). The receiver sends to it over loopback, so it runs on the
+Collector Agent's host, and sends lines such as:
 
 ```text
 <134>OpenFsso action=login user="EXAMPLE\alice" group="ignored-by-remote-LDAP" ip=192.0.2.31 
