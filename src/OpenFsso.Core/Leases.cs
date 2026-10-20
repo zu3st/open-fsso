@@ -7,11 +7,25 @@ public sealed record PresenceReply(Guid? LeaseReference, int LeaseSeconds, strin
 public sealed record AuthenticatedUser(string Sid, string Name);
 public sealed record MappingChange(string Action, string Ip, AuthenticatedUser User, Guid Generation, string Reason);
 public sealed record Decision(int Status, PresenceReply Reply, IReadOnlyList<MappingChange> Changes);
+
+// Valid: the domain accepts the account. Revoked: disabled, locked out, expired
+// or gone. Unknown: the check itself failed, so nothing changes.
+public enum AccountState
+{
+    Valid,
+    Revoked,
+    Unknown
+}
+
+// Detail names the domain's answer, such as the NTSTATUS codes, for the log.
+public sealed record AccountCheck(AccountState State, string Detail);
+
 public sealed class LeaseStore(TimeProvider clock, int leaseSeconds = 180)
 {
     private sealed record Lease(string Ip, AuthenticatedUser User, Guid Generation, Guid Reference, long Renewed);
     private readonly Dictionary<string, Lease> leases = new(StringComparer.Ordinal);
     private readonly Dictionary<Guid, Lease> references = [];
+    private readonly Dictionary<string, (long Since, TimeSpan For)> revoked = new(StringComparer.Ordinal);
     public int Count => leases.Count;
 
     public Decision Presence(AuthenticatedUser user, IPAddress peerAddress, PresenceRequest request)
@@ -20,6 +34,11 @@ public sealed class LeaseStore(TimeProvider clock, int leaseSeconds = 180)
         if (!Valid(peerAddress, request, out string ip) || string.IsNullOrWhiteSpace(user.Sid))
         {
             return Invalid();
+        }
+
+        if (IsRevoked(user.Sid))
+        {
+            return new(403, new(null, leaseSeconds, "account-revoked"), []);
         }
 
         // Each request touches only its own leases. The worker expires the rest.
@@ -120,6 +139,31 @@ public sealed class LeaseStore(TimeProvider clock, int leaseSeconds = 180)
     // "login" restores the collector's list after its restart or a lost send.
     // "update" keeps its entries from reaching the dead entry timeout.
     public IReadOnlyList<MappingChange> Reassert(string action) => leases.Values.Select(x => new MappingChange(action, x.Ip, x.User, x.Generation, "collector-reassert")).ToArray();
+
+    // True while a revocation blocks the account from new mappings.
+    public bool IsRevoked(string sid)
+    {
+        if (revoked.TryGetValue(sid, out var block) && clock.GetElapsedTime(block.Since) < block.For)
+        {
+            return true;
+        }
+
+        revoked.Remove(sid);
+        return false;
+    }
+
+    // Removes the account's mappings and refuses new ones for the given time.
+    public IReadOnlyList<MappingChange> Revoke(string sid, TimeSpan block)
+    {
+        var changes = new List<MappingChange>();
+        foreach (var lease in leases.Values.Where(x => x.User.Sid == sid).ToArray())
+        {
+            Remove(lease, "account-revoked", changes);
+        }
+
+        revoked[sid] = (clock.GetTimestamp(), block);
+        return changes;
+    }
     private void Remove(Lease lease, string reason, List<MappingChange> changes)
     {
         leases.Remove(lease.Ip);
@@ -153,6 +197,37 @@ public sealed class SerializedLeases(LeaseStore store, Func<MappingChange, Task>
             }
 
             return decision;
+        }
+        finally
+        {
+            pipeline.Release();
+        }
+    }
+
+    public async Task<bool> IsRevokedAsync(string sid, CancellationToken ct)
+    {
+        await pipeline.WaitAsync(ct);
+        try
+        {
+            return store.IsRevoked(sid);
+        }
+        finally
+        {
+            pipeline.Release();
+        }
+    }
+
+    public async Task RevokeAsync(string sid, TimeSpan block, CancellationToken ct)
+    {
+        await pipeline.WaitAsync(ct);
+        try
+        {
+            var changes = store.Revoke(sid, block);
+            Volatile.Write(ref count, store.Count);
+            foreach (var change in changes)
+            {
+                await emit(change);
+            }
         }
         finally
         {

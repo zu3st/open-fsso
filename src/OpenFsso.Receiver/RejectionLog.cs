@@ -1,4 +1,5 @@
 using System.Net;
+using OpenFsso.Core;
 using OpenFsso.Logging;
 
 namespace OpenFsso.Receiver;
@@ -27,6 +28,13 @@ public sealed class RejectionLog(ILogger logger, TimeProvider clock)
             logger.Write(LogLevel.Warning, "Rejected authenticated identity", ("AuthenticationType", authenticationType));
         }
     }
+
+    // Authenticated users, so these are not rate limited.
+    public void AccountRevoked(AuthenticatedUser user, string detail) =>
+        logger.Write(LogLevel.Warning, "Account revoked by the domain; mappings removed", ("UserName", user.Name), ("UserSid", user.Sid), ("ErrorCode", detail));
+
+    public void AccountUnknown(AuthenticatedUser user, string detail) =>
+        logger.Write(LogLevel.Warning, "Account status check failed; mapping allowed", ("UserName", user.Name), ("UserSid", user.Sid), ("ErrorCode", detail));
 
     private bool Allow()
     {

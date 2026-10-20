@@ -21,7 +21,7 @@ public sealed class PresenceSessionTests
 {
     private static readonly Guid Generation = Guid.Parse("11111111-1111-1111-1111-111111111111");
 
-    private static async Task<(WebApplication App, List<MappingChange> Changes)> Start(CancellationToken stopping = default, TimeSpan? lifetime = null)
+    private static async Task<(WebApplication App, List<MappingChange> Changes)> Start(CancellationToken stopping = default, TimeSpan? lifetime = null, Func<AuthenticatedUser, AccountCheck>? check = null)
     {
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
@@ -39,7 +39,7 @@ public sealed class PresenceSessionTests
             context.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, "DOMAIN\\Alice"), new Claim(ClaimTypes.PrimarySid, "S-1-5-21-1")], "Windows"));
             return next(context);
         });
-        app.Map("/v1/session", (HttpContext context) => PresenceSession.Run(context, leases, new RejectionLog(NullLogger.Instance, TimeProvider.System), stopping, lifetime));
+        app.Map("/v1/session", (HttpContext context) => PresenceSession.Run(context, leases, new RejectionLog(NullLogger.Instance, TimeProvider.System), check, stopping, lifetime));
         await app.StartAsync();
         return (app, changes);
     }
@@ -69,6 +69,32 @@ public sealed class PresenceSessionTests
 
         Assert.AreEqual("login", changes.Single().Action);
         Assert.AreEqual("DOMAIN\\Alice", changes.Single().User.Name);
+    }
+
+    [TestMethod]
+    public async Task ARevokedAccountIsLoggedOutAndRefusedWithoutAskingTheDomainAgain()
+    {
+        var states = new Queue<AccountState>([AccountState.Valid, AccountState.Revoked]);
+        int checks = 0;
+        var (app, changes) = await Start(check: _ =>
+        {
+            checks++;
+            return new(states.Dequeue(), "test");
+        });
+        await using var _ = app;
+        var client = app.GetTestServer().CreateWebSocketClient();
+        using (var socket = await client.ConnectAsync(new Uri("ws://localhost/v1/session"), default))
+        {
+            Assert.AreEqual(200, (await Exchange(socket, Presence("192.0.2.10"))).Status);
+        }
+
+        // The next authentication finds the account revoked: logout, then 403.
+        var refused = await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => client.ConnectAsync(new Uri("ws://localhost/v1/session"), default));
+        StringAssert.Contains(refused.Message, "403");
+        Assert.AreEqual("logout", changes.Last().Action);
+        Assert.AreEqual("account-revoked", changes.Last().Reason);
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => client.ConnectAsync(new Uri("ws://localhost/v1/session"), default));
+        Assert.AreEqual(2, checks);
     }
 
     [TestMethod]

@@ -19,9 +19,15 @@ public static class PresenceSession
     // renewing. The spread keeps clients from reconnecting all at once.
     private static TimeSpan Lifetime() => TimeSpan.FromMinutes(50 + Random.Shared.NextDouble() * 20);
 
+    // A Kerberos ticket outlives its account, so a revoked account is refused
+    // for this long before the domain is asked again.
+    public static readonly TimeSpan RevocationBlock = TimeSpan.FromHours(1);
+
     // stopping ends every session when the receiver shuts down, so a restart
     // need not wait for clients and they reconnect to the new process.
-    public static async Task Run(HttpContext context, SerializedLeases leases, RejectionLog rejections, CancellationToken stopping, TimeSpan? lifetime = null)
+    // check asks the domain about the account at each authentication, which
+    // happens once per session, so about every hour.
+    public static async Task Run(HttpContext context, SerializedLeases leases, RejectionLog rejections, Func<AuthenticatedUser, AccountCheck>? check, CancellationToken stopping, TimeSpan? lifetime = null)
     {
         if (!context.WebSockets.IsWebSocketRequest || context.Connection.RemoteIpAddress is not { } peer)
         {
@@ -30,6 +36,28 @@ public static class PresenceSession
         }
 
         var user = new AuthenticatedUser(context.User.FindFirstValue(ClaimTypes.PrimarySid)!, context.User.Identity!.Name!);
+        if (await leases.IsRevokedAsync(user.Sid, context.RequestAborted))
+        {
+            context.Response.StatusCode = 403;
+            return;
+        }
+
+        if (check != null)
+        {
+            var account = check(user);
+            if (account.State == AccountState.Revoked)
+            {
+                rejections.AccountRevoked(user, account.Detail);
+                await leases.RevokeAsync(user.Sid, RevocationBlock, context.RequestAborted);
+                context.Response.StatusCode = 403;
+                return;
+            }
+
+            if (account.State == AccountState.Unknown)
+            {
+                rejections.AccountUnknown(user, account.Detail);
+            }
+        }
         using var socket = await context.WebSockets.AcceptWebSocketAsync();
         // Cancelling a pending receive would abort the socket without a close
         // frame, so send the close beside it and let the client's reply end the loop.

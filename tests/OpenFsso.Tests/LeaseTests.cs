@@ -291,4 +291,41 @@ public sealed class LeaseTests
         await Assert.ThrowsAsync<IOException>(() => pipeline.TickAsync(null, default));
         Assert.AreEqual(0, pipeline.Count);
     }
+
+    [TestMethod]
+    public async Task RevokedAccountsAreLoggedOutAndRefusedForTheBlock()
+    {
+        var clock = new FakeTimeProvider();
+        var emitted = new List<MappingChange>();
+        var pipeline = new SerializedLeases(new LeaseStore(clock), change =>
+        {
+            emitted.Add(change);
+            return Task.CompletedTask;
+        });
+        var other = IPAddress.Parse("192.0.2.11");
+        var bobsRequest = new PresenceRequest(1, B, other.ToString());
+        Assert.AreEqual(200, (await pipeline.PresenceAsync(Alice, Ip, Request(A), default)).Status);
+        var bobsLease = await pipeline.PresenceAsync(Bob, other, bobsRequest, default);
+        Assert.AreEqual(200, bobsLease.Status);
+        bobsRequest = bobsRequest with
+        {
+            LeaseReference = bobsLease.Reply.LeaseReference
+        };
+        Assert.IsFalse(await pipeline.IsRevokedAsync(Alice.Sid, default));
+
+        await pipeline.RevokeAsync(Alice.Sid, TimeSpan.FromHours(1), default);
+        Assert.AreEqual(1, pipeline.Count);
+        Assert.AreEqual("logout", emitted.Last().Action);
+        Assert.AreEqual("account-revoked", emitted.Last().Reason);
+        Assert.AreEqual(Alice, emitted.Last().User);
+        Assert.IsTrue(await pipeline.IsRevokedAsync(Alice.Sid, default));
+        var refused = await pipeline.PresenceAsync(Alice, Ip, Request(A), default);
+        Assert.AreEqual(403, refused.Status);
+        Assert.AreEqual("account-revoked", refused.Reply.Error);
+        Assert.AreEqual(200, (await pipeline.PresenceAsync(Bob, other, bobsRequest, default)).Status);
+
+        clock.Advance(TimeSpan.FromHours(1));
+        Assert.IsFalse(await pipeline.IsRevokedAsync(Alice.Sid, default));
+        Assert.AreEqual(200, (await pipeline.PresenceAsync(Alice, Ip, Request(A), default)).Status);
+    }
 }

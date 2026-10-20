@@ -180,6 +180,11 @@ curl --header "Authorization: Bearer $HEALTH_API_KEY" https://receiver-a.example
 - **Identity** comes only from the receiver's Kerberos authentication of the
   signed-in user, over TLS with strict channel binding. Each client keeps one
   session per receiver and authenticates it again about every hour.
+- **Account status:** a Kerberos ticket stays valid after its account is
+  disabled, so at each authentication the receiver asks the domain about the
+  account with an S4U logon as its computer account. Disabled, locked-out,
+  expired and deleted accounts are logged out and refused for an hour. Each
+  check is a network logon (event 4624) on the receiver host.
 - **IP address:** the client reports the local address of its connection, and
   the receiver accepts it only if it equals the connection's peer address.
 - **Selected user:** the most recent console logon or unlock wins. Lock keeps the

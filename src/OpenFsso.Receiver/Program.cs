@@ -96,6 +96,7 @@ async Task<ReceiverRuntime> Start()
     builder.Services.AddSingleton(new LeaseStore(TimeProvider.System, ReceiverOptions.LeaseSeconds));
     builder.Services.AddSingleton<SyslogRelay>();
     builder.Services.AddSingleton(sp => new SerializedLeases(sp.GetRequiredService<LeaseStore>(), sp.GetRequiredService<SyslogRelay>().Emit));
+    builder.Services.AddSingleton<LsaAccountStatus>();
     builder.Services.AddSingleton<LeaseWorker>();
     builder.Services.AddHostedService(sp => sp.GetRequiredService<LeaseWorker>());
     var app = builder.Build();
@@ -161,7 +162,8 @@ async Task<ReceiverRuntime> Start()
         return Results.Json(decision.Reply, WireJson.Default.PresenceReply, statusCode: decision.Status);
     }
 
-    app.Map("/v1/session", (HttpContext context, SerializedLeases leases) => PresenceSession.Run(context, leases, rejections, app.Lifetime.ApplicationStopping));
+    var accounts = app.Services.GetRequiredService<LsaAccountStatus>();
+    app.Map("/v1/session", (HttpContext context, SerializedLeases leases) => PresenceSession.Run(context, leases, rejections, accounts.Check, app.Lifetime.ApplicationStopping));
     // Release follows logoff, when the user's Kerberos credentials no longer exist.
     // The lease reference returned with each presence authorizes it instead.
     app.MapPost("/v1/release", (HttpContext context, SerializedLeases leases) => Mapping(context, leases.ReleaseAsync)).AllowAnonymous();
