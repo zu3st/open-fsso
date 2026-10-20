@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.34
+
+- The client uses one address for FSSO: the local address routed to the first
+  receiver. Every receiver connection is bound to it, so all receivers map the
+  same address. Fabric changes and address changes are logged with `source.ip`.
+- The first attempt fails after 1 second instead of up to 15, and the timeout
+  grows with the back-off (2, 4, 8 and 15 seconds).
+- Logs no longer carry the `process` block.
+
 ## 0.1.33
 
 - `OpenFsso.Client.exe --status` prints the client status as JSON and exits with
