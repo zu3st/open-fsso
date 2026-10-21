@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.38
+
+- Elastic integration 0.1.2. The receivers dashboard selects clients by
+  address instead of the receiver's own host.
+
 ## 0.1.37
 
 - Receiver logs name the receiver by its host name in `service.node.name`
