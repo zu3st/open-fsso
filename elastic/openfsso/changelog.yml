@@ -1,4 +1,9 @@
 # newer versions go on top
+- version: "0.1.2"
+  changes:
+    - description: The receivers dashboard selects clients by address instead of the receiver's own host.
+      type: enhancement
+      link: https://github.com/zu3st/open-fsso/issues/1
 - version: "0.1.1"
   changes:
     - description: The dashboard controls use data views of their own data stream, so they list only OpenFSSO values and find service.node.name.

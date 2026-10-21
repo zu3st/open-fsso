@@ -1738,16 +1738,16 @@
                 "ignoreValidations": false
             },
             "panelsJSON": {
-                "cc6ddf1f-88d0-c1ae-e268-594c1cc8fa07": {
+                "875e4491-4231-41e2-91cb-550e22464841": {
                     "grow": false,
                     "order": 0,
                     "width": "medium",
                     "type": "optionsListControl",
                     "explicitInput": {
-                        "id": "cc6ddf1f-88d0-c1ae-e268-594c1cc8fa07",
+                        "id": "875e4491-4231-41e2-91cb-550e22464841",
                         "dataViewId": "openfsso-receiver",
-                        "fieldName": "host.name",
-                        "title": "Host",
+                        "fieldName": "source.ip",
+                        "title": "Client address",
                         "searchTechnique": "prefix",
                         "selectedOptions": [],
                         "sort": {
@@ -1815,7 +1815,7 @@
         {
             "type": "index-pattern",
             "id": "openfsso-receiver",
-            "name": "controlGroup_cc6ddf1f-88d0-c1ae-e268-594c1cc8fa07:optionsListDataView"
+            "name": "controlGroup_875e4491-4231-41e2-91cb-550e22464841:optionsListDataView"
         },
         {
             "type": "index-pattern",

@@ -11,9 +11,9 @@ dashboards:
         equals: openfsso.receiver
     controls:
       - type: options
-        label: Host
+        label: Client address
         data_view: openfsso-receiver
-        field: host.name
+        field: source.ip
       - type: options
         label: Receiver
         data_view: openfsso-receiver
