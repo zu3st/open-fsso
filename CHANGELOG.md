@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.39
+
+- The tray icon no longer freezes on an old state after Windows recreates the
+  taskbar. The tooltip counts whole minutes.
+- A receiver that cannot reach a domain controller keeps admitting sessions.
+  Account checks run in parallel, and while one has waited over a second for
+  the domain, later sessions are admitted without a check, as for any failed
+  check. Before, each session waited about 12 seconds in a single queue.
+
 ## 0.1.38
 
 - Elastic integration 0.1.2. The receivers dashboard selects clients by

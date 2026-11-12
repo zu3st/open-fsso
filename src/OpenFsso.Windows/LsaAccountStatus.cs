@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using OpenFsso.Core;
@@ -20,7 +21,10 @@ public sealed unsafe class LsaAccountStatus : IDisposable
     private readonly Dictionary<string, string> dnsDomains = new(StringComparer.OrdinalIgnoreCase);
     private const uint StatusAccountRestriction = 0xC000006E, StatusLogonFailure = 0xC000006D, StatusNoSuchUser = 0xC0000064;
     private const uint StatusAccountDisabled = 0xC0000072, StatusAccountLockedOut = 0xC0000234, StatusAccountExpired = 0xC0000193;
-    private readonly object gate = new();
+    // A check that has waited this long means the domain is not answering.
+    private static readonly TimeSpan Slow = TimeSpan.FromSeconds(1);
+    // Start of the oldest check in flight, 0 when none.
+    private long oldest;
     private HANDLE lsa;
     private readonly uint package;
 
@@ -42,6 +46,28 @@ public sealed unsafe class LsaAccountStatus : IDisposable
 
     // account is DOMAIN\name, as HTTP.sys authenticated it.
     public AccountCheck Query(string account)
+    {
+        long running = Interlocked.CompareExchange(ref oldest, Stopwatch.GetTimestamp(), 0);
+        // While one check hangs on an unreachable domain, later ones do not queue behind it.
+        if (running != 0 && Stopwatch.GetElapsedTime(running) > Slow)
+        {
+            return new(AccountState.Unknown, "domain-not-answering");
+        }
+
+        try
+        {
+            return Ask(account);
+        }
+        finally
+        {
+            if (running == 0)
+            {
+                Volatile.Write(ref oldest, 0);
+            }
+        }
+    }
+
+    private AccountCheck Ask(string account)
     {
         int slash = account.IndexOf('\\');
         if (slash <= 0 || slash == account.Length - 1)
@@ -81,10 +107,7 @@ public sealed unsafe class LsaAccountStatus : IDisposable
             fixed (byte* origin = "OpenFsso\0"u8)
             {
                 var originName = new LSA_STRING { Length = 8, MaximumLength = 9, Buffer = new PSTR(origin) };
-                lock (gate)
-                {
-                    status = PInvoke.LsaLogonUser(lsa, &originName, SECURITY_LOGON_TYPE.Network, package, buffer, (uint)(header + name.Length), null, &source, &profile, &profileLength, &logonId, &token, &quotas, &sub);
-                }
+                status = PInvoke.LsaLogonUser(lsa, &originName, SECURITY_LOGON_TYPE.Network, package, buffer, (uint)(header + name.Length), null, &source, &profile, &profileLength, &logonId, &token, &quotas, &sub);
             }
 
             if (profile != null)
