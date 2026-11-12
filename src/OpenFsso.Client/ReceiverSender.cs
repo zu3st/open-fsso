@@ -22,10 +22,10 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
     private bool failed;
     private DirectKerberosTransport? presence;
     private Guid presenceGeneration;
-    private volatile bool reconnect;
+    private int reconnect;
     public void Wake()
     {
-        reconnect = true; // Owner, fabric, network and resume changes all start a new connection.
+        Volatile.Write(ref reconnect, 1); // Owner, fabric, network and resume changes all start a new connection.
         lock (gate)
         {
             active?.Cancel();
@@ -86,12 +86,12 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
                 }
 
                 string source = location.SourceIp ?? throw new SocketException((int)SocketError.NetworkUnreachable);
-                if (reconnect || operation == "release" || presenceGeneration != owner.Generation || presence?.ConnectedFrom(source) == false)
+                // Read and cleared in one step, so a wake during this cycle is kept for the next.
+                if (Interlocked.Exchange(ref reconnect, 0) != 0 || operation == "release" || presenceGeneration != owner.Generation || presence?.ConnectedFrom(source) == false)
                 {
                     Disconnect();
                 }
 
-                reconnect = false;
                 // Release uses its own connection without a Kerberos proof.
                 using var release = operation == "release" ? new DirectKerberosTransport(endpoint, package: null) : null;
                 if (release == null)
@@ -118,8 +118,8 @@ public sealed class ReceiverSender(ReceiverEndpoint endpoint, Ownership ownershi
                     return new PresenceRequest(1, owner.Generation, ip, reference);
                 }
 
-                // The first attempt fails fast; the timeout grows with the back-off.
-                var timeout = TimeSpan.FromSeconds(Math.Min(15, 1 << failures));
+                // The first attempt allows for a cold connection; the timeout grows with the back-off.
+                var timeout = TimeSpan.FromSeconds(Math.Min(15, 4 << failures));
                 var reply = release == null
                     ? await presence!.SendAsync(token, IPAddress.Parse(source), timeout, Body, cycle.Token)
                     : await release.PostAsync(null, "release", IPAddress.Parse(source), timeout, Body, cycle.Token);
