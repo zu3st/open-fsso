@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.WebSockets;
 using System.Security.Claims;
@@ -23,6 +24,11 @@ public static class PresenceSession
     // for this long before the domain is asked again.
     public static readonly TimeSpan RevocationBlock = TimeSpan.FromHours(1);
 
+    // A client holds one session per receiver, so more from one address are
+    // refused before they cost an account check.
+    public const int MaximumPerAddress = 8;
+    private static readonly ConcurrentDictionary<IPAddress, int> open = new();
+
     // stopping ends every session when the receiver shuts down, so a restart
     // need not wait for clients and they reconnect to the new process.
     // check asks the domain about the account at each authentication, which
@@ -35,6 +41,28 @@ public static class PresenceSession
             return;
         }
 
+        peer = LeaseStore.Normalize(peer);
+        try
+        {
+            if (open.AddOrUpdate(peer, 1, (_, count) => count + 1) > MaximumPerAddress)
+            {
+                context.Response.StatusCode = 429;
+                return;
+            }
+
+            await Admit(context, peer, leases, rejections, check, stopping, lifetime);
+        }
+        finally
+        {
+            // Removes the entry at zero, retrying when another session changed it.
+            while (open.TryGetValue(peer, out int count) && !(count == 1 ? open.TryRemove(new(peer, count)) : open.TryUpdate(peer, count - 1, count)))
+            {
+            }
+        }
+    }
+
+    private static async Task Admit(HttpContext context, IPAddress peer, SerializedLeases leases, RejectionLog rejections, Func<AuthenticatedUser, AccountCheck>? check, CancellationToken stopping, TimeSpan? lifetime)
+    {
         var user = new AuthenticatedUser(context.User.FindFirstValue(ClaimTypes.PrimarySid)!, context.User.Identity!.Name!);
         if (await leases.IsRevokedAsync(user.Sid, context.RequestAborted))
         {
@@ -108,6 +136,12 @@ public static class PresenceSession
             }
 
             await socket.SendAsync(JsonSerializer.SerializeToUtf8Bytes(reply, WireJson.Default.SessionReply), WebSocketMessageType.Text, true, idle.Token);
+            if (reply.Status == 403)
+            {
+                // A revoked account's session ends, so it cannot outlast the block.
+                await Close(socket, WebSocketCloseStatus.PolicyViolation);
+                return;
+            }
         }
     }
 

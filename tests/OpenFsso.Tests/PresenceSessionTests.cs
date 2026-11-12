@@ -98,6 +98,45 @@ public sealed class PresenceSessionTests
     }
 
     [TestMethod]
+    public async Task AnOpenSessionOfARevokedAccountIsRefusedAndClosed()
+    {
+        var states = new Queue<AccountState>([AccountState.Valid, AccountState.Revoked]);
+        var (app, _) = await Start(check: _ => new(states.Dequeue(), "test"));
+        await using var _app = app;
+        var client = app.GetTestServer().CreateWebSocketClient();
+        using var socket = await client.ConnectAsync(new Uri("ws://localhost/v1/session"), default);
+        Assert.AreEqual(200, (await Exchange(socket, Presence("192.0.2.10"))).Status);
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => client.ConnectAsync(new Uri("ws://localhost/v1/session"), default));
+        Assert.AreEqual(403, (await Exchange(socket, Presence("192.0.2.10"))).Status);
+        var result = await socket.ReceiveAsync(new byte[16], new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token);
+        Assert.AreEqual(WebSocketMessageType.Close, result.MessageType);
+        Assert.AreEqual(WebSocketCloseStatus.PolicyViolation, socket.CloseStatus);
+    }
+
+    [TestMethod]
+    public async Task OneAddressHoldsALimitedNumberOfSessions()
+    {
+        var (app, _) = await Start();
+        await using var _app = app;
+        var client = app.GetTestServer().CreateWebSocketClient();
+        var sockets = new List<WebSocket>();
+        try
+        {
+            for (int session = 0; session < PresenceSession.MaximumPerAddress; session++)
+            {
+                sockets.Add(await client.ConnectAsync(new Uri("ws://localhost/v1/session"), default));
+            }
+
+            var refused = await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => client.ConnectAsync(new Uri("ws://localhost/v1/session"), default));
+            StringAssert.Contains(refused.Message, "429");
+        }
+        finally
+        {
+            sockets.ForEach(socket => socket.Dispose());
+        }
+    }
+
+    [TestMethod]
     public async Task StoppingTheReceiverClosesSessionsAsGoingAway()
     {
         using var stopping = new CancellationTokenSource();
