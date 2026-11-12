@@ -88,7 +88,9 @@ internal sealed class TrayApplication : IDisposable
     {
         data.hIcon = Icon();
         data.szTip = current.Tooltip();
-        registered = Shell_NotifyIcon(NOTIFY_ICON_MESSAGE.NIM_ADD, data);
+        // Explorer refuses to add an icon it still holds, for example after a
+        // taskbar recreation that kept the icons, so the icon is updated instead.
+        registered = Shell_NotifyIcon(NOTIFY_ICON_MESSAGE.NIM_ADD, data) || Shell_NotifyIcon(NOTIFY_ICON_MESSAGE.NIM_MODIFY, data);
         if (registered)
         {
             data.Anonymous.uVersion = NOTIFYICON_VERSION_4;

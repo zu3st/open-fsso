@@ -159,7 +159,15 @@ public sealed class ClientStatusTests
     public void HealthyTooltipShowsOneRelativeTimeForLatestAcknowledgement()
     {
         var view = ClientStatusView.Create(new(1, Now, "Alice", [new("A", "192.0.2.1", LastSentUtc: Now.AddSeconds(-50)), new("B", "192.0.2.1", LastSentUtc: Now.AddSeconds(-12))]), Now);
-        Assert.AreEqual("User: Alice\nIP: 192.0.2.1\nLast sent: 12 seconds ago", view.Text);
+        Assert.AreEqual("User: Alice\nIP: 192.0.2.1\nLast sent: under a minute ago", view.Text);
         Assert.AreEqual("OpenFSSO - Connected", view.Title);
+    }
+
+    [TestMethod]
+    public void TooltipStaysUnchangedWithinAMinuteAndCountsWholeMinutes()
+    {
+        string Text(int seconds) => ClientStatusView.Create(new(1, Now, "Alice", [new("A", "192.0.2.1", LastSentUtc: Now.AddSeconds(-seconds))]), Now).Text;
+        Assert.AreEqual(Text(2), Text(58));
+        Assert.EndsWith("Last sent: 3 minutes ago\nA: last acknowledgement is stale", Text(200));
     }
 }

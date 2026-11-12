@@ -143,14 +143,16 @@ public sealed record ClientStatusView(ClientIndicator Indicator, string Title, s
     }
 
     private static string Clean(string text) => new(text.Take(160).Select(c => char.IsControl(c) ? ' ' : c).ToArray());
+    // Whole minutes keep the tooltip unchanged between renewals, so the tray
+    // updates the Shell only when something visible changes.
     private static string Ago(TimeSpan age)
     {
-        if (age.TotalSeconds < 1)
+        if (age.TotalMinutes < 1)
         {
-            return "just now";
+            return "under a minute ago";
         }
 
-        (int count, string unit) = age.TotalDays >= 1 ? ((int)age.TotalDays, "day") : age.TotalHours >= 1 ? ((int)age.TotalHours, "hour") : age.TotalMinutes >= 1 ? ((int)age.TotalMinutes, "minute") : ((int)age.TotalSeconds, "second");
+        (int count, string unit) = age.TotalDays >= 1 ? ((int)age.TotalDays, "day") : age.TotalHours >= 1 ? ((int)age.TotalHours, "hour") : ((int)age.TotalMinutes, "minute");
         return $"{count} {unit}{(count == 1 ? "" : "s")} ago";
     }
 }
