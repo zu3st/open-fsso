@@ -29,6 +29,15 @@ public sealed class RejectionLog(ILogger logger, TimeProvider clock)
         }
     }
 
+    // AuthenticationScheme keeps the field the framework's own event used.
+    public void HealthKey()
+    {
+        if (Allow())
+        {
+            logger.Write(LogEvents.HealthKeyRejected, ("AuthenticationScheme", ReceiverAuthentication.HealthKey));
+        }
+    }
+
     // Authenticated users, so these are not rate limited.
     public void AccountRevoked(AuthenticatedUser user, string detail) =>
         logger.Write(LogEvents.AccountRevoked, ("UserName", user.Name), ("UserSid", user.Sid), ("ErrorCode", detail));

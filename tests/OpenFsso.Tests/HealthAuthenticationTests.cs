@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using OpenFsso.Receiver;
 
 namespace OpenFsso.Tests;
@@ -54,6 +55,45 @@ public sealed class HealthAuthenticationTests
         }
 
         return await Client.SendAsync(request);
+    }
+
+    private sealed class CountingLogs : ILoggerProvider, ILogger
+    {
+        public int Count;
+        public ILogger CreateLogger(string category) => this;
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+        public bool IsEnabled(LogLevel level) => level >= LogLevel.Information;
+        public void Log<TState>(LogLevel level, EventId id, TState state, Exception? error, Func<TState, Exception?, string> format) => Interlocked.Increment(ref Count);
+        public void Dispose()
+        {
+        }
+    }
+
+    [TestMethod]
+    public async Task AnonymousRequestsCannotFloodTheLog()
+    {
+        var logs = new CountingLogs();
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseTestServer();
+        builder.Logging.ClearProviders().AddProvider(logs).AddFilter("Microsoft", LogLevel.Warning);
+        builder.Services.AddReceiverAuthentication(Key);
+        await using var flooded = builder.Build();
+        flooded.UseAuthentication();
+        flooded.UseAuthorization();
+        flooded.MapGet("/health", () => "healthy").RequireHealthKey();
+        flooded.Map("/v1/session", () => "session");
+        await flooded.StartAsync();
+        logs.Count = 0;
+        var client = flooded.GetTestClient();
+        for (int request = 0; request < 50; request++)
+        {
+            var wrong = new HttpRequestMessage(HttpMethod.Get, "/health");
+            wrong.Headers.TryAddWithoutValidation("Authorization", "Bearer wrong");
+            Assert.AreEqual(HttpStatusCode.Unauthorized, (await client.SendAsync(wrong)).StatusCode);
+            Assert.AreEqual(HttpStatusCode.Unauthorized, (await client.GetAsync("/v1/session")).StatusCode);
+        }
+
+        Assert.AreEqual(RejectionLog.Limit, logs.Count);
     }
 
     [TestMethod]

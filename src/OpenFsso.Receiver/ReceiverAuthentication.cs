@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using OpenFsso.Core;
 
@@ -38,7 +39,9 @@ public static class ReceiverAuthentication
 // HTTP.sys authenticates natively on the URL group; this exposes that identity.
 // The framework's own HTTP.sys scheme stays disabled because it would add a
 // Kerberos challenge to every 401, including the Bearer-only health route.
-internal sealed class WindowsHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, RejectionLog rejections) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
+// The framework logs every challenge and failure, which anonymous requests
+// could use to flood the log, so the handlers log through RejectionLog only.
+internal sealed class WindowsHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, UrlEncoder encoder, RejectionLog rejections) : AuthenticationHandler<AuthenticationSchemeOptions>(options, NullLoggerFactory.Instance, encoder)
 {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
@@ -76,7 +79,7 @@ public sealed class HealthKeyOptions : AuthenticationSchemeOptions
     public byte[] Digest { get; set; } = [];
 }
 
-internal sealed class HealthKeyHandler(IOptionsMonitor<HealthKeyOptions> options, ILoggerFactory logger, UrlEncoder encoder) : AuthenticationHandler<HealthKeyOptions>(options, logger, encoder)
+internal sealed class HealthKeyHandler(IOptionsMonitor<HealthKeyOptions> options, UrlEncoder encoder, RejectionLog rejections) : AuthenticationHandler<HealthKeyOptions>(options, NullLoggerFactory.Instance, encoder)
 {
     // Equal-length digests make the comparison constant time for any key length.
     public static byte[] Digest(string key) => SHA256.HashData(Encoding.UTF8.GetBytes(key));
@@ -89,9 +92,13 @@ internal sealed class HealthKeyHandler(IOptionsMonitor<HealthKeyOptions> options
             return Task.FromResult(AuthenticateResult.NoResult());
         }
 
-        return Task.FromResult(CryptographicOperations.FixedTimeEquals(Options.Digest, Digest(header.Parameter))
-            ? AuthenticateResult.Success(new(new ClaimsPrincipal(new ClaimsIdentity(Scheme.Name)), Scheme.Name))
-            : AuthenticateResult.Fail("Invalid health key."));
+        if (CryptographicOperations.FixedTimeEquals(Options.Digest, Digest(header.Parameter)))
+        {
+            return Task.FromResult(AuthenticateResult.Success(new(new ClaimsPrincipal(new ClaimsIdentity(Scheme.Name)), Scheme.Name)));
+        }
+
+        rejections.HealthKey();
+        return Task.FromResult(AuthenticateResult.Fail("Invalid health key."));
     }
 
     protected override Task HandleChallengeAsync(AuthenticationProperties properties)

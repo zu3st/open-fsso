@@ -13,6 +13,7 @@ public static class LogEvents
     public static readonly LoggedEvent CollectorChanged = new(LogLevel.Warning, "Collector availability changed", "collector-availability-changed", "process", "change");
     public static readonly LoggedEvent IpClaimRejected = new(LogLevel.Warning, "Rejected socket IP claim", "ip-claim-rejected", "network", "denied", "failure");
     public static readonly LoggedEvent IdentityRejected = new(LogLevel.Warning, "Rejected authenticated identity", "identity-rejected", "authentication", "info", "failure");
+    public static readonly LoggedEvent HealthKeyRejected = new(LogLevel.Warning, "Rejected health key", "health-key-rejected", "authentication", "info", "failure");
     public static readonly LoggedEvent AccountRevoked = new(LogLevel.Warning, "Account revoked by the domain; mappings removed", "account-revoked", "authentication", "info", "failure");
     public static readonly LoggedEvent AccountUnknown = new(LogLevel.Warning, "Account status check failed; mapping allowed", "account-check-failed", "authentication", "info", "unknown");
     public static readonly LoggedEvent RejectionsSuppressed = new(LogLevel.Warning, "Suppressed further rejection warnings in the previous minute", "rejection-warnings-suppressed");
