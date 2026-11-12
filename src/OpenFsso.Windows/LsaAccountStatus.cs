@@ -12,15 +12,17 @@ namespace OpenFsso.Windows;
 
 // Asks the domain whether an account is still valid with a Kerberos S4U logon,
 // as the receiver's computer account. The domain controller answers for
-// disabled, locked-out, expired and deleted accounts without any credentials
-// of the user. The token is closed at once and never used.
+// disabled, expired and deleted accounts without any credentials of the user.
+// A locked-out account keeps its mapping, as it keeps its Windows session:
+// anyone can lock an account out with wrong passwords.
+// The token is closed at once and never used.
 // The name goes as name@dns.domain: with a separate realm, LSA answers later
 // requests from its ticket cache instead of asking the domain controller.
 public sealed unsafe class LsaAccountStatus : IDisposable
 {
     private readonly Dictionary<string, string> dnsDomains = new(StringComparer.OrdinalIgnoreCase);
     private const uint StatusAccountRestriction = 0xC000006E, StatusLogonFailure = 0xC000006D, StatusNoSuchUser = 0xC0000064;
-    private const uint StatusAccountDisabled = 0xC0000072, StatusAccountLockedOut = 0xC0000234, StatusAccountExpired = 0xC0000193;
+    private const uint StatusAccountDisabled = 0xC0000072, StatusAccountExpired = 0xC0000193;
     // A check that has waited this long means the domain is not answering.
     private static readonly TimeSpan Slow = TimeSpan.FromSeconds(1);
     // Start of the oldest check in flight, 0 when none.
@@ -170,7 +172,7 @@ public sealed unsafe class LsaAccountStatus : IDisposable
     {
         0 => AccountState.Valid,
         StatusLogonFailure or StatusNoSuchUser => AccountState.Revoked,
-        StatusAccountRestriction when sub is StatusAccountDisabled or StatusAccountLockedOut or StatusAccountExpired => AccountState.Revoked,
+        StatusAccountRestriction when sub is StatusAccountDisabled or StatusAccountExpired => AccountState.Revoked,
         _ => AccountState.Unknown
     };
 

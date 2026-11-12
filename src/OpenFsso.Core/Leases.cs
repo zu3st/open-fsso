@@ -8,8 +8,8 @@ public sealed record AuthenticatedUser(string Sid, string Name);
 public sealed record MappingChange(string Action, string Ip, AuthenticatedUser User, Guid Generation, string Reason);
 public sealed record Decision(int Status, PresenceReply Reply, IReadOnlyList<MappingChange> Changes);
 
-// Valid: the domain accepts the account. Revoked: disabled, locked out, expired
-// or gone. Unknown: the check itself failed, so nothing changes.
+// Valid: the domain accepts the account. Revoked: disabled, expired or gone.
+// Unknown: the check itself failed, so nothing changes.
 public enum AccountState
 {
     Valid,
