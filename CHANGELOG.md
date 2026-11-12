@@ -8,6 +8,16 @@
   Account checks run in parallel, and while one has waited over a second for
   the domain, later sessions are admitted without a check, as for any failed
   check. Before, each session waited about 12 seconds in a single queue.
+- Anonymous requests can no longer flood the receiver log. Failed health key
+  checks are logged as `health-key-rejected`, at most 10 per minute together
+  with the other rejections, and authentication challenges are not logged.
+- A receiver accepts at most 8 sessions from one address and answers further
+  ones with 429.
+- A locked-out account keeps its mapping instead of being refused for an hour.
+- A session of a revoked account is closed at its next message.
+- The client's first attempt allows 4 seconds instead of 1, so a sign-in no
+  longer logs a delivery failure on a cold connection.
+- A wake that arrives while a client cycle starts is no longer lost.
 
 ## 0.1.38
 
